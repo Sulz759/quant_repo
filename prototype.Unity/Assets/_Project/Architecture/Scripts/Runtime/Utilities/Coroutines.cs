@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace _Project.Architecture
+namespace _Project.Architecture.Scripts.Runtime.Utilities
 {
 	public sealed class Coroutines : MonoBehaviour
 	{

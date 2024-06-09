@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-namespace _Project.Architecture
+namespace _Project.Architecture.Scripts.Runtime.Utilities.SceneManager
 {
 	public class Scene
 	{
@@ -39,11 +39,6 @@ namespace _Project.Architecture
 			_repositoriesBase.SendOnStartToAllRepositories();
 			yield return null;
 			Debug.Log($"{sceneConfig.sceneName} is loading");
-		}
-
-		public void BeginRepositories()
-		{
-			_repositoriesBase.BeginAllRepositories();
 		}
 
 		public T GetRepository<T>() where T : Repository 

@@ -1,33 +1,26 @@
 ﻿using System.Collections;
+using _Project.Architecture.Scripts.Runtime.Utilities;
+using _Project.Architecture.Scripts.Runtime.Utilities.SceneManager;
 using UnityEngine.Events;
 
-namespace _Project.Architecture
+namespace _Project.Architecture.Scripts.Runtime
 {
 	public static class Game
 	{
 		public static UnityEvent OnGameInitializedEvent;
-		
-		public static bool isRunning;
-		public static bool isPaused;
-		
+
 		public static SceneManagerBase sceneManager { get; private set; }
 		
 		public static void Run() 
 		{
 			sceneManager = new SceneManagerItem();
 			Coroutines.StartRoutine(InitializeGameRoutine());
-			isRunning = true;
 		}
-		public static void LoadNewScene(string sceneName) 
+		public static void LoadScene(string sceneName) 
 		{
 			sceneManager.LoadNewSceneAsync(sceneName);
 		}
 
-		public static void ReturnToPastScene()
-		{
-			sceneManager.LoadNewSceneAsync(sceneManager.pastScene.sceneConfig.sceneName);
-		}
-		
 		private static IEnumerator InitializeGameRoutine() 
 		{ 
 			sceneManager.InitScenesMap();
@@ -44,6 +37,5 @@ namespace _Project.Architecture
 		{
 			return sceneManager.GetRepository<T>();
 		}
-
 	}
 }

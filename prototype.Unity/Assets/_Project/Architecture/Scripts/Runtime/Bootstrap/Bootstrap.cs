@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using _Project.Architecture.Scripts.Runtime;
+using UnityEngine;
 
 namespace _Project.Architecture
 {
@@ -8,11 +9,6 @@ namespace _Project.Architecture
         {
             Application.targetFrameRate = 60;
             Game.Run();
-        }
-
-        public void StartNewGame()
-        {
-            Game.sceneManager.scene.BeginRepositories();
         }
     }
 }

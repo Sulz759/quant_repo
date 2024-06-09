@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace _Project.Architecture
+namespace _Project.Architecture.Scripts.Runtime.Utilities.SaveService
 {
     public class DataFromStreamingAssetsService: ILoaderService
     {

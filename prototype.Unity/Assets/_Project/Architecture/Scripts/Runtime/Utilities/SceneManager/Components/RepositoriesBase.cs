@@ -42,15 +42,7 @@ namespace _Project.Architecture
 				repository.OnStart();
 			}
 		}
-
-		public void BeginAllRepositories()
-		{
-			var allRepositories = this.repositoriesMap.Values;
-			foreach (var repository in allRepositories)
-			{
-				repository.OnBegin();
-			}
-		}
+		
 
 		public T GetRepository<T>() where T : Repository 
 		{

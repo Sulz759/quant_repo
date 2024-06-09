@@ -3,15 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.SceneManagement;
 
-namespace _Project.Architecture
+namespace _Project.Architecture.Scripts.Runtime.Utilities.SceneManager
 {
 	public abstract class SceneManagerBase
 	{
 		public UnityEvent OnSceneLoadedEvent = new(); // ранее возвращал Scene, убрал за ненадобностью
 		public Scene scene { get; private set; }
-		public Scene pastScene { get; private set; }
 		public bool isLoading { get; private set; }
 
 		protected Dictionary<string, SceneConfig> sceneConfigMap;
@@ -29,7 +27,7 @@ namespace _Project.Architecture
 			{
 				throw new Exception("Scene is loading now");
 			}
-			var sceneName = SceneManager.GetActiveScene().name;
+			var sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
 			var config = this.sceneConfigMap[sceneName];
 			return Coroutines.StartRoutine(this.LoadCurrentSceneRoutine(config));
 		}
@@ -68,7 +66,7 @@ namespace _Project.Architecture
 		}
 		private IEnumerator LoadSceneRoutine(SceneConfig sceneConfig) 
 		{
-			var async = SceneManager.LoadSceneAsync(sceneConfig.sceneName);
+			var async = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(sceneConfig.sceneName);
 			async.allowSceneActivation = false;
 
 			while (async.progress < 0.9f) 
@@ -80,7 +78,6 @@ namespace _Project.Architecture
 
 		private IEnumerator InitializeSceneRoutine(SceneConfig sceneConfig)
 		{
-			pastScene = this.scene;
 			this.scene = new Scene(sceneConfig);
 			yield return this.scene.InitializeAsync();
 		}
