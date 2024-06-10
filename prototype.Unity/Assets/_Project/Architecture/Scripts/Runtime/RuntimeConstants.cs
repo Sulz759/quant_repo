@@ -9,6 +9,5 @@ namespace _Project.Architecture.Scripts.Runtime
             public static readonly string GlobalMap = "GlobalMap";
             public static readonly string FightScene = "FightScene";
         }
-        
     }
 }
