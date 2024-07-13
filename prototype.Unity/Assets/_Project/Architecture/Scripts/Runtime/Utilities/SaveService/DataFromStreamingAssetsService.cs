@@ -50,7 +50,7 @@ namespace _Project.Architecture.Scripts.Runtime.Utilities.SaveService
 
         private IEnumerator BuildPathOnAndroidRoutine(string json)
         {
-            using (UnityWebRequest webRequest = UnityWebRequest.Get(json))
+            using (var webRequest = UnityWebRequest.Get(json))
             {
                 _path = webRequest.url;
                 yield return webRequest.SendWebRequest();

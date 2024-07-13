@@ -30,10 +30,10 @@ namespace _Project.Architecture.Scripts.Runtime.Utilities.SceneManager.Configs
 			return interactorsMap;
 		}
 	}
-	public class GlobalMapConfig : SceneConfig
+	public class MetaConfig : SceneConfig
 	{
 
-		public const string SCENE_NAME = "GlobalMap";
+		public const string SCENE_NAME = "Meta";
 
 		public override string sceneName => SCENE_NAME;
 
@@ -57,10 +57,10 @@ namespace _Project.Architecture.Scripts.Runtime.Utilities.SceneManager.Configs
 			return interactorsMap;
 		}
 	}
-	public class FightSceneConfig : SceneConfig
+	public class CoreConfig : SceneConfig
 	{
 
-		public const string SCENE_NAME = "FightScene";
+		public const string SCENE_NAME = "Core";
 
 		public override string sceneName => SCENE_NAME;
 
