@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentReference:
-    TypeName: _Project.Develop.Architecture.Prototype.Runtime.Bootstrap.BootstrapScope
+    TypeName: _Project.Develop.Architecture.Runtime.Bootstrap.BootstrapScope
   autoRun: 1
   autoInjectGameObjects: []
 --- !u!4 &1535610073

@@ -16,6 +16,7 @@ namespace _Project.Develop.Architecture.Runtime.Bootstrap
         {
             builder.Register<LoadingService>(Lifetime.Scoped);
             builder.Register<SceneManager>(Lifetime.Singleton);
+            builder.Register<ConfigContainer>(Lifetime.Singleton);
             
             builder.RegisterEntryPoint<BootstrapFlow>();
         }
