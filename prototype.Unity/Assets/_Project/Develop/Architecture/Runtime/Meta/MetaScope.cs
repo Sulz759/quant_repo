@@ -7,6 +7,9 @@ namespace _Project.Develop.Architecture.Runtime.Meta
     {
         protected override void Configure(IContainerBuilder builder)
         {
+            builder.Register<CheckpointFactory>(Lifetime.Singleton);
+            builder.Register<GlobalMapController>(Lifetime.Singleton);
+            
             builder.RegisterEntryPoint<MetaFlow>();
         }
     }

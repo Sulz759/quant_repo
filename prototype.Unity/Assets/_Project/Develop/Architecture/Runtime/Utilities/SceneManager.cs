@@ -1,4 +1,6 @@
-﻿using _Project.Develop.Architecture.Runtime.Utilities.Logging;
+﻿using System.Collections;
+using _Project.Develop.Architecture.Runtime.Loading;
+using _Project.Develop.Architecture.Runtime.Utilities.Logging;
 using Cysharp.Threading.Tasks;
 using UnityEngine.SceneManagement;
 using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
@@ -11,6 +13,7 @@ namespace _Project.Develop.Architecture.Runtime.Utilities
         
         public async UniTask LoadScene(int toLoadIndex)
         {
+            await Fader.instance.FadeIn();
             int currentSceneIndex = UnitySceneManager.GetActiveScene().buildIndex;
             bool isSkipEmpty = currentSceneIndex == RuntimeConstants.Scenes.Loading || currentSceneIndex == RuntimeConstants.Scenes.Bootstrap || toLoadIndex == currentSceneIndex;
 
@@ -33,6 +36,7 @@ namespace _Project.Develop.Architecture.Runtime.Utilities
             
             Log.Default.D(LogTag, $"{SceneUtility.GetScenePathByBuildIndex(toLoadIndex)} is loading.");
             UnitySceneManager.LoadScene(toLoadIndex);
+            
         }
     }
 }

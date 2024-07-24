@@ -16,7 +16,7 @@ namespace _Project.Develop.Architecture.Runtime.Core.Character
         }
         public UniTask Load()
         {
-            _prefab = Resources.Load<CharacterView>("Catherine");
+            _prefab = Resources.Load<CharacterView>("Prefabs/Core/Catherine");
             
             return UniTask.CompletedTask;
         }

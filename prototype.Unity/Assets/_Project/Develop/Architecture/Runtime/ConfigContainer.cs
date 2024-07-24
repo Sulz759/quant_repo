@@ -7,10 +7,14 @@ namespace _Project.Develop.Architecture.Runtime
     public sealed class ConfigContainer : ILoadUnit
     {
         public BattleConfigContainer Battle;
+        public GlobalMapConfigContainer GlobalMap;
 
         public UniTask Load()
         {
-            Battle = new BattleConfigContainer(); // подгрузка конфигов
+            // TODO: подгрузку конфигов продумать
+            Battle = new BattleConfigContainer(); 
+            GlobalMap = new GlobalMapConfigContainer();
+            
             return UniTask.CompletedTask;
         }
     }
@@ -20,6 +24,12 @@ namespace _Project.Develop.Architecture.Runtime
     {
         public CharacterConfig CharacterConfig;
         public BotCharacterConfig BotCharacterConfig;
+    }
+
+    [Serializable]
+    public class GlobalMapConfigContainer
+    {
+        public CheckpointConfig CheckpointConfig;
     }
 
     public class CharacterConfig { }
