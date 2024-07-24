@@ -30,35 +30,35 @@ namespace _Project.Develop.Architecture.Runtime.Loading
         private Action _fadeInCallback;
         private Action _fadeOutCallback;
 
-        public void FadeIn(/*Action fadeInCallback*/)
+        public void FadeIn(Action fadeInCallback)
         {
             if (isFading)
                 return;
             isFading = true;
-            //_fadeInCallback = fadeInCallback;
+            _fadeInCallback = fadeInCallback;
             _animator.SetBool("Faded",true);
         }
         
-        public void FadeOut(/*Action fadeOutCallback*/)
+        public void FadeOut(Action fadeOutCallback)
         {
             if (isFading)
                 return;
             isFading = true;
-            //_fadeInCallback = fadeOutCallback;
+            _fadeOutCallback = fadeOutCallback;
             _animator.SetBool("Faded",false);
         }
 
         private void Handle_FadeInAnimationOver()
         {
-            //_fadeInCallback.Invoke();
-            //_fadeInCallback = null;
+            _fadeInCallback.Invoke();
+            _fadeInCallback = null;
             isFading = false;
         }
         
         private void Handle_FadeOutAnimationOver()
         {
-            //_fadeOutCallback.Invoke();
-            //_fadeOutCallback = null;
+            _fadeOutCallback.Invoke();
+            _fadeOutCallback = null;
             isFading = false;
         }
 

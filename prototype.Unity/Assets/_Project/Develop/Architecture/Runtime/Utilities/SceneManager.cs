@@ -13,14 +13,17 @@ namespace _Project.Develop.Architecture.Runtime.Utilities
         
         public async UniTask LoadScene(int toLoadIndex)
         {
-            await Fader.instance.FadeIn();
+            await FadeInAndWait();
+            
             int currentSceneIndex = UnitySceneManager.GetActiveScene().buildIndex;
             bool isSkipEmpty = currentSceneIndex == RuntimeConstants.Scenes.Loading || currentSceneIndex == RuntimeConstants.Scenes.Bootstrap || toLoadIndex == currentSceneIndex;
 
             if (isSkipEmpty)
             {
                 Log.Default.D(LogTag, $"Empty scene skipped. {SceneUtility.GetScenePathByBuildIndex(toLoadIndex)} is loading.");
-                UnitySceneManager.LoadScene(toLoadIndex);
+                
+                await LoadSceneWithFade(toLoadIndex);
+                
                 return;
             }
             
@@ -29,14 +32,34 @@ namespace _Project.Develop.Architecture.Runtime.Utilities
             if (needLoadEmpty)
             {
                 Log.Default.D(LogTag, $"{SceneUtility.GetScenePathByBuildIndex(RuntimeConstants.Scenes.Empty)} is loading.");
-                UnitySceneManager.LoadScene(RuntimeConstants.Scenes.Empty);
+                await LoadSceneWithFade(RuntimeConstants.Scenes.Empty);
             }
             
             await UniTask.NextFrame();
             
             Log.Default.D(LogTag, $"{SceneUtility.GetScenePathByBuildIndex(toLoadIndex)} is loading.");
-            UnitySceneManager.LoadScene(toLoadIndex);
-            
+
+            await LoadSceneWithFade(toLoadIndex);
+        }
+        
+        private async UniTask LoadSceneWithFade(int sceneIndex)
+        {
+            UnitySceneManager.LoadScene(sceneIndex);
+            await FadeOutAndWait();
+        }
+
+        private async UniTask FadeInAndWait()
+        {
+            var waitFading = true;
+            Fader.instance.FadeIn(() => waitFading = false);
+            await UniTask.WaitWhile(() => waitFading);
+        }
+
+        private async UniTask FadeOutAndWait()
+        {
+            var waitFading = true;
+            Fader.instance.FadeOut(() => waitFading = false);
+            await UniTask.WaitWhile(() => waitFading);
         }
     }
 }
