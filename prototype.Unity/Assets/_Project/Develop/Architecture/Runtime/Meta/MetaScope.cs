@@ -1,4 +1,5 @@
-﻿using VContainer;
+﻿using _Project.Develop.Architecture.Runtime.Meta.Nodes;
+using VContainer;
 using VContainer.Unity;
 
 namespace _Project.Develop.Architecture.Runtime.Meta
@@ -7,9 +8,9 @@ namespace _Project.Develop.Architecture.Runtime.Meta
     {
         protected override void Configure(IContainerBuilder builder)
         {
-            builder.Register<CheckpointFactory>(Lifetime.Singleton);
-            builder.Register<GlobalMapController>(Lifetime.Singleton);
-            
+            builder.Register<NodeFactory>(Lifetime.Singleton);
+            builder.Register<MetaController>(Lifetime.Singleton);
+
             builder.RegisterEntryPoint<MetaFlow>();
         }
     }

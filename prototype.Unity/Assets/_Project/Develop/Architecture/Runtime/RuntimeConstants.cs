@@ -12,5 +12,10 @@ namespace _Project.Develop.Architecture.Runtime
             public static readonly int Core = SceneUtility.GetBuildIndexByScenePath("3.Core");
             public static readonly int Empty = SceneUtility.GetBuildIndexByScenePath("4.Empty");
         }
+        
+        public static class Configs
+        {
+            public const string ConfigFileName = "MetaConfig";
+        }
     }
 }
