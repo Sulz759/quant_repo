@@ -1,9 +1,15 @@
 ﻿{
   "Container": {
-    "Nodes": [
+    "biomeName": "Toxic",
+    "nodes": [
+      {"Position": {"x": 2, "y": 0, "z": -1}},
+      {"Position": {"x": 2, "y": 0, "z": 0}},
+      {"Position": {"x": 2, "y": 0, "z": 1}},
+      {"Position": {"x": 1, "y": 0, "z": -2}},
+      {"Position": {"x": 1, "y": 0, "z": -1}},
+      {"Position": {"x": 1, "y": 0, "z": 0}},
       {"Position": {"x": 1, "y": 0, "z": 1}},
-      {"Position": {"x": 3, "y": 0, "z": 1}},
-      {"Position": {"x": 5, "y": 0, "z": 1}}
+      {"Position": {"x": 1, "y": 0, "z": 2}}
     ]
   }
 }

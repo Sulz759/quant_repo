@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using _Project.Develop.Architecture.Runtime.Meta.Biome;
 using _Project.Develop.Architecture.Runtime.Meta.Nodes;
 using _Project.Develop.Architecture.Runtime.Utilities;
 using _Project.Develop.Architecture.Runtime.Utilities.Logging;
@@ -12,6 +13,7 @@ namespace _Project.Develop.Architecture.Runtime.Meta
         public IReadOnlyList<NodeView> Checkpoints => _checkpoints;
 
         private List<NodeView> _checkpoints;
+        private BiomeView _biome;
         private readonly NodeFactory _nodeFactory;
 
         public MetaController(NodeFactory nodeFactory)
@@ -20,7 +22,7 @@ namespace _Project.Develop.Architecture.Runtime.Meta
         }
         public UniTask Load()
         {
-
+            _biome = _nodeFactory.CreateBiome();
             _checkpoints = _nodeFactory.CreateCheckpoints();
             
             Log.Meta.D($"Meta is loading");

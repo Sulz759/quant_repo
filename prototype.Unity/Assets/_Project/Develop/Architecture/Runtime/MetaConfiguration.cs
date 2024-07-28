@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using _Project.Develop.Architecture.Runtime.Meta.Biome;
 using _Project.Develop.Architecture.Runtime.Utilities;
-using _Project.Develop.Architecture.Runtime.Utilities.Logging;
 using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -25,25 +25,8 @@ namespace _Project.Develop.Architecture.Runtime
     [Serializable]
     public sealed class MetaConfigContainer
     {
+        public string biomeName;
         public List<NodeConfig> nodes;
-
-        /*public MetaConfigContainer (int nodesCount)
-        {
-            NodesCount = nodesCount;
-            Initialize();
-        }
-        public IReadOnlyList<NodeConfig> NodesConfigs => _nodesConfigs;
-
-        private readonly List<NodeConfig> _nodesConfigs = new ();
-
-        public async void Initialize()
-        {
-            for (var i = 0; i < NodesCount; i++)
-            {
-                var node = new NodeConfig(new Vector3(i,0,i));
-                _nodesConfigs.Add(node);
-            }
-        }*/
     }
     [Serializable]
     public class NodeConfig

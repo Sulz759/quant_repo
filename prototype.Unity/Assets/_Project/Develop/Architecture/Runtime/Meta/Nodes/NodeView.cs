@@ -9,7 +9,6 @@ namespace _Project.Develop.Architecture.Runtime.Meta.Nodes
         public void Initialize(NodeConfig nodeConfig)
         {
             _nodeConfig = nodeConfig;
-            //Log.Battle.D("Character is instantiate");
         }
     }
 }

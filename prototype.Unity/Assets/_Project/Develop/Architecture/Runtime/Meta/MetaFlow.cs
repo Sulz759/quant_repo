@@ -29,7 +29,7 @@ namespace _Project.Develop.Architecture.Runtime.Meta
         public async void Start()
         {
             await _loadingService.BeginLoading(_nodeFactory);
-            await _loadingService.BeginLoading(_metaController); // колхоз, переделать передачу контейнера
+            await _loadingService.BeginLoading(_metaController);
             _metaController.StartMetaGame();
             Log.Meta.D("MetaFlow.Start()");
             //_sceneManager.LoadScene(RuntimeConstants.Scenes.Core).Forget();

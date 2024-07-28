@@ -17,5 +17,10 @@ namespace _Project.Develop.Architecture.Runtime
         {
             public const string ConfigFileName = "MetaConfig";
         }
+        
+        public static class Prefabs
+        {
+            public const string Checkpoint = "Prefabs/Meta/Checkpoint";
+        }
     }
 }
