@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using _Project.Develop.Architecture.Runtime.Meta.Biome;
+using _Project.Develop.Architecture.Runtime.Meta.Nodes;
 using _Project.Develop.Architecture.Runtime.Utilities;
 using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Vector3 = System.Numerics.Vector3;
 
 namespace _Project.Develop.Architecture.Runtime
@@ -31,6 +30,7 @@ namespace _Project.Develop.Architecture.Runtime
     [Serializable]
     public class NodeConfig
     {
+        public INodeType NodeType;
         public Vector3 Position;
     }
 }

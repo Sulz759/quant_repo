@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4503499909028508149}
   - component: {fileID: -1687664513620016462}
   m_Layer: 0
-  m_Name: Checkpoint
+  m_Name: Node
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -118,3 +118,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47560b7f9f05457dabdab599b03bafb3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  button: {fileID: 0}

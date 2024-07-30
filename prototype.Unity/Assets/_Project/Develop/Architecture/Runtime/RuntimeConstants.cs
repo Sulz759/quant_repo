@@ -20,7 +20,7 @@ namespace _Project.Develop.Architecture.Runtime
         
         public static class Prefabs
         {
-            public const string Checkpoint = "Prefabs/Meta/Checkpoint";
+            public const string Checkpoint = "Prefabs/Meta/Node";
         }
     }
 }

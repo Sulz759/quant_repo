@@ -42,7 +42,9 @@ namespace _Project.Develop.Architecture.Runtime.Meta.Nodes
                     new Vector3(nodeConfig.Position.X,nodeConfig.Position.Y,nodeConfig.Position.Z), 
                     Quaternion.identity);
 
-                node.Initialize(nodeConfig);
+                var nodeType = Node.Type[Random.Range(0, 4)];
+
+                node.Initialize(nodeConfig, nodeType);
                 nodes.Add(node);
             }
 
