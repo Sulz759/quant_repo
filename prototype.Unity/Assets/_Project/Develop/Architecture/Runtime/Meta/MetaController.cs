@@ -22,7 +22,7 @@ namespace _Project.Develop.Architecture.Runtime.Meta
         public UniTask Load()
         {
             _biome = _nodeFactory.CreateBiome();
-            _checkpoints = _nodeFactory.CreateCheckpoints();
+            _checkpoints = _nodeFactory.CreateNodes();
             
             Log.Meta.D($"Meta is loading");
             return UniTask.CompletedTask;

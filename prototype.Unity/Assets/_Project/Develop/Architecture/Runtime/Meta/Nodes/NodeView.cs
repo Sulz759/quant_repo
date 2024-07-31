@@ -1,5 +1,6 @@
-﻿using _Project.Develop.Architecture.Runtime.Utilities.Logging;
+﻿
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace _Project.Develop.Architecture.Runtime.Meta.Nodes
 {
@@ -7,19 +8,23 @@ namespace _Project.Develop.Architecture.Runtime.Meta.Nodes
     {
         public string type;
         private NodeConfig _nodeConfig;
-        private INodeType _nodeType;
+        private NodeType _nodeType;
+        [SerializeField] private Material material;
         
         
-        public void Initialize(NodeConfig nodeConfig, INodeType nodeType)
+        public void Initialize(NodeConfig nodeConfig, NodeType nodeType)
         {
             _nodeConfig = nodeConfig;
             _nodeType = nodeType;
             GetNodeType();
         }
 
-        public void GetNodeType()
+        private void GetNodeType()
         {
+            _nodeType.Initialize();
             type = _nodeType.GetType().ToString();
+            material.color = _nodeType.color;
+
             //Log.Meta.D($"{_nodeType.GetType().ToString()}");
         }
     }

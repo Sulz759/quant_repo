@@ -30,7 +30,7 @@ namespace _Project.Develop.Architecture.Runtime
     [Serializable]
     public class NodeConfig
     {
-        public INodeType NodeType;
+        public NodeType NodeType;
         public Vector3 Position;
     }
 }

@@ -1,15 +1,25 @@
 ﻿{
   "Container": {
-    "biomeName": "Toxic",
+    "biomeName": "Spaceship",
     "nodes": [
+      
       {"Position": {"x": 2, "y": 0, "z": -1}},
       {"Position": {"x": 2, "y": 0, "z": 0}},
       {"Position": {"x": 2, "y": 0, "z": 1}},
+      
       {"Position": {"x": 1, "y": 0, "z": -2}},
       {"Position": {"x": 1, "y": 0, "z": -1}},
       {"Position": {"x": 1, "y": 0, "z": 0}},
       {"Position": {"x": 1, "y": 0, "z": 1}},
-      {"Position": {"x": 1, "y": 0, "z": 2}}
+      {"Position": {"x": 1, "y": 0, "z": 2}},
+      
+      {"Position": {"x": 0, "y": 0, "z": -3}},
+      {"Position": {"x": 0, "y": 0, "z": -2}},
+      {"Position": {"x": 0, "y": 0, "z": -1}},
+      {"Position": {"x": 0, "y": 0, "z": 0}},
+      {"Position": {"x": 0, "y": 0, "z": 1}},
+      {"Position": {"x": 0, "y": 0, "z": 2}},
+      {"Position": {"x": 0, "y": 0, "z": 3}}
     ]
   }
 }

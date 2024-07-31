@@ -32,9 +32,10 @@ namespace _Project.Develop.Architecture.Runtime.Meta.Nodes
             return biom;
         }
 
-        public List<NodeView> CreateCheckpoints()
+        public List<NodeView> CreateNodes()
         {
             var nodes = new List<NodeView>();
+            ShuffleBag<int> intBag = new ShuffleBag<int> { 0, 1, 2, 3, 4 };
             
             foreach (var nodeConfig in _configs.Container.nodes)
             {
@@ -42,7 +43,7 @@ namespace _Project.Develop.Architecture.Runtime.Meta.Nodes
                     new Vector3(nodeConfig.Position.X,nodeConfig.Position.Y,nodeConfig.Position.Z), 
                     Quaternion.identity);
 
-                var nodeType = Node.Type[Random.Range(0, 4)];
+                var nodeType = Node.Type[intBag.Generate()];
 
                 node.Initialize(nodeConfig, nodeType);
                 nodes.Add(node);
@@ -51,4 +52,5 @@ namespace _Project.Develop.Architecture.Runtime.Meta.Nodes
             return nodes;
         }
     }
+    
 }
