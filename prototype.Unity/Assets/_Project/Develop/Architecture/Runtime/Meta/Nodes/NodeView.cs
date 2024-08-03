@@ -9,7 +9,7 @@ namespace _Project.Develop.Architecture.Runtime.Meta.Nodes
         public string type;
         private NodeConfig _nodeConfig;
         private NodeType _nodeType;
-        [SerializeField] private Material material;
+        [SerializeField] private SpriteRenderer spriteRenderer;
         
         
         public void Initialize(NodeConfig nodeConfig, NodeType nodeType)
@@ -23,7 +23,8 @@ namespace _Project.Develop.Architecture.Runtime.Meta.Nodes
         {
             _nodeType.Initialize();
             type = _nodeType.GetType().ToString();
-            material.color = _nodeType.color;
+            spriteRenderer.color = _nodeType.color;
+            transform.rotation = Quaternion.Euler(90, 0, 0);
 
             //Log.Meta.D($"{_nodeType.GetType().ToString()}");
         }

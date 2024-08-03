@@ -1,133 +1,108 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using _Project.Develop.Architecture.Runtime.Utilities.Logging;
-using UnityEngine;
 
 namespace _Project.Develop.Architecture.Runtime.Utilities
 {
-    public class ShuffleBag<T> : ICollection<T>, IList<T>
+    public class ShuffleBag<T>
     {
-        private List<T> data = new List<T> ();
-        private int cursor = 0;
-        private T last;
-        private int counter = 0;
+        private Dictionary<T, int> itemCounts = new Dictionary<T, int>();
+        private Dictionary<T, int> cooldowns = new Dictionary<T, int>();
+        private Dictionary<T, int> lastIteration = new Dictionary<T, int>();
+        private List<T> items = new List<T>();
+        private int currentIteration = 0;
+        private Random random = new Random();
 
-        public T Generate()
+        public void Add(T item, int count, int cooldown)
         {
-            if (counter < 5)
+            if (itemCounts.ContainsKey(item))
             {
-                counter++;
-                return data[0];
+                itemCounts[item] += count;
             }
             else
             {
-                counter++;
-                return Next();
+                itemCounts.Add(item, count);
+                cooldowns.Add(item, cooldown);
+                lastIteration.Add(item, -cooldown);
+            }
+
+            for (int i = 0; i < count; i++)
+            {
+                items.Add(item);
             }
         }
 
-        public T Next ()
+        public T GetNext()
         {
-            if (cursor < 1) 
+            if (items.Count == 0)
             {
-                cursor = data.Count - 1;
-                if (data.Count < 1)
-                    return default(T);
-                return data[0];
+                Refill();
             }
-            int grab = Mathf.FloorToInt (Random.value * (cursor + 1));
-            T temp = data[grab];
-            data[grab] = this.data[this.cursor];
-            data[cursor] = temp;
-            cursor--;
-            return temp;
+
+            T item;
+            do
+            {
+                int index = random.Next(items.Count);
+                item = items[index];
+                items.RemoveAt(index);
+            } while (currentIteration - lastIteration[item] < cooldowns[item]);
+
+            lastIteration[item] = currentIteration;
+            currentIteration++;
+
+            return item;
         }
-	
-	
-        #region IList[T] implementation
-        public int IndexOf (T item)
+
+        public void Refill()
         {
-            return data.IndexOf (item);
-        }
-	
-        public void Insert (int index, T item)
-        {
-            data.Insert (index, item);
-        }
-	
-        public void RemoveAt (int index)
-        {
-            data.RemoveAt (index);
-        }
-	
-        public T this[int index] {
-            get {
-                return data [index];
-            }
-            set {
-                data [index] = value;
+            items.Clear();
+
+            foreach (var pair in itemCounts)
+            {
+                for (int i = 0; i < pair.Value; i++)
+                {
+                    items.Add(pair.Key);
+                }
             }
         }
-        #endregion
-	
-	
-	
-        #region IEnumerable[T] implementation
-        IEnumerator<T> IEnumerable<T>.GetEnumerator ()
+
+        public void Reset()
         {
-            return data.GetEnumerator ();
+            items.Clear();
+            itemCounts.Clear();
+            cooldowns.Clear();
+            lastIteration.Clear();
+            currentIteration = 0;
         }
-        #endregion
-	
-        #region ICollection[T] implementation
-        public void Add (T item)
+
+        public void SetWeight(T item, int newCount, int newCooldown)
         {
-            data.Add (item);
-            cursor = data.Count - 1;
-        }
-	
-        public int Count {
-            get {
-                return data.Count;
+            if (itemCounts.ContainsKey(item))
+            {
+                int oldCount = itemCounts[item];
+                itemCounts[item] = newCount;
+                cooldowns[item] = newCooldown;
+
+                // Обновляем количество элементов в items
+                int countDiff = newCount - oldCount;
+                if (countDiff > 0)
+                {
+                    for (int i = 0; i < countDiff; i++)
+                    {
+                        items.Add(item);
+                    }
+                }
+                else if (countDiff < 0)
+                {
+                    for (int i = 0; i < -countDiff; i++)
+                    {
+                        items.Remove(item);
+                    }
+                }
+            }
+            else
+            {
+                Add(item, newCount, newCooldown);
             }
         }
-	
-        public void Clear ()
-        {
-            data.Clear ();
-        }
-	
-        public bool Contains (T item)
-        {
-            return data.Contains (item);
-        }
-	
-        public void CopyTo (T[] array, int arrayIndex)
-        {
-            foreach (T item in data) {
-                array.SetValue (item, arrayIndex);
-                arrayIndex = arrayIndex + 1;
-            }
-        }
-	
-        public bool Remove (T item)
-        {
-            return data.Remove (item);
-        }
-	
-        public bool IsReadOnly {
-            get {
-                return false;
-            }
-        }
-        #endregion
-	
-        #region IEnumerable implementation
-        IEnumerator IEnumerable.GetEnumerator ()
-        {
-            return data.GetEnumerator ();
-        }
-        #endregion
-	
     }
 }

@@ -13,6 +13,7 @@ namespace _Project.Develop.Architecture.Runtime.Meta.Nodes
         private readonly MetaConfiguration _configs;
         private NodeView _nodePrefab;
         private BiomeView _biomePrefab;
+        private ShuffleBag<NodeType> _intBag = new ShuffleBag<NodeType>();
 
         public NodeFactory(MetaConfiguration configs)
         {
@@ -35,21 +36,30 @@ namespace _Project.Develop.Architecture.Runtime.Meta.Nodes
         public List<NodeView> CreateNodes()
         {
             var nodes = new List<NodeView>();
-            ShuffleBag<int> intBag = new ShuffleBag<int> { 0, 1, 2, 3, 4 };
-            
+            SetShuffleBag();
+
             foreach (var nodeConfig in _configs.Container.nodes)
             {
                 var node = Object.Instantiate(_nodePrefab, 
                     new Vector3(nodeConfig.Position.X,nodeConfig.Position.Y,nodeConfig.Position.Z), 
                     Quaternion.identity);
 
-                var nodeType = Node.Type[intBag.Generate()];
+                var nodeType = _intBag.GetNext();
 
                 node.Initialize(nodeConfig, nodeType);
                 nodes.Add(node);
             }
 
             return nodes;
+        }
+
+        private void SetShuffleBag()
+        {
+            _intBag.Add(new EnemyNode(), 1,1);
+            _intBag.Add(new EliteEnemyNode(), 1,3);
+            _intBag.Add(new ShopNode(), 1,5);
+            _intBag.Add(new RestNode(), 1,5);
+            _intBag.Add(new UnknownNode(), 1,5);
         }
     }
     
