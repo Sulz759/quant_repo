@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
 using _Project.Develop.Architecture.Runtime.Meta.Biome;
 using _Project.Develop.Architecture.Runtime.Meta.Nodes;
+using _Project.Develop.Architecture.Runtime.Meta.Tests;
 using _Project.Develop.Architecture.Runtime.Utilities;
 using _Project.Develop.Architecture.Runtime.Utilities.Logging;
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 namespace _Project.Develop.Architecture.Runtime.Meta
 {
@@ -11,7 +13,7 @@ namespace _Project.Develop.Architecture.Runtime.Meta
     {
         public IReadOnlyList<NodeView> Checkpoints => _checkpoints;
 
-        private List<NodeView> _checkpoints;
+        public List<NodeView> _checkpoints { get; private set; }
         private BiomeView _biome;
         private readonly NodeFactory _nodeFactory;
 
@@ -23,6 +25,8 @@ namespace _Project.Develop.Architecture.Runtime.Meta
         {
             _biome = _nodeFactory.CreateBiome();
             _checkpoints = _nodeFactory.CreateNodes();
+            
+            CreateNodesTest(); // for tests
             
             Log.Meta.D($"Meta is loading");
             return UniTask.CompletedTask;
@@ -36,6 +40,14 @@ namespace _Project.Develop.Architecture.Runtime.Meta
             }
             
             Log.Meta.D($"Start Meta Game");
+        }
+
+        //  *** Tests ***
+        private void CreateNodesTest()
+        {
+            var test = new GameObject("Test").AddComponent<ShuffleBagTest>();
+            test.factory = _nodeFactory;
+            test.nodes = _checkpoints;
         }
     }
 }

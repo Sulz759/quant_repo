@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using _Project.Develop.Architecture.Runtime.Utilities.Logging;
 
 namespace _Project.Develop.Architecture.Runtime.Utilities
 {
@@ -33,6 +34,19 @@ namespace _Project.Develop.Architecture.Runtime.Utilities
 
         public T GetNext()
         {
+            if (currentIteration < 5)
+            {
+                currentIteration++;
+                return items[0]; // подумать над словариком, непонятно, что делать при смене нодов
+            }
+
+            if (currentIteration == 19)
+            {
+                Log.Meta.D("elite" + $"{currentIteration}" );
+                currentIteration++;
+                return items[1];
+            }
+
             if (items.Count == 0)
             {
                 Refill();
@@ -42,8 +56,10 @@ namespace _Project.Develop.Architecture.Runtime.Utilities
             do
             {
                 int index = random.Next(items.Count);
+                // Log.Meta.D("index" + $"{index}");
+                // Log.Meta.D("Count" + $"{items.Count}");
                 item = items[index];
-                items.RemoveAt(index);
+                //items.RemoveAt(index);
             } while (currentIteration - lastIteration[item] < cooldowns[item]);
 
             lastIteration[item] = currentIteration;

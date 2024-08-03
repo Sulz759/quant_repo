@@ -13,7 +13,7 @@ namespace _Project.Develop.Architecture.Runtime.Meta.Nodes
         private readonly MetaConfiguration _configs;
         private NodeView _nodePrefab;
         private BiomeView _biomePrefab;
-        private ShuffleBag<NodeType> _intBag = new ShuffleBag<NodeType>();
+        private ShuffleBag<NodeType> _intBag;
 
         public NodeFactory(MetaConfiguration configs)
         {
@@ -55,6 +55,8 @@ namespace _Project.Develop.Architecture.Runtime.Meta.Nodes
 
         private void SetShuffleBag()
         {
+            _intBag = new ShuffleBag<NodeType>();
+            
             _intBag.Add(new EnemyNode(), 1,1);
             _intBag.Add(new EliteEnemyNode(), 1,3);
             _intBag.Add(new ShopNode(), 1,5);
