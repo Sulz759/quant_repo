@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using _Project.Develop.Architecture.Runtime.Utilities.Logging;
 
 namespace _Project.Develop.Architecture.Runtime.Utilities
 {
@@ -42,7 +41,6 @@ namespace _Project.Develop.Architecture.Runtime.Utilities
 
             if (currentIteration == 19)
             {
-                Log.Meta.D("elite" + $"{currentIteration}" );
                 currentIteration++;
                 return items[1];
             }
@@ -56,8 +54,6 @@ namespace _Project.Develop.Architecture.Runtime.Utilities
             do
             {
                 int index = random.Next(items.Count);
-                // Log.Meta.D("index" + $"{index}");
-                // Log.Meta.D("Count" + $"{items.Count}");
                 item = items[index];
                 //items.RemoveAt(index);
             } while (currentIteration - lastIteration[item] < cooldowns[item]);

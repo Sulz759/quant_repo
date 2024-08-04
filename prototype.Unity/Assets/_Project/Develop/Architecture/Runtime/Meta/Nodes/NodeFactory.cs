@@ -13,7 +13,6 @@ namespace _Project.Develop.Architecture.Runtime.Meta.Nodes
         private readonly MetaConfiguration _configs;
         private NodeView _nodePrefab;
         private BiomeView _biomePrefab;
-        private ShuffleBag<NodeType> _intBag;
 
         public NodeFactory(MetaConfiguration configs)
         {
@@ -29,40 +28,33 @@ namespace _Project.Develop.Architecture.Runtime.Meta.Nodes
 
         public BiomeView CreateBiome()
         {
-            var biom = Object.Instantiate(_biomePrefab);
-            return biom;
+            return Object.Instantiate(_biomePrefab);;
         }
 
         public List<NodeView> CreateNodes()
         {
             var nodes = new List<NodeView>();
-            SetShuffleBag();
+            
+            ShuffleBag<NodeType> generator = new ShuffleBag<NodeType>();
 
-            foreach (var nodeConfig in _configs.Container.nodes)
+            generator.Add(Node.Types[0], 1,1);
+            generator.Add(Node.Types[1], 1,3);
+            generator.Add(Node.Types[2], 1,5);
+            generator.Add(Node.Types[3], 1,5);
+            generator.Add(Node.Types[4], 1,5);
+
+            foreach (var config in _configs.Container.nodes)
             {
-                var node = Object.Instantiate(_nodePrefab, 
-                    new Vector3(nodeConfig.Position.X,nodeConfig.Position.Y,nodeConfig.Position.Z), 
-                    Quaternion.identity);
+                var position = new Vector3(config.pos.X, config.pos.Y, config.pos.Z);
+                var node = Object.Instantiate(_nodePrefab,new Vector3(config.pos.X, config.pos.Y, config.pos.Z), Quaternion.identity);
 
-                var nodeType = _intBag.GetNext();
+                var nodeType = generator.GetNext();
 
-                node.Initialize(nodeConfig, nodeType);
+                node.Initialize(config, nodeType);
                 nodes.Add(node);
             }
 
             return nodes;
         }
-
-        private void SetShuffleBag()
-        {
-            _intBag = new ShuffleBag<NodeType>();
-            
-            _intBag.Add(new EnemyNode(), 1,1);
-            _intBag.Add(new EliteEnemyNode(), 1,3);
-            _intBag.Add(new ShopNode(), 1,5);
-            _intBag.Add(new RestNode(), 1,5);
-            _intBag.Add(new UnknownNode(), 1,5);
-        }
     }
-    
 }

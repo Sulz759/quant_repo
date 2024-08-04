@@ -22,7 +22,6 @@ namespace _Project.Develop.Architecture.Runtime.Meta.Tests
 
                 nodes = factory.CreateNodes();
                 
-                Log.Battle.D("Create");
             }
         }
     }

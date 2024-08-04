@@ -27,10 +27,11 @@ namespace _Project.Develop.Architecture.Runtime
         public string biomeName;
         public List<NodeConfig> nodes;
     }
+    
     [Serializable]
     public class NodeConfig
     {
         public NodeType NodeType;
-        public Vector3 Position;
+        public Vector3 pos;
     }
 }

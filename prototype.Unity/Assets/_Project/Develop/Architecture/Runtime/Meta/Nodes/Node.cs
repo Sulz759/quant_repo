@@ -7,13 +7,13 @@ namespace _Project.Develop.Architecture.Runtime.Meta.Nodes
 
     public static class Node
     {
-        public static readonly Dictionary<int, NodeType> Type = new Dictionary<int, NodeType>()
+        public static IReadOnlyList<NodeType> Types = new NodeType[5]
         {
-            {0, new EnemyNode()},
-            {1, new EliteEnemyNode()},
-            {2, new ShopNode()},
-            {3, new RestNode()},
-            {4, new UnknownNode()}
+            new EnemyNode(),
+            new EliteEnemyNode(),
+            new ShopNode(),
+            new RestNode(),
+            new UnknownNode()
         };
     }
     public class EnemyNode : NodeType
