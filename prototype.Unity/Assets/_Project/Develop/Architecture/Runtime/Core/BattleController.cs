@@ -1,4 +1,4 @@
-﻿using _Project.Develop.Architecture.Runtime.Core.Character;
+﻿using _Project.Develop.Architecture.Runtime.Core.Train;
 using _Project.Develop.Architecture.Runtime.Utilities;
 using _Project.Develop.Architecture.Runtime.Utilities.Logging;
 using Cysharp.Threading.Tasks;
@@ -7,21 +7,21 @@ namespace _Project.Develop.Architecture.Runtime.Core
 {
     public class BattleController: ILoadUnit
     {
-        public CharacterView Bot { get; private set; }
-        public CharacterView Player { get; private set; }
+        public TrainView Bot { get; private set; }
+        public TrainView Player { get; private set; }
 
-        private CharacterView _bot;
+        private TrainView _bot;
         
-        private readonly CharacterFactory _characterFactory;
+        private readonly TrainFactory _trainFactory;
         
-        public BattleController(CharacterFactory characterFactory)
+        public BattleController(TrainFactory trainFactory)
         {
-            _characterFactory = characterFactory;
+            _trainFactory = trainFactory;
         }
         public UniTask Load()
         {
-            Player = _characterFactory.CreatePlayer();
-            Bot = _characterFactory.CreateBot();
+            Player = _trainFactory.CreateTrain();
+            Bot = _trainFactory.CreateBot();
             
             Player.gameObject.SetActive(false);
             Bot.gameObject.SetActive(false);

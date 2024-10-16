@@ -3,38 +3,37 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Resources = UnityEngine.Resources;
 
-namespace _Project.Develop.Architecture.Runtime.Core.Character
+namespace _Project.Develop.Architecture.Runtime.Core.Train
 {
-    public class CharacterFactory: ILoadUnit
+    public class TrainFactory: ILoadUnit
     {
         private readonly ConfigContainer _configs;
-        private CharacterView _prefab;
-        private CharacterView _playerCharacter;
-        public CharacterFactory(ConfigContainer configs)
+        private TrainView _prefab;
+        private TrainView _playerTrain;
+        public TrainFactory(ConfigContainer configs)
         {
             _configs = configs;
         }
         public UniTask Load()
         {
-            _prefab = Resources.Load<CharacterView>("Prefabs/Core/Trail");
+            _prefab = Resources.Load<TrainView>("Prefabs/Core/Train");
             
             return UniTask.CompletedTask;
         }
 
-        public CharacterView CreatePlayer()
+        public TrainView CreateTrain()
         {
             var player = Object.Instantiate(_prefab, new Vector3(-6,0,-2.7f),Quaternion.identity);
-            
-            player.Initialize(_configs.Battle.CharacterConfig);
+            player.Initialize(_configs.Battle.TrainConfig, _configs.Battle.InputConfig);
             return player;
         }
 
-        public CharacterView CreateBot()
+        public TrainView CreateBot()
         {
             var bot = Object.Instantiate(_prefab, new Vector3(2,0,-2.7f),Quaternion.identity);
-            var botConfig = _configs.Battle.BotCharacterConfig;
+            var botConfig = _configs.Battle.BotTrainConfig;
             
-            bot.Initialize(botConfig);
+            //bot.Initialize(botConfig);
             return bot;
         }
     }

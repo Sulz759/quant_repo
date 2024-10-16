@@ -222,8 +222,9 @@ GameObject:
   - component: {fileID: 4029669698964006285}
   - component: {fileID: 2375216983586257835}
   - component: {fileID: 5657196617788058057}
+  - component: {fileID: -936908877914776171}
   m_Layer: 0
-  m_Name: Trail
+  m_Name: Train
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -317,3 +318,15 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &-936908877914776171
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7478300421831076905}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eebb82561fde4007b70f50624e6a4acd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

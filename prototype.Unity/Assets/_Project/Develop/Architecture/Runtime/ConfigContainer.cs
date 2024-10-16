@@ -18,16 +18,19 @@ namespace _Project.Develop.Architecture.Runtime
             return UniTask.CompletedTask;
         }
     }
-
+    
     [Serializable]
     public class BattleConfigContainer
     {
-        public CharacterConfig CharacterConfig;
-        public BotCharacterConfig BotCharacterConfig;
+        public InputConfig InputConfig;
+        public TrainConfig TrainConfig;
+        public BotTrainConfig BotTrainConfig;
     }
+    
+    public class InputConfig{}
+    
+    public class TrainConfig { }
 
-    public class CharacterConfig { }
-
-    public class BotCharacterConfig : CharacterConfig { }
+    public class BotTrainConfig : TrainConfig { }
     
 }
