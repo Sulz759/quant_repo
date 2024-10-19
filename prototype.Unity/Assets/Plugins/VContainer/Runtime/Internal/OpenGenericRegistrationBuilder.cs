@@ -28,6 +28,7 @@ namespace VContainer.Internal
 
                 InterfaceTypes.Add(i.GetGenericTypeDefinition());
             }
+
             return this;
         }
 
@@ -41,10 +42,7 @@ namespace VContainer.Internal
                 if (!i.IsGenericType || i.GetGenericTypeDefinition() != interfaceType)
                     continue;
 
-                if (InterfaceTypes is null)
-                {
-                    InterfaceTypes = new List<Type>();
-                }
+                if (InterfaceTypes is null) InterfaceTypes = new List<Type>();
 
                 if (!InterfaceTypes.Contains(interfaceType))
                     InterfaceTypes.Add(interfaceType);

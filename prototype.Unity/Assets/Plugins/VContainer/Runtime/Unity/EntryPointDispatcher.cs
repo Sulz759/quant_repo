@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 using VContainer.Internal;
 #if VCONTAINER_ECS_INTEGRATION
 using Unity.Entities;
@@ -9,8 +10,8 @@ namespace VContainer.Unity
 {
     public sealed class EntryPointDispatcher : IDisposable
     {
-        readonly IObjectResolver container;
-        readonly CompositeDisposable disposable = new CompositeDisposable();
+        private readonly IObjectResolver container;
+        private readonly CompositeDisposable disposable = new();
 
         [Inject]
         public EntryPointDispatcher(IObjectResolver container)
@@ -18,15 +19,19 @@ namespace VContainer.Unity
             this.container = container;
         }
 
+        public void Dispose()
+        {
+            disposable.Dispose();
+        }
+
         public void Dispatch()
         {
             PlayerLoopHelper.EnsureInitialized();
 
-            EntryPointExceptionHandler exceptionHandler = container.ResolveOrDefault<EntryPointExceptionHandler>();
+            var exceptionHandler = container.ResolveOrDefault<EntryPointExceptionHandler>();
 
             var initializables = container.Resolve<ContainerLocal<IReadOnlyList<IInitializable>>>().Value;
             for (var i = 0; i < initializables.Count; i++)
-            {
                 try
                 {
                     initializables[i].Initialize();
@@ -36,13 +41,11 @@ namespace VContainer.Unity
                     if (exceptionHandler != null)
                         exceptionHandler.Publish(ex);
                     else
-                        UnityEngine.Debug.LogException(ex);
+                        Debug.LogException(ex);
                 }
-            }
 
             var postInitializables = container.Resolve<ContainerLocal<IReadOnlyList<IPostInitializable>>>().Value;
             for (var i = 0; i < postInitializables.Count; i++)
-            {
                 try
                 {
                     postInitializables[i].PostInitialize();
@@ -52,9 +55,8 @@ namespace VContainer.Unity
                     if (exceptionHandler != null)
                         exceptionHandler.Publish(ex);
                     else
-                        UnityEngine.Debug.LogException(ex);
+                        Debug.LogException(ex);
                 }
-            }
 
             var startables = container.Resolve<ContainerLocal<IReadOnlyList<IStartable>>>().Value;
             if (startables.Count > 0)
@@ -140,7 +142,5 @@ namespace VContainer.Unity
             }
 #endif
         }
-
-        public void Dispose() => disposable.Dispose();
     }
 }

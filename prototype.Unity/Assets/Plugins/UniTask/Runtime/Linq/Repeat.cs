@@ -1,5 +1,5 @@
-﻿using Cysharp.Threading.Tasks.Internal;
-using System.Threading;
+﻿using System.Threading;
+using Cysharp.Threading.Tasks.Internal;
 
 namespace Cysharp.Threading.Tasks.Linq
 {
@@ -15,8 +15,8 @@ namespace Cysharp.Threading.Tasks.Linq
 
     internal class Repeat<TElement> : IUniTaskAsyncEnumerable<TElement>
     {
-        readonly TElement element;
-        readonly int count;
+        private readonly int count;
+        private readonly TElement element;
 
         public Repeat(TElement element, int count)
         {
@@ -29,32 +29,28 @@ namespace Cysharp.Threading.Tasks.Linq
             return new _Repeat(element, count, cancellationToken);
         }
 
-        class _Repeat : IUniTaskAsyncEnumerator<TElement>
+        private class _Repeat : IUniTaskAsyncEnumerator<TElement>
         {
-            readonly TElement element;
-            readonly int count;
-            int remaining;
-            CancellationToken cancellationToken;
+            private readonly int count;
+            private readonly CancellationToken cancellationToken;
+            private int remaining;
 
             public _Repeat(TElement element, int count, CancellationToken cancellationToken)
             {
-                this.element = element;
+                this.Current = element;
                 this.count = count;
                 this.cancellationToken = cancellationToken;
 
-                this.remaining = count;
+                remaining = count;
             }
 
-            public TElement Current => element;
+            public TElement Current { get; }
 
             public UniTask<bool> MoveNextAsync()
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (remaining-- != 0)
-                {
-                    return CompletedTasks.True;
-                }
+                if (remaining-- != 0) return CompletedTasks.True;
 
                 return CompletedTasks.False;
             }

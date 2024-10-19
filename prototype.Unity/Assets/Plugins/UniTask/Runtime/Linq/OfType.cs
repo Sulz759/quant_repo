@@ -1,12 +1,11 @@
-﻿using Cysharp.Threading.Tasks.Internal;
-using System;
-using System.Threading;
+﻿using System.Threading;
+using Cysharp.Threading.Tasks.Internal;
 
 namespace Cysharp.Threading.Tasks.Linq
 {
     public static partial class UniTaskAsyncEnumerable
     {
-        public static IUniTaskAsyncEnumerable<TResult> OfType<TResult>(this IUniTaskAsyncEnumerable<Object> source)
+        public static IUniTaskAsyncEnumerable<TResult> OfType<TResult>(this IUniTaskAsyncEnumerable<object> source)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
 
@@ -16,7 +15,7 @@ namespace Cysharp.Threading.Tasks.Linq
 
     internal sealed class OfType<TResult> : IUniTaskAsyncEnumerable<TResult>
     {
-        readonly IUniTaskAsyncEnumerable<object> source;
+        private readonly IUniTaskAsyncEnumerable<object> source;
 
         public OfType(IUniTaskAsyncEnumerable<object> source)
         {
@@ -28,10 +27,9 @@ namespace Cysharp.Threading.Tasks.Linq
             return new _OfType(source, cancellationToken);
         }
 
-        class _OfType : AsyncEnumeratorBase<object, TResult>
+        private class _OfType : AsyncEnumeratorBase<object, TResult>
         {
             public _OfType(IUniTaskAsyncEnumerable<object> source, CancellationToken cancellationToken)
-
                 : base(source, cancellationToken)
             {
             }
@@ -46,11 +44,9 @@ namespace Cysharp.Threading.Tasks.Linq
                         result = true;
                         return true;
                     }
-                    else
-                    {
-                        result = default;
-                        return false;
-                    }
+
+                    result = default;
+                    return false;
                 }
 
                 result = false;

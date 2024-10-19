@@ -42,10 +42,10 @@ namespace Cysharp.Threading.Tasks
             }
         }
 
-        sealed class WhenAnyLRPromise<T> : IUniTaskSource<(bool, T)>
+        private sealed class WhenAnyLRPromise<T> : IUniTaskSource<(bool, T)>
         {
-            int completedCount;
-            UniTaskCompletionSourceCore<(bool, T)> core;
+            private int completedCount;
+            private UniTaskCompletionSourceCore<(bool, T)> core;
 
             public WhenAnyLRPromise(UniTask<T> leftTask, UniTask rightTask)
             {
@@ -64,11 +64,8 @@ namespace Cysharp.Threading.Tasks
                     }
 
                     if (awaiter.IsCompleted)
-                    {
                         TryLeftInvokeContinuation(this, awaiter);
-                    }
                     else
-                    {
                         awaiter.SourceOnCompleted(state =>
                         {
                             using (var t = (StateTuple<WhenAnyLRPromise<T>, UniTask<T>.Awaiter>)state)
@@ -76,11 +73,10 @@ namespace Cysharp.Threading.Tasks
                                 TryLeftInvokeContinuation(t.Item1, t.Item2);
                             }
                         }, StateTuple.Create(this, awaiter));
-                    }
                 }
                 RIGHT:
                 {
-                    UniTask.Awaiter awaiter;
+                    Awaiter awaiter;
                     try
                     {
                         awaiter = rightTask.GetAwaiter();
@@ -92,56 +88,15 @@ namespace Cysharp.Threading.Tasks
                     }
 
                     if (awaiter.IsCompleted)
-                    {
                         TryRightInvokeContinuation(this, awaiter);
-                    }
                     else
-                    {
                         awaiter.SourceOnCompleted(state =>
                         {
-                            using (var t = (StateTuple<WhenAnyLRPromise<T>, UniTask.Awaiter>)state)
+                            using (var t = (StateTuple<WhenAnyLRPromise<T>, Awaiter>)state)
                             {
                                 TryRightInvokeContinuation(t.Item1, t.Item2);
                             }
                         }, StateTuple.Create(this, awaiter));
-                    }
-                }
-            }
-
-            static void TryLeftInvokeContinuation(WhenAnyLRPromise<T> self, in UniTask<T>.Awaiter awaiter)
-            {
-                T result;
-                try
-                {
-                    result = awaiter.GetResult();
-                }
-                catch (Exception ex)
-                {
-                    self.core.TrySetException(ex);
-                    return;
-                }
-
-                if (Interlocked.Increment(ref self.completedCount) == 1)
-                {
-                    self.core.TrySetResult((true, result));
-                }
-            }
-
-            static void TryRightInvokeContinuation(WhenAnyLRPromise<T> self, in UniTask.Awaiter awaiter)
-            {
-                try
-                {
-                    awaiter.GetResult();
-                }
-                catch (Exception ex)
-                {
-                    self.core.TrySetException(ex);
-                    return;
-                }
-
-                if (Interlocked.Increment(ref self.completedCount) == 1)
-                {
-                    self.core.TrySetResult((false, default));
                 }
             }
 
@@ -171,24 +126,52 @@ namespace Cysharp.Threading.Tasks
             {
                 GetResult(token);
             }
+
+            private static void TryLeftInvokeContinuation(WhenAnyLRPromise<T> self, in UniTask<T>.Awaiter awaiter)
+            {
+                T result;
+                try
+                {
+                    result = awaiter.GetResult();
+                }
+                catch (Exception ex)
+                {
+                    self.core.TrySetException(ex);
+                    return;
+                }
+
+                if (Interlocked.Increment(ref self.completedCount) == 1) self.core.TrySetResult((true, result));
+            }
+
+            private static void TryRightInvokeContinuation(WhenAnyLRPromise<T> self, in Awaiter awaiter)
+            {
+                try
+                {
+                    awaiter.GetResult();
+                }
+                catch (Exception ex)
+                {
+                    self.core.TrySetException(ex);
+                    return;
+                }
+
+                if (Interlocked.Increment(ref self.completedCount) == 1) self.core.TrySetResult((false, default));
+            }
         }
 
 
-        sealed class WhenAnyPromise<T> : IUniTaskSource<(int, T)>
+        private sealed class WhenAnyPromise<T> : IUniTaskSource<(int, T)>
         {
-            int completedCount;
-            UniTaskCompletionSourceCore<(int, T)> core;
+            private int completedCount;
+            private UniTaskCompletionSourceCore<(int, T)> core;
 
             public WhenAnyPromise(UniTask<T>[] tasks, int tasksLength)
             {
-                if (tasksLength == 0)
-                {
-                    throw new ArgumentException("The tasks argument contains no tasks.");
-                }
+                if (tasksLength == 0) throw new ArgumentException("The tasks argument contains no tasks.");
 
                 TaskTracker.TrackActiveTask(this, 3);
 
-                for (int i = 0; i < tasksLength; i++)
+                for (var i = 0; i < tasksLength; i++)
                 {
                     UniTask<T>.Awaiter awaiter;
                     try
@@ -202,11 +185,8 @@ namespace Cysharp.Threading.Tasks
                     }
 
                     if (awaiter.IsCompleted)
-                    {
                         TryInvokeContinuation(this, awaiter, i);
-                    }
                     else
-                    {
                         awaiter.SourceOnCompleted(state =>
                         {
                             using (var t = (StateTuple<WhenAnyPromise<T>, UniTask<T>.Awaiter, int>)state)
@@ -214,26 +194,6 @@ namespace Cysharp.Threading.Tasks
                                 TryInvokeContinuation(t.Item1, t.Item2, t.Item3);
                             }
                         }, StateTuple.Create(this, awaiter, i));
-                    }
-                }
-            }
-
-            static void TryInvokeContinuation(WhenAnyPromise<T> self, in UniTask<T>.Awaiter awaiter, int i)
-            {
-                T result;
-                try
-                {
-                    result = awaiter.GetResult();
-                }
-                catch (Exception ex)
-                {
-                    self.core.TrySetException(ex);
-                    return;
-                }
-
-                if (Interlocked.Increment(ref self.completedCount) == 1)
-                {
-                    self.core.TrySetResult((i, result));
                 }
             }
 
@@ -263,25 +223,38 @@ namespace Cysharp.Threading.Tasks
             {
                 GetResult(token);
             }
+
+            private static void TryInvokeContinuation(WhenAnyPromise<T> self, in UniTask<T>.Awaiter awaiter, int i)
+            {
+                T result;
+                try
+                {
+                    result = awaiter.GetResult();
+                }
+                catch (Exception ex)
+                {
+                    self.core.TrySetException(ex);
+                    return;
+                }
+
+                if (Interlocked.Increment(ref self.completedCount) == 1) self.core.TrySetResult((i, result));
+            }
         }
 
-        sealed class WhenAnyPromise : IUniTaskSource<int>
+        private sealed class WhenAnyPromise : IUniTaskSource<int>
         {
-            int completedCount;
-            UniTaskCompletionSourceCore<int> core;
+            private int completedCount;
+            private UniTaskCompletionSourceCore<int> core;
 
             public WhenAnyPromise(UniTask[] tasks, int tasksLength)
             {
-                if (tasksLength == 0)
-                {
-                    throw new ArgumentException("The tasks argument contains no tasks.");
-                }
+                if (tasksLength == 0) throw new ArgumentException("The tasks argument contains no tasks.");
 
                 TaskTracker.TrackActiveTask(this, 3);
 
-                for (int i = 0; i < tasksLength; i++)
+                for (var i = 0; i < tasksLength; i++)
                 {
-                    UniTask.Awaiter awaiter;
+                    Awaiter awaiter;
                     try
                     {
                         awaiter = tasks[i].GetAwaiter();
@@ -293,37 +266,15 @@ namespace Cysharp.Threading.Tasks
                     }
 
                     if (awaiter.IsCompleted)
-                    {
                         TryInvokeContinuation(this, awaiter, i);
-                    }
                     else
-                    {
                         awaiter.SourceOnCompleted(state =>
                         {
-                            using (var t = (StateTuple<WhenAnyPromise, UniTask.Awaiter, int>)state)
+                            using (var t = (StateTuple<WhenAnyPromise, Awaiter, int>)state)
                             {
                                 TryInvokeContinuation(t.Item1, t.Item2, t.Item3);
                             }
                         }, StateTuple.Create(this, awaiter, i));
-                    }
-                }
-            }
-
-            static void TryInvokeContinuation(WhenAnyPromise self, in UniTask.Awaiter awaiter, int i)
-            {
-                try
-                {
-                    awaiter.GetResult();
-                }
-                catch (Exception ex)
-                {
-                    self.core.TrySetException(ex);
-                    return;
-                }
-
-                if (Interlocked.Increment(ref self.completedCount) == 1)
-                {
-                    self.core.TrySetResult(i);
                 }
             }
 
@@ -353,7 +304,21 @@ namespace Cysharp.Threading.Tasks
             {
                 GetResult(token);
             }
+
+            private static void TryInvokeContinuation(WhenAnyPromise self, in Awaiter awaiter, int i)
+            {
+                try
+                {
+                    awaiter.GetResult();
+                }
+                catch (Exception ex)
+                {
+                    self.core.TrySetException(ex);
+                    return;
+                }
+
+                if (Interlocked.Increment(ref self.completedCount) == 1) self.core.TrySetResult(i);
+            }
         }
     }
 }
-

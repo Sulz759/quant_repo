@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace _Project.Develop.Architecture.Runtime.Meta.Nodes
 {
-
     public static class Node
     {
         public static IReadOnlyList<NodeType> Types = new NodeType[5]
@@ -16,6 +14,7 @@ namespace _Project.Develop.Architecture.Runtime.Meta.Nodes
             new UnknownNode()
         };
     }
+
     public class EnemyNode : NodeType
     {
         public override void Initialize()
@@ -28,7 +27,7 @@ namespace _Project.Develop.Architecture.Runtime.Meta.Nodes
     {
         public override void Initialize()
         {
-            color = Color.red;  // for test
+            color = Color.red; // for test
         }
     }
 
@@ -36,30 +35,30 @@ namespace _Project.Develop.Architecture.Runtime.Meta.Nodes
     {
         public override void Initialize()
         {
-            color = Color.blue;  // for test
+            color = Color.blue; // for test
         }
     }
-    
+
     public class RestNode : NodeType
     {
         public override void Initialize()
         {
-            color = Color.green;  // for test
+            color = Color.green; // for test
         }
     }
-    
+
     public class UnknownNode : NodeType
     {
         public override void Initialize()
         {
-            color = Color.gray;  // for test
+            color = Color.gray; // for test
         }
     }
 
     public abstract class NodeType
     {
         public Color color;
-        
+
         public abstract void Initialize();
     }
 }

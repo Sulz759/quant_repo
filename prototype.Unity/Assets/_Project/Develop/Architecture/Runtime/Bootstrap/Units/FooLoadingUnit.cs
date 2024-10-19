@@ -6,16 +6,17 @@ namespace _Project.Develop.Architecture.Runtime.Bootstrap.Units
 {
     public sealed class FooLoadingUnit : ILoadUnit
     {
-        public bool IsLoaded { get; private set; }
+        private readonly bool _isLoadedWhenEnd;
 
         private float _delay;
-        private readonly bool _isLoadedWhenEnd;
 
         public FooLoadingUnit(float delay = 0f, bool isLoadedWhenEnd = true)
         {
             _delay = delay;
             _isLoadedWhenEnd = isLoadedWhenEnd;
         }
+
+        public bool IsLoaded { get; private set; }
 
         public async UniTask Load()
         {

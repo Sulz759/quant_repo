@@ -23,8 +23,8 @@ namespace VContainer
 
     public sealed class ScopedContainerBuilder : ContainerBuilder
     {
-        readonly IObjectResolver root;
-        readonly IScopedObjectResolver parent;
+        private readonly IScopedObjectResolver parent;
+        private readonly IObjectResolver root;
 
         internal ScopedContainerBuilder(IObjectResolver root, IScopedObjectResolver parent)
         {
@@ -43,14 +43,14 @@ namespace VContainer
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override IObjectResolver Build() => BuildScope();
+        public override IObjectResolver Build()
+        {
+            return BuildScope();
+        }
 
         public override bool Exists(Type type, bool includeInterfaceTypes = false, bool findParentScopes = false)
         {
-            if (base.Exists(type, includeInterfaceTypes, findParentScopes))
-            {
-                return true;
-            }
+            if (base.Exists(type, includeInterfaceTypes, findParentScopes)) return true;
 
             if (findParentScopes)
             {
@@ -58,21 +58,21 @@ namespace VContainer
                 while (next != null)
                 {
                     if (next.TryGetRegistration(type, out var registration))
-                    {
                         if (includeInterfaceTypes || registration.ImplementationType == type)
-                        {
                             return true;
-                        }
-                    }
                     next = next.Parent;
                 }
             }
+
             return false;
         }
     }
 
     public class ContainerBuilder : IContainerBuilder
     {
+        private readonly List<RegistrationBuilder> registrationBuilders = new();
+        private Action<IObjectResolver> buildCallback;
+        private DiagnosticsCollector diagnostics;
         public object ApplicationOrigin { get; set; }
 
         public int Count => registrationBuilders.Count;
@@ -93,10 +93,6 @@ namespace VContainer
             }
         }
 
-        readonly List<RegistrationBuilder> registrationBuilders = new List<RegistrationBuilder>();
-        Action<IObjectResolver> buildCallback;
-        DiagnosticsCollector diagnostics;
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T Register<T>(T registrationBuilder) where T : RegistrationBuilder
         {
@@ -115,13 +111,9 @@ namespace VContainer
         public virtual bool Exists(Type type, bool includeInterfaceTypes = false, bool findParentScopes = false)
         {
             foreach (var registrationBuilder in registrationBuilders)
-            {
                 if (registrationBuilder.ImplementationType == type ||
-                    includeInterfaceTypes && registrationBuilder.InterfaceTypes?.Contains(type) == true)
-                {
+                    (includeInterfaceTypes && registrationBuilder.InterfaceTypes?.Contains(type) == true))
                     return true;
-                }
-            }
             return false;
         }
 

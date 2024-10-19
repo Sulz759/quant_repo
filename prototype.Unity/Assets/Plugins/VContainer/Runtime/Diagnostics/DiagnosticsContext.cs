@@ -6,8 +6,7 @@ namespace VContainer.Diagnostics
 {
     public static class DiagnositcsContext
     {
-        static readonly Dictionary<string, DiagnosticsCollector> collectors
-            = new Dictionary<string, DiagnosticsCollector>();
+        private static readonly Dictionary<string, DiagnosticsCollector> collectors = new();
 
         public static event Action<IObjectResolver> OnContainerBuilt;
 
@@ -20,6 +19,7 @@ namespace VContainer.Diagnostics
                     collector = new DiagnosticsCollector(name);
                     collectors.Add(name, collector);
                 }
+
                 return collector;
             }
         }

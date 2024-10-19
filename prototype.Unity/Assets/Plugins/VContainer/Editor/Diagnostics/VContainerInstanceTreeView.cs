@@ -5,28 +5,33 @@ using System.Runtime.CompilerServices;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using VContainer.Diagnostics;
+using Object = UnityEngine.Object;
 
 namespace VContainer.Editor.Diagnostics
 {
     public sealed class VContainerInstanceTreeView : TreeView
     {
-        static int idSeed;
-        static int NextId() => ++idSeed;
-
-        static string Stringify(object instance)
-        {
-            if (ReferenceEquals(instance, null))
-                return "null";
-            if (instance is UnityEngine.Object obj && obj == null)
-                return "null or destroyed";
-            return instance.ToString();
-        }
-
-        public DiagnosticsInfo CurrentDiagnosticsInfo { get; set; }
+        private static int idSeed;
 
         public VContainerInstanceTreeView() : base(new TreeViewState())
         {
             Reload();
+        }
+
+        public DiagnosticsInfo CurrentDiagnosticsInfo { get; set; }
+
+        private static int NextId()
+        {
+            return ++idSeed;
+        }
+
+        private static string Stringify(object instance)
+        {
+            if (ReferenceEquals(instance, null))
+                return "null";
+            if (instance is Object obj && obj == null)
+                return "null or destroyed";
+            return instance.ToString();
         }
 
         protected override TreeViewItem BuildRoot()
@@ -34,7 +39,6 @@ namespace VContainer.Editor.Diagnostics
             var root = new TreeViewItem(NextId(), -1, "Root");
             var children = new List<TreeViewItem>();
             if (CurrentDiagnosticsInfo is DiagnosticsInfo info)
-            {
                 for (var i = 0; i < info.ResolveInfo.Instances.Count; i++)
                 {
                     var instance = info.ResolveInfo.Instances[i];
@@ -44,13 +48,12 @@ namespace VContainer.Editor.Diagnostics
                     children.Add(item);
                     SetExpanded(item.id, true);
                 }
-            }
 
             root.children = children;
             return root;
         }
 
-        void AddProperties(object instance, TreeViewItem parent)
+        private void AddProperties(object instance, TreeViewItem parent)
         {
             if (instance == null) return;
 
@@ -60,16 +63,15 @@ namespace VContainer.Editor.Diagnostics
 
             foreach (var prop in props)
             {
-                if (prop.PropertyType.IsSubclassOf(typeof(UnityEngine.Object)) &&
+                if (prop.PropertyType.IsSubclassOf(typeof(Object)) &&
                     prop.IsDefined(typeof(ObsoleteAttribute), true))
-                {
                     continue;
-                }
 
                 try
                 {
                     var value = prop.GetValue(instance);
-                    var displayName = $"{prop.Name} = ({TypeNameHelper.GetTypeAlias(prop.PropertyType)}) {Stringify(value)}";
+                    var displayName =
+                        $"{prop.Name} = ({TypeNameHelper.GetTypeAlias(prop.PropertyType)}) {Stringify(value)}";
                     parent.AddChild(new TreeViewItem(NextId(), parent.depth + 1, displayName));
                 }
                 catch (MissingReferenceException)
@@ -82,17 +84,16 @@ namespace VContainer.Editor.Diagnostics
 
             foreach (var field in fields)
             {
-                if ((field.FieldType.IsSubclassOf(typeof(UnityEngine.Object)) &&
-                    field.IsDefined(typeof(ObsoleteAttribute), true)) ||
+                if ((field.FieldType.IsSubclassOf(typeof(Object)) &&
+                     field.IsDefined(typeof(ObsoleteAttribute), true)) ||
                     field.IsDefined(typeof(CompilerGeneratedAttribute), true))
-                {
                     continue;
-                }
 
                 try
                 {
                     var value = field.GetValue(instance);
-                    var displayName = $"{field.Name} = ({TypeNameHelper.GetTypeAlias(field.FieldType)}) {Stringify(value)}";
+                    var displayName =
+                        $"{field.Name} = ({TypeNameHelper.GetTypeAlias(field.FieldType)}) {Stringify(value)}";
                     parent.AddChild(new TreeViewItem(NextId(), parent.depth + 1, displayName));
                 }
                 catch (MissingReferenceException)

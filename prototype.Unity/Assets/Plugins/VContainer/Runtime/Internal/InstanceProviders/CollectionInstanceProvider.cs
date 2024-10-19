@@ -5,23 +5,10 @@ using System.Runtime.CompilerServices;
 
 namespace VContainer.Internal
 {
-    sealed class CollectionInstanceProvider : IInstanceProvider, IEnumerable<Registration>
+    internal sealed class CollectionInstanceProvider : IInstanceProvider, IEnumerable<Registration>
     {
-        public static bool Match(Type openGenericType) => openGenericType == typeof(IEnumerable<>) ||
-                                                          openGenericType == typeof(IReadOnlyList<>);
-
-        public List<Registration>.Enumerator GetEnumerator() => registrations.GetEnumerator();
-        IEnumerator<Registration> IEnumerable<Registration>.GetEnumerator() => GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        public Type ImplementationType { get; }
-        public IReadOnlyList<Type> InterfaceTypes => interfaceTypes;
-        public Lifetime Lifetime => Lifetime.Transient; // Collection reference is transient. So its members can have each lifetimes.
-
-        public Type ElementType { get; }
-
-        readonly List<Type> interfaceTypes;
-        readonly List<Registration> registrations = new List<Registration>();
+        private readonly List<Type> interfaceTypes;
+        private readonly List<Registration> registrations = new();
 
         public CollectionInstanceProvider(Type elementType)
         {
@@ -30,8 +17,51 @@ namespace VContainer.Internal
             interfaceTypes = new List<Type>
             {
                 RuntimeTypeCache.EnumerableTypeOf(elementType),
-                RuntimeTypeCache.ReadOnlyListTypeOf(elementType),
+                RuntimeTypeCache.ReadOnlyListTypeOf(elementType)
             };
+        }
+
+        public Type ImplementationType { get; }
+        public IReadOnlyList<Type> InterfaceTypes => interfaceTypes;
+
+        public Lifetime Lifetime =>
+            Lifetime.Transient; // Collection reference is transient. So its members can have each lifetimes.
+
+        public Type ElementType { get; }
+
+        IEnumerator<Registration> IEnumerable<Registration>.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public object SpawnInstance(IObjectResolver resolver)
+        {
+            if (resolver is IScopedObjectResolver scope)
+                using (ListPool<Registration>.Get(out var entirelyRegistrations))
+                {
+                    CollectFromParentScopes(scope, entirelyRegistrations);
+                    return SpawnInstance(resolver, entirelyRegistrations);
+                    ;
+                }
+
+            return SpawnInstance(resolver, registrations);
+        }
+
+        public static bool Match(Type openGenericType)
+        {
+            return openGenericType == typeof(IEnumerable<>) ||
+                   openGenericType == typeof(IReadOnlyList<>);
+        }
+
+        public List<Registration>.Enumerator GetEnumerator()
+        {
+            return registrations.GetEnumerator();
         }
 
         public override string ToString()
@@ -43,27 +73,10 @@ namespace VContainer.Internal
         public void Add(Registration registration)
         {
             foreach (var x in registrations)
-            {
                 if (x.Lifetime == Lifetime.Singleton && x.ImplementationType == registration.ImplementationType)
-                {
-                    throw new VContainerException(registration.ImplementationType, $"Conflict implementation type : {registration}");
-                }
-            }
+                    throw new VContainerException(registration.ImplementationType,
+                        $"Conflict implementation type : {registration}");
             registrations.Add(registration);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public object SpawnInstance(IObjectResolver resolver)
-        {
-            if (resolver is IScopedObjectResolver scope)
-            {
-                using (ListPool<Registration>.Get(out var entirelyRegistrations))
-                {
-                    CollectFromParentScopes(scope, entirelyRegistrations);
-                    return SpawnInstance(resolver, entirelyRegistrations);;
-                }
-            }
-            return SpawnInstance(resolver, registrations);
         }
 
         internal object SpawnInstance(
@@ -72,9 +85,7 @@ namespace VContainer.Internal
         {
             var array = Array.CreateInstance(ElementType, entirelyRegistrations.Count);
             for (var i = 0; i < entirelyRegistrations.Count; i++)
-            {
                 array.SetValue(resolver.Resolve(entirelyRegistrations[i]), i);
-            }
             return array;
         }
 
@@ -107,18 +118,15 @@ namespace VContainer.Internal
                     if (localScopeOnly)
                     {
                         foreach (var x in parentCollection.registrations)
-                        {
                             if (x.Lifetime != Lifetime.Singleton)
-                            {
                                 mergedRegistrations.Add(x);
-                            }
-                        }
                     }
                     else
                     {
                         mergedRegistrations.AddRange(parentCollection.registrations);
                     }
                 }
+
                 scope = scope.Parent;
             }
 

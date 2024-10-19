@@ -6,7 +6,7 @@ namespace Cysharp.Threading.Tasks.Linq
     {
         public static IUniTaskAsyncEnumerable<T> Never<T>()
         {
-            return Cysharp.Threading.Tasks.Linq.Never<T>.Instance;
+            return Linq.Never<T>.Instance;
         }
     }
 
@@ -14,7 +14,7 @@ namespace Cysharp.Threading.Tasks.Linq
     {
         public static readonly IUniTaskAsyncEnumerable<T> Instance = new Never<T>();
 
-        Never()
+        private Never()
         {
         }
 
@@ -23,9 +23,9 @@ namespace Cysharp.Threading.Tasks.Linq
             return new _Never(cancellationToken);
         }
 
-        class _Never : IUniTaskAsyncEnumerator<T>
+        private class _Never : IUniTaskAsyncEnumerator<T>
         {
-            CancellationToken cancellationToken;
+            private readonly CancellationToken cancellationToken;
 
             public _Never(CancellationToken cancellationToken)
             {

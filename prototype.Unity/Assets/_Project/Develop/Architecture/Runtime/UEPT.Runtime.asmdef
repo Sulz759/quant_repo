@@ -5,7 +5,8 @@
         "UEPT.Shared",
         "UEPT.Backend",
         "UniTask",
-        "VContainer"
+        "VContainer",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

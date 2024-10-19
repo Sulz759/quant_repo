@@ -2,16 +2,16 @@ using VContainer.Internal;
 
 namespace VContainer.Unity
 {
-    interface IPlayerLoopItem
+    internal interface IPlayerLoopItem
     {
         bool MoveNext();
     }
 
-    sealed class PlayerLoopRunner
+    internal sealed class PlayerLoopRunner
     {
-        readonly FreeList<IPlayerLoopItem> runners = new FreeList<IPlayerLoopItem>(16);
+        private readonly FreeList<IPlayerLoopItem> runners = new(16);
 
-        int running;
+        private int running;
 
         public void Dispatch(IPlayerLoopItem item)
         {
@@ -32,10 +32,7 @@ namespace VContainer.Unity
                 if (item != null)
                 {
                     var continued = item.MoveNext();
-                    if (!continued)
-                    {
-                        runners.RemoveAt(i);
-                    }
+                    if (!continued) runners.RemoveAt(i);
                 }
             }
         }

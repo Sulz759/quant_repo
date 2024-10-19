@@ -6,9 +6,9 @@ namespace _Project.Develop.Architecture.Runtime.Utilities.Logging
 {
     public sealed class BuilderLogPool
     {
+        private readonly int _buildersCount;
         private readonly Stack<LogPacker> _buildersPool = new();
         private readonly TagLog _log;
-        private readonly int _buildersCount;
 
         public BuilderLogPool(TagLog log, int buildersCount)
         {
@@ -21,20 +21,21 @@ namespace _Project.Develop.Architecture.Runtime.Utilities.Logging
 
         public LogPacker Rent()
         {
-            if (_buildersPool.TryPeek(out LogPacker sb)) {
+            if (_buildersPool.TryPeek(out var sb))
+            {
                 sb.Clear();
                 return sb;
             }
 
-            throw new ArgumentOutOfRangeException(nameof(_buildersCount), "You are trying to Peek more string builder then you define");
+            throw new ArgumentOutOfRangeException(nameof(_buildersCount),
+                "You are trying to Peek more string builder then you define");
         }
 
         public void ReturnAndLog(LogPacker sb, string additionalTag = null)
         {
-            if (_buildersPool.Count + 1 < _buildersCount) {
+            if (_buildersPool.Count + 1 < _buildersCount)
                 throw new ArgumentOutOfRangeException(nameof(_buildersCount),
                     "You are trying to Return more string builder then you define");
-            }
 
             if (string.IsNullOrEmpty(additionalTag))
                 _log.D(sb.ToString());
@@ -106,27 +107,39 @@ namespace _Project.Develop.Architecture.Runtime.Utilities.Logging
             _sb.Clear();
         }
 
-        public int EnsureCapacity(int capacity) => _sb.EnsureCapacity(capacity);
+        public int EnsureCapacity(int capacity)
+        {
+            return _sb.EnsureCapacity(capacity);
+        }
 
-        public bool Equals(LogPacker sb) => _sb.Equals(sb._sb);
+        public bool Equals(LogPacker sb)
+        {
+            return _sb.Equals(sb._sb);
+        }
 
-        public override string ToString() => _sb.ToString();
+        public override string ToString()
+        {
+            return _sb.ToString();
+        }
 
         public int Capacity
         {
             get => _sb.Capacity;
             set => _sb.Capacity = value;
         }
+
         public char this[int index]
         {
             get => _sb[index];
             set => _sb[index] = value;
         }
+
         public int Length
         {
             get => _sb.Length;
             set => _sb.Length = value;
         }
+
         public int MaxCapacity => _sb.MaxCapacity;
     }
 }

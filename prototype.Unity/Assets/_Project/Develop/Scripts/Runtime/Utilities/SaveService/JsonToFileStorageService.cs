@@ -6,19 +6,16 @@ using UnityEngine;
 
 namespace _Project.Develop.Scripts.Runtime.Utilities.SaveService
 {
-    public class JsonToFileStorageService: IStorageService
+    public class JsonToFileStorageService : IStorageService
     {
         private bool _isInProgressNow;
+
         public void Save(string key, object data, Action<bool> callback = null)
         {
             if (!_isInProgressNow)
-            {
-                SaveAsync(key,data, callback);
-            }
+                SaveAsync(key, data, callback);
             else
-            {
                 callback?.Invoke(false);
-            }
         }
 
         public void Load<T>(string key, Action<T> callback)
@@ -48,8 +45,9 @@ namespace _Project.Develop.Scripts.Runtime.Utilities.SaveService
 
             await using (var fileStream = new StreamWriter(path))
             {
-               await fileStream.WriteAsync(json);
+                await fileStream.WriteAsync(json);
             }
+
             callback?.Invoke(true);
         }
 

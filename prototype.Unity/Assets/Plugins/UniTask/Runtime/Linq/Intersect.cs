@@ -1,13 +1,14 @@
-﻿using Cysharp.Threading.Tasks.Internal;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using Cysharp.Threading.Tasks.Internal;
 
 namespace Cysharp.Threading.Tasks.Linq
 {
     public static partial class UniTaskAsyncEnumerable
     {
-        public static IUniTaskAsyncEnumerable<TSource> Intersect<TSource>(this IUniTaskAsyncEnumerable<TSource> first, IUniTaskAsyncEnumerable<TSource> second)
+        public static IUniTaskAsyncEnumerable<TSource> Intersect<TSource>(this IUniTaskAsyncEnumerable<TSource> first,
+            IUniTaskAsyncEnumerable<TSource> second)
         {
             Error.ThrowArgumentNullException(first, nameof(first));
             Error.ThrowArgumentNullException(second, nameof(second));
@@ -15,7 +16,8 @@ namespace Cysharp.Threading.Tasks.Linq
             return new Intersect<TSource>(first, second, EqualityComparer<TSource>.Default);
         }
 
-        public static IUniTaskAsyncEnumerable<TSource> Intersect<TSource>(this IUniTaskAsyncEnumerable<TSource> first, IUniTaskAsyncEnumerable<TSource> second, IEqualityComparer<TSource> comparer)
+        public static IUniTaskAsyncEnumerable<TSource> Intersect<TSource>(this IUniTaskAsyncEnumerable<TSource> first,
+            IUniTaskAsyncEnumerable<TSource> second, IEqualityComparer<TSource> comparer)
         {
             Error.ThrowArgumentNullException(first, nameof(first));
             Error.ThrowArgumentNullException(second, nameof(second));
@@ -27,11 +29,12 @@ namespace Cysharp.Threading.Tasks.Linq
 
     internal sealed class Intersect<TSource> : IUniTaskAsyncEnumerable<TSource>
     {
-        readonly IUniTaskAsyncEnumerable<TSource> first;
-        readonly IUniTaskAsyncEnumerable<TSource> second;
-        readonly IEqualityComparer<TSource> comparer;
+        private readonly IEqualityComparer<TSource> comparer;
+        private readonly IUniTaskAsyncEnumerable<TSource> first;
+        private readonly IUniTaskAsyncEnumerable<TSource> second;
 
-        public Intersect(IUniTaskAsyncEnumerable<TSource> first, IUniTaskAsyncEnumerable<TSource> second, IEqualityComparer<TSource> comparer)
+        public Intersect(IUniTaskAsyncEnumerable<TSource> first, IUniTaskAsyncEnumerable<TSource> second,
+            IEqualityComparer<TSource> comparer)
         {
             this.first = first;
             this.second = second;
@@ -43,18 +46,18 @@ namespace Cysharp.Threading.Tasks.Linq
             return new _Intersect(first, second, comparer, cancellationToken);
         }
 
-        class _Intersect : AsyncEnumeratorBase<TSource, TSource>
+        private class _Intersect : AsyncEnumeratorBase<TSource, TSource>
         {
-            static Action<object> HashSetAsyncCoreDelegate = HashSetAsyncCore;
+            private static readonly Action<object> HashSetAsyncCoreDelegate = HashSetAsyncCore;
 
-            readonly IEqualityComparer<TSource> comparer;
-            readonly IUniTaskAsyncEnumerable<TSource> second;
+            private readonly IEqualityComparer<TSource> comparer;
+            private readonly IUniTaskAsyncEnumerable<TSource> second;
+            private UniTask<HashSet<TSource>>.Awaiter awaiter;
 
-            HashSet<TSource> set;
-            UniTask<HashSet<TSource>>.Awaiter awaiter;
+            private HashSet<TSource> set;
 
-            public _Intersect(IUniTaskAsyncEnumerable<TSource> first, IUniTaskAsyncEnumerable<TSource> second, IEqualityComparer<TSource> comparer, CancellationToken cancellationToken)
-
+            public _Intersect(IUniTaskAsyncEnumerable<TSource> first, IUniTaskAsyncEnumerable<TSource> second,
+                IEqualityComparer<TSource> comparer, CancellationToken cancellationToken)
                 : base(first, cancellationToken)
             {
                 this.second = second;
@@ -79,7 +82,7 @@ namespace Cysharp.Threading.Tasks.Linq
                 return true;
             }
 
-            static void HashSetAsyncCore(object state)
+            private static void HashSetAsyncCore(object state)
             {
                 var self = (_Intersect)state;
 
@@ -102,11 +105,9 @@ namespace Cysharp.Threading.Tasks.Linq
                         result = true;
                         return true;
                     }
-                    else
-                    {
-                        result = default;
-                        return false;
-                    }
+
+                    result = default;
+                    return false;
                 }
 
                 result = false;

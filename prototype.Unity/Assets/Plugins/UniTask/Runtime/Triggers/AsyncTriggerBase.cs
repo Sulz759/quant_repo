@@ -8,17 +8,16 @@ namespace Cysharp.Threading.Tasks.Triggers
 {
     public abstract class AsyncTriggerBase<T> : MonoBehaviour, IUniTaskAsyncEnumerable<T>
     {
-        TriggerEvent<T> triggerEvent;
+        protected internal bool calledAwake;
+        protected internal bool calledDestroy;
+        private TriggerEvent<T> triggerEvent;
 
-        internal protected bool calledAwake;
-        internal protected bool calledDestroy;
-
-        void Awake()
+        private void Awake()
         {
             calledAwake = true;
         }
 
-        void OnDestroy()
+        private void OnDestroy()
         {
             if (calledDestroy) return;
             calledDestroy = true;
@@ -26,22 +25,21 @@ namespace Cysharp.Threading.Tasks.Triggers
             triggerEvent.SetCompleted();
         }
 
+        public IUniTaskAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        {
+            return new AsyncTriggerEnumerator(this, cancellationToken);
+        }
+
         internal void AddHandler(ITriggerHandler<T> handler)
         {
-            if (!calledAwake)
-            {
-                PlayerLoopHelper.AddAction(PlayerLoopTiming.Update, new AwakeMonitor(this));
-            }
+            if (!calledAwake) PlayerLoopHelper.AddAction(PlayerLoopTiming.Update, new AwakeMonitor(this));
 
             triggerEvent.Add(handler);
         }
 
         internal void RemoveHandler(ITriggerHandler<T> handler)
         {
-            if (!calledAwake)
-            {
-                PlayerLoopHelper.AddAction(PlayerLoopTiming.Update, new AwakeMonitor(this));
-            }
+            if (!calledAwake) PlayerLoopHelper.AddAction(PlayerLoopTiming.Update, new AwakeMonitor(this));
 
             triggerEvent.Remove(handler);
         }
@@ -51,20 +49,15 @@ namespace Cysharp.Threading.Tasks.Triggers
             triggerEvent.SetResult(value);
         }
 
-        public IUniTaskAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        private sealed class AsyncTriggerEnumerator : MoveNextSource, IUniTaskAsyncEnumerator<T>, ITriggerHandler<T>
         {
-            return new AsyncTriggerEnumerator(this, cancellationToken);
-        }
+            private static readonly Action<object> cancellationCallback = CancellationCallback;
 
-        sealed class AsyncTriggerEnumerator : MoveNextSource, IUniTaskAsyncEnumerator<T>, ITriggerHandler<T>
-        {
-            static Action<object> cancellationCallback = CancellationCallback;
-
-            readonly AsyncTriggerBase<T> parent;
-            CancellationToken cancellationToken;
-            CancellationTokenRegistration registration;
-            bool called;
-            bool isDisposed;
+            private readonly AsyncTriggerBase<T> parent;
+            private bool called;
+            private readonly CancellationToken cancellationToken;
+            private bool isDisposed;
+            private CancellationTokenRegistration registration;
 
             public AsyncTriggerEnumerator(AsyncTriggerBase<T> parent, CancellationToken cancellationToken)
             {
@@ -93,17 +86,10 @@ namespace Cysharp.Threading.Tasks.Triggers
                 completionSource.TrySetException(ex);
             }
 
-            static void CancellationCallback(object state)
-            {
-                var self = (AsyncTriggerEnumerator)state;
-                self.DisposeAsync().Forget(); // sync
-
-                self.completionSource.TrySetCanceled(self.cancellationToken);
-            }
-
-            public T Current { get; private set; }
             ITriggerHandler<T> ITriggerHandler<T>.Prev { get; set; }
             ITriggerHandler<T> ITriggerHandler<T>.Next { get; set; }
+
+            public T Current { get; private set; }
 
             public UniTask<bool> MoveNextAsync()
             {
@@ -117,9 +103,8 @@ namespace Cysharp.Threading.Tasks.Triggers
                     TaskTracker.TrackActiveTask(this, 3);
                     parent.AddHandler(this);
                     if (cancellationToken.CanBeCanceled)
-                    {
-                        registration = cancellationToken.RegisterWithoutCaptureExecutionContext(cancellationCallback, this);
-                    }
+                        registration =
+                            cancellationToken.RegisterWithoutCaptureExecutionContext(cancellationCallback, this);
                 }
 
                 return new UniTask<bool>(this, completionSource.Version);
@@ -137,11 +122,19 @@ namespace Cysharp.Threading.Tasks.Triggers
 
                 return default;
             }
+
+            private static void CancellationCallback(object state)
+            {
+                var self = (AsyncTriggerEnumerator)state;
+                self.DisposeAsync().Forget(); // sync
+
+                self.completionSource.TrySetCanceled(self.cancellationToken);
+            }
         }
 
-        class AwakeMonitor : IPlayerLoopItem
+        private class AwakeMonitor : IPlayerLoopItem
         {
-            readonly AsyncTriggerBase<T> trigger;
+            private readonly AsyncTriggerBase<T> trigger;
 
             public AwakeMonitor(AsyncTriggerBase<T> trigger)
             {
@@ -156,6 +149,7 @@ namespace Cysharp.Threading.Tasks.Triggers
                     trigger.OnDestroy();
                     return false;
                 }
+
                 return true;
             }
         }
@@ -171,27 +165,22 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOneShotTrigger.OneShotAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)this, core.Version);
+            return new UniTask(this, core.Version);
         }
     }
 
     public sealed partial class AsyncTriggerHandler<T> : IUniTaskSource<T>, ITriggerHandler<T>, IDisposable
     {
-        static Action<object> cancellationCallback = CancellationCallback;
+        private static readonly Action<object> cancellationCallback = CancellationCallback;
 
-        readonly AsyncTriggerBase<T> trigger;
+        private readonly AsyncTriggerBase<T> trigger;
+        private readonly bool callOnce;
 
-        CancellationToken cancellationToken;
-        CancellationTokenRegistration registration;
-        bool isDisposed;
-        bool callOnce;
+        private readonly CancellationToken cancellationToken;
 
-        UniTaskCompletionSourceCore<T> core;
-
-        internal CancellationToken CancellationToken => cancellationToken;
-
-        ITriggerHandler<T> ITriggerHandler<T>.Prev { get; set; }
-        ITriggerHandler<T> ITriggerHandler<T>.Next { get; set; }
+        private UniTaskCompletionSourceCore<T> core;
+        private bool isDisposed;
+        private readonly CancellationTokenRegistration registration;
 
         internal AsyncTriggerHandler(AsyncTriggerBase<T> trigger, bool callOnce)
         {
@@ -202,8 +191,8 @@ namespace Cysharp.Threading.Tasks.Triggers
             }
 
             this.trigger = trigger;
-            this.cancellationToken = default;
-            this.registration = default;
+            cancellationToken = default;
+            registration = default;
             this.callOnce = callOnce;
 
             trigger.AddHandler(this);
@@ -226,20 +215,12 @@ namespace Cysharp.Threading.Tasks.Triggers
             trigger.AddHandler(this);
 
             if (cancellationToken.CanBeCanceled)
-            {
                 registration = cancellationToken.RegisterWithoutCaptureExecutionContext(cancellationCallback, this);
-            }
 
             TaskTracker.TrackActiveTask(this, 3);
         }
 
-        static void CancellationCallback(object state)
-        {
-            var self = (AsyncTriggerHandler<T>)state;
-            self.Dispose();
-
-            self.core.TrySetCanceled(self.cancellationToken);
-        }
+        internal CancellationToken CancellationToken => cancellationToken;
 
         public void Dispose()
         {
@@ -252,20 +233,8 @@ namespace Cysharp.Threading.Tasks.Triggers
             }
         }
 
-        T IUniTaskSource<T>.GetResult(short token)
-        {
-            try
-            {
-                return core.GetResult(token);
-            }
-            finally
-            {
-                if (callOnce)
-                {
-                    Dispose();
-                }
-            }
-        }
+        ITriggerHandler<T> ITriggerHandler<T>.Prev { get; set; }
+        ITriggerHandler<T> ITriggerHandler<T>.Next { get; set; }
 
         void ITriggerHandler<T>.OnNext(T value)
         {
@@ -287,6 +256,18 @@ namespace Cysharp.Threading.Tasks.Triggers
             core.TrySetException(ex);
         }
 
+        T IUniTaskSource<T>.GetResult(short token)
+        {
+            try
+            {
+                return core.GetResult(token);
+            }
+            finally
+            {
+                if (callOnce) Dispose();
+            }
+        }
+
         void IUniTaskSource.GetResult(short token)
         {
             ((IUniTaskSource<T>)this).GetResult(token);
@@ -305,6 +286,14 @@ namespace Cysharp.Threading.Tasks.Triggers
         void IUniTaskSource.OnCompleted(Action<object> continuation, object state, short token)
         {
             core.OnCompleted(continuation, state, token);
+        }
+
+        private static void CancellationCallback(object state)
+        {
+            var self = (AsyncTriggerHandler<T>)state;
+            self.Dispose();
+
+            self.core.TrySetCanceled(self.cancellationToken);
         }
     }
 }

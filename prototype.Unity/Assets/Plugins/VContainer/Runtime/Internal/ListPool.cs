@@ -5,47 +5,26 @@ namespace VContainer.Internal
 {
     internal static class ListPool<T>
     {
-        const int DefaultCapacity = 32;
+        private const int DefaultCapacity = 32;
 
-        private static readonly Stack<List<T>> _pool = new Stack<List<T>>(4);
-        
-        /// <summary>
-        /// BufferScope supports releasing a buffer with using clause.
-        /// </summary>
-        internal readonly struct BufferScope : IDisposable
-        {
-            private readonly List<T> _buffer;
-
-            public BufferScope(List<T> buffer)
-            {
-                _buffer = buffer;
-            }
-            
-            public void Dispose()
-            {
-                Release(_buffer);
-            }
-        }
+        private static readonly Stack<List<T>> _pool = new(4);
 
         /// <summary>
-        /// Get a buffer from the pool.
+        ///     Get a buffer from the pool.
         /// </summary>
         /// <returns></returns>
         internal static List<T> Get()
         {
             lock (_pool)
             {
-                if (_pool.Count == 0)
-                {
-                    return new List<T>(DefaultCapacity);
-                }
+                if (_pool.Count == 0) return new List<T>(DefaultCapacity);
 
                 return _pool.Pop();
             }
         }
 
         /// <summary>
-        /// Get a buffer from the pool. Returning a disposable struct to support recycling via using clause.
+        ///     Get a buffer from the pool. Returning a disposable struct to support recycling via using clause.
         /// </summary>
         /// <param name="buffer"></param>
         /// <returns></returns>
@@ -56,7 +35,7 @@ namespace VContainer.Internal
         }
 
         /// <summary>
-        /// Declare a buffer won't be used anymore and put it back to the pool.  
+        ///     Declare a buffer won't be used anymore and put it back to the pool.
         /// </summary>
         /// <param name="buffer"></param>
         internal static void Release(List<T> buffer)
@@ -65,6 +44,24 @@ namespace VContainer.Internal
             lock (_pool)
             {
                 _pool.Push(buffer);
+            }
+        }
+
+        /// <summary>
+        ///     BufferScope supports releasing a buffer with using clause.
+        /// </summary>
+        internal readonly struct BufferScope : IDisposable
+        {
+            private readonly List<T> _buffer;
+
+            public BufferScope(List<T> buffer)
+            {
+                _buffer = buffer;
+            }
+
+            public void Dispose()
+            {
+                Release(_buffer);
             }
         }
     }

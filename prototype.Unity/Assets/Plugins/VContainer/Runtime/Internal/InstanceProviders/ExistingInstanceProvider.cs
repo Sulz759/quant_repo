@@ -2,9 +2,9 @@ using System.Runtime.CompilerServices;
 
 namespace VContainer.Internal
 {
-    sealed class ExistingInstanceProvider : IInstanceProvider
+    internal sealed class ExistingInstanceProvider : IInstanceProvider
     {
-        readonly object implementationInstance;
+        private readonly object implementationInstance;
 
         public ExistingInstanceProvider(object implementationInstance)
         {
@@ -12,6 +12,9 @@ namespace VContainer.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public object SpawnInstance(IObjectResolver resolver) => implementationInstance;
+        public object SpawnInstance(IObjectResolver resolver)
+        {
+            return implementationInstance;
+        }
     }
 }

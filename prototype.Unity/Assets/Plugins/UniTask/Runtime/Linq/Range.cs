@@ -1,5 +1,5 @@
-﻿using Cysharp.Threading.Tasks.Internal;
-using System.Threading;
+﻿using System.Threading;
+using Cysharp.Threading.Tasks.Internal;
 
 namespace Cysharp.Threading.Tasks.Linq
 {
@@ -12,21 +12,21 @@ namespace Cysharp.Threading.Tasks.Linq
             var end = (long)start + count - 1L;
             if (end > int.MaxValue) throw Error.ArgumentOutOfRange(nameof(count));
 
-            if (count == 0) UniTaskAsyncEnumerable.Empty<int>();
+            if (count == 0) Empty<int>();
 
-            return new Cysharp.Threading.Tasks.Linq.Range(start, count);
+            return new Range(start, count);
         }
     }
 
     internal class Range : IUniTaskAsyncEnumerable<int>
     {
-        readonly int start;
-        readonly int end;
+        private readonly int end;
+        private readonly int start;
 
         public Range(int start, int count)
         {
             this.start = start;
-            this.end = start + count;
+            end = start + count;
         }
 
         public IUniTaskAsyncEnumerator<int> GetAsyncEnumerator(CancellationToken cancellationToken = default)
@@ -34,12 +34,11 @@ namespace Cysharp.Threading.Tasks.Linq
             return new _Range(start, end, cancellationToken);
         }
 
-        class _Range : IUniTaskAsyncEnumerator<int>
+        private class _Range : IUniTaskAsyncEnumerator<int>
         {
-            readonly int start;
-            readonly int end;
-            int current;
-            CancellationToken cancellationToken;
+            private readonly int end;
+            private readonly int start;
+            private readonly CancellationToken cancellationToken;
 
             public _Range(int start, int end, CancellationToken cancellationToken)
             {
@@ -47,21 +46,18 @@ namespace Cysharp.Threading.Tasks.Linq
                 this.end = end;
                 this.cancellationToken = cancellationToken;
 
-                this.current = start - 1;
+                Current = start - 1;
             }
 
-            public int Current => current;
+            public int Current { get; private set; }
 
             public UniTask<bool> MoveNextAsync()
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                current++;
+                Current++;
 
-                if (current != end)
-                {
-                    return CompletedTasks.True;
-                }
+                if (Current != end) return CompletedTasks.True;
 
                 return CompletedTasks.False;
             }

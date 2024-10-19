@@ -1,19 +1,21 @@
-﻿using Cysharp.Threading.Tasks.Internal;
-using System;
+﻿using System;
 using System.Threading;
+using Cysharp.Threading.Tasks.Internal;
 
 namespace Cysharp.Threading.Tasks.Linq
 {
     public static partial class UniTaskAsyncEnumerable
     {
-        public static IUniTaskAsyncEnumerable<TSource> Append<TSource>(this IUniTaskAsyncEnumerable<TSource> source, TSource element)
+        public static IUniTaskAsyncEnumerable<TSource> Append<TSource>(this IUniTaskAsyncEnumerable<TSource> source,
+            TSource element)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
 
             return new AppendPrepend<TSource>(source, element, true);
         }
 
-        public static IUniTaskAsyncEnumerable<TSource> Prepend<TSource>(this IUniTaskAsyncEnumerable<TSource> source, TSource element)
+        public static IUniTaskAsyncEnumerable<TSource> Prepend<TSource>(this IUniTaskAsyncEnumerable<TSource> source,
+            TSource element)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
 
@@ -23,9 +25,9 @@ namespace Cysharp.Threading.Tasks.Linq
 
     internal sealed class AppendPrepend<TSource> : IUniTaskAsyncEnumerable<TSource>
     {
-        readonly IUniTaskAsyncEnumerable<TSource> source;
-        readonly TSource element;
-        readonly bool append; // or prepend
+        private readonly bool append; // or prepend
+        private readonly TSource element;
+        private readonly IUniTaskAsyncEnumerable<TSource> source;
 
         public AppendPrepend(IUniTaskAsyncEnumerable<TSource> source, TSource element, bool append)
         {
@@ -39,31 +41,24 @@ namespace Cysharp.Threading.Tasks.Linq
             return new _AppendPrepend(source, element, append, cancellationToken);
         }
 
-        sealed class _AppendPrepend : MoveNextSource, IUniTaskAsyncEnumerator<TSource>
+        private sealed class _AppendPrepend : MoveNextSource, IUniTaskAsyncEnumerator<TSource>
         {
-            enum State : byte
-            {
-                None,
-                RequirePrepend,
-                RequireAppend,
-                Completed
-            }
+            private static readonly Action<object> MoveNextCoreDelegate = MoveNextCore;
+            private readonly TSource element;
 
-            static readonly Action<object> MoveNextCoreDelegate = MoveNextCore;
+            private readonly IUniTaskAsyncEnumerable<TSource> source;
+            private UniTask<bool>.Awaiter awaiter;
+            private readonly CancellationToken cancellationToken;
+            private IUniTaskAsyncEnumerator<TSource> enumerator;
 
-            readonly IUniTaskAsyncEnumerable<TSource> source;
-            readonly TSource element;
-            CancellationToken cancellationToken;
+            private State state;
 
-            State state;
-            IUniTaskAsyncEnumerator<TSource> enumerator;
-            UniTask<bool>.Awaiter awaiter;
-
-            public _AppendPrepend(IUniTaskAsyncEnumerable<TSource> source, TSource element, bool append, CancellationToken cancellationToken)
+            public _AppendPrepend(IUniTaskAsyncEnumerable<TSource> source, TSource element, bool append,
+                CancellationToken cancellationToken)
             {
                 this.source = source;
                 this.element = element;
-                this.state = append ? State.RequireAppend : State.RequirePrepend;
+                state = append ? State.RequireAppend : State.RequirePrepend;
                 this.cancellationToken = cancellationToken;
 
                 TaskTracker.TrackActiveTask(this, 3);
@@ -89,26 +84,26 @@ namespace Cysharp.Threading.Tasks.Linq
                     enumerator = source.GetAsyncEnumerator(cancellationToken);
                 }
 
-                if (state == State.Completed)
-                {
-                    return CompletedTasks.False;
-                }
+                if (state == State.Completed) return CompletedTasks.False;
 
                 awaiter = enumerator.MoveNextAsync().GetAwaiter();
 
                 if (awaiter.IsCompleted)
-                {
                     MoveNextCoreDelegate(this);
-                }
                 else
-                {
                     awaiter.SourceOnCompleted(MoveNextCoreDelegate, this);
-                }
 
                 return new UniTask<bool>(this, completionSource.Version);
             }
 
-            static void MoveNextCore(object state)
+            public UniTask DisposeAsync()
+            {
+                TaskTracker.RemoveTracking(this);
+                if (enumerator != null) return enumerator.DisposeAsync();
+                return default;
+            }
+
+            private static void MoveNextCore(object state)
             {
                 var self = (_AppendPrepend)state;
 
@@ -136,16 +131,13 @@ namespace Cysharp.Threading.Tasks.Linq
                 }
             }
 
-            public UniTask DisposeAsync()
+            private enum State : byte
             {
-                TaskTracker.RemoveTracking(this);
-                if (enumerator != null)
-                {
-                    return enumerator.DisposeAsync();
-                }
-                return default;
+                None,
+                RequirePrepend,
+                RequireAppend,
+                Completed
             }
         }
     }
-
 }

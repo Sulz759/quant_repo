@@ -2,13 +2,14 @@
 
 using System.Threading;
 using UnityEngine;
+using UnityEngine.ParticleSystemJobs;
 #if !UNITY_2019_1_OR_NEWER || UNITASK_UGUI_SUPPORT
 using UnityEngine.EventSystems;
 #endif
 
 namespace Cysharp.Threading.Tasks.Triggers
 {
-#region FixedUpdate
+    #region FixedUpdate
 
     public interface IAsyncFixedUpdateHandler
     {
@@ -20,7 +21,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncFixedUpdateHandler.FixedUpdateAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -30,7 +31,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncFixedUpdateTrigger>(gameObject);
         }
-        
+
         public static AsyncFixedUpdateTrigger GetAsyncFixedUpdateTrigger(this Component component)
         {
             return component.gameObject.GetAsyncFixedUpdateTrigger();
@@ -40,7 +41,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncFixedUpdateTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void FixedUpdate()
+        private void FixedUpdate()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -62,12 +63,14 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask FixedUpdateAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncFixedUpdateHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).FixedUpdateAsync();
+            return ((IAsyncFixedUpdateHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true))
+                .FixedUpdateAsync();
         }
     }
-#endregion
 
-#region LateUpdate
+    #endregion
+
+    #region LateUpdate
 
     public interface IAsyncLateUpdateHandler
     {
@@ -79,7 +82,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncLateUpdateHandler.LateUpdateAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -89,7 +92,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncLateUpdateTrigger>(gameObject);
         }
-        
+
         public static AsyncLateUpdateTrigger GetAsyncLateUpdateTrigger(this Component component)
         {
             return component.gameObject.GetAsyncLateUpdateTrigger();
@@ -99,7 +102,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncLateUpdateTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void LateUpdate()
+        private void LateUpdate()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -121,12 +124,14 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask LateUpdateAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncLateUpdateHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).LateUpdateAsync();
+            return ((IAsyncLateUpdateHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true))
+                .LateUpdateAsync();
         }
     }
-#endregion
 
-#region AnimatorIK
+    #endregion
+
+    #region AnimatorIK
 
     public interface IAsyncOnAnimatorIKHandler
     {
@@ -148,7 +153,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncAnimatorIKTrigger>(gameObject);
         }
-        
+
         public static AsyncAnimatorIKTrigger GetAsyncAnimatorIKTrigger(this Component component)
         {
             return component.gameObject.GetAsyncAnimatorIKTrigger();
@@ -158,9 +163,9 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncAnimatorIKTrigger : AsyncTriggerBase<int>
     {
-        void OnAnimatorIK(int layerIndex)
+        private void OnAnimatorIK(int layerIndex)
         {
-            RaiseEvent((layerIndex));
+            RaiseEvent(layerIndex);
         }
 
         public IAsyncOnAnimatorIKHandler GetOnAnimatorIKAsyncHandler()
@@ -180,12 +185,14 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<int> OnAnimatorIKAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnAnimatorIKHandler)new AsyncTriggerHandler<int>(this, cancellationToken, true)).OnAnimatorIKAsync();
+            return ((IAsyncOnAnimatorIKHandler)new AsyncTriggerHandler<int>(this, cancellationToken, true))
+                .OnAnimatorIKAsync();
         }
     }
-#endregion
 
-#region AnimatorMove
+    #endregion
+
+    #region AnimatorMove
 
     public interface IAsyncOnAnimatorMoveHandler
     {
@@ -197,7 +204,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnAnimatorMoveHandler.OnAnimatorMoveAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -207,7 +214,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncAnimatorMoveTrigger>(gameObject);
         }
-        
+
         public static AsyncAnimatorMoveTrigger GetAsyncAnimatorMoveTrigger(this Component component)
         {
             return component.gameObject.GetAsyncAnimatorMoveTrigger();
@@ -217,7 +224,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncAnimatorMoveTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnAnimatorMove()
+        private void OnAnimatorMove()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -239,12 +246,14 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask OnAnimatorMoveAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnAnimatorMoveHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnAnimatorMoveAsync();
+            return ((IAsyncOnAnimatorMoveHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true))
+                .OnAnimatorMoveAsync();
         }
     }
-#endregion
 
-#region ApplicationFocus
+    #endregion
+
+    #region ApplicationFocus
 
     public interface IAsyncOnApplicationFocusHandler
     {
@@ -266,7 +275,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncApplicationFocusTrigger>(gameObject);
         }
-        
+
         public static AsyncApplicationFocusTrigger GetAsyncApplicationFocusTrigger(this Component component)
         {
             return component.gameObject.GetAsyncApplicationFocusTrigger();
@@ -276,9 +285,9 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncApplicationFocusTrigger : AsyncTriggerBase<bool>
     {
-        void OnApplicationFocus(bool hasFocus)
+        private void OnApplicationFocus(bool hasFocus)
         {
-            RaiseEvent((hasFocus));
+            RaiseEvent(hasFocus);
         }
 
         public IAsyncOnApplicationFocusHandler GetOnApplicationFocusAsyncHandler()
@@ -293,17 +302,20 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<bool> OnApplicationFocusAsync()
         {
-            return ((IAsyncOnApplicationFocusHandler)new AsyncTriggerHandler<bool>(this, true)).OnApplicationFocusAsync();
+            return ((IAsyncOnApplicationFocusHandler)new AsyncTriggerHandler<bool>(this, true))
+                .OnApplicationFocusAsync();
         }
 
         public UniTask<bool> OnApplicationFocusAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnApplicationFocusHandler)new AsyncTriggerHandler<bool>(this, cancellationToken, true)).OnApplicationFocusAsync();
+            return ((IAsyncOnApplicationFocusHandler)new AsyncTriggerHandler<bool>(this, cancellationToken, true))
+                .OnApplicationFocusAsync();
         }
     }
-#endregion
 
-#region ApplicationPause
+    #endregion
+
+    #region ApplicationPause
 
     public interface IAsyncOnApplicationPauseHandler
     {
@@ -325,7 +337,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncApplicationPauseTrigger>(gameObject);
         }
-        
+
         public static AsyncApplicationPauseTrigger GetAsyncApplicationPauseTrigger(this Component component)
         {
             return component.gameObject.GetAsyncApplicationPauseTrigger();
@@ -335,9 +347,9 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncApplicationPauseTrigger : AsyncTriggerBase<bool>
     {
-        void OnApplicationPause(bool pauseStatus)
+        private void OnApplicationPause(bool pauseStatus)
         {
-            RaiseEvent((pauseStatus));
+            RaiseEvent(pauseStatus);
         }
 
         public IAsyncOnApplicationPauseHandler GetOnApplicationPauseAsyncHandler()
@@ -352,17 +364,20 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<bool> OnApplicationPauseAsync()
         {
-            return ((IAsyncOnApplicationPauseHandler)new AsyncTriggerHandler<bool>(this, true)).OnApplicationPauseAsync();
+            return ((IAsyncOnApplicationPauseHandler)new AsyncTriggerHandler<bool>(this, true))
+                .OnApplicationPauseAsync();
         }
 
         public UniTask<bool> OnApplicationPauseAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnApplicationPauseHandler)new AsyncTriggerHandler<bool>(this, cancellationToken, true)).OnApplicationPauseAsync();
+            return ((IAsyncOnApplicationPauseHandler)new AsyncTriggerHandler<bool>(this, cancellationToken, true))
+                .OnApplicationPauseAsync();
         }
     }
-#endregion
 
-#region ApplicationQuit
+    #endregion
+
+    #region ApplicationQuit
 
     public interface IAsyncOnApplicationQuitHandler
     {
@@ -374,7 +389,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnApplicationQuitHandler.OnApplicationQuitAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -384,7 +399,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncApplicationQuitTrigger>(gameObject);
         }
-        
+
         public static AsyncApplicationQuitTrigger GetAsyncApplicationQuitTrigger(this Component component)
         {
             return component.gameObject.GetAsyncApplicationQuitTrigger();
@@ -394,7 +409,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncApplicationQuitTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnApplicationQuit()
+        private void OnApplicationQuit()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -411,17 +426,20 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask OnApplicationQuitAsync()
         {
-            return ((IAsyncOnApplicationQuitHandler)new AsyncTriggerHandler<AsyncUnit>(this, true)).OnApplicationQuitAsync();
+            return ((IAsyncOnApplicationQuitHandler)new AsyncTriggerHandler<AsyncUnit>(this, true))
+                .OnApplicationQuitAsync();
         }
 
         public UniTask OnApplicationQuitAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnApplicationQuitHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnApplicationQuitAsync();
+            return ((IAsyncOnApplicationQuitHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true))
+                .OnApplicationQuitAsync();
         }
     }
-#endregion
 
-#region AudioFilterRead
+    #endregion
+
+    #region AudioFilterRead
 
     public interface IAsyncOnAudioFilterReadHandler
     {
@@ -433,7 +451,8 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask<(float[] data, int channels)> IAsyncOnAudioFilterReadHandler.OnAudioFilterReadAsync()
         {
             core.Reset();
-            return new UniTask<(float[] data, int channels)>((IUniTaskSource<(float[] data, int channels)>)(object)this, core.Version);
+            return new UniTask<(float[] data, int channels)>((IUniTaskSource<(float[] data, int channels)>)(object)this,
+                core.Version);
         }
     }
 
@@ -443,7 +462,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncAudioFilterReadTrigger>(gameObject);
         }
-        
+
         public static AsyncAudioFilterReadTrigger GetAsyncAudioFilterReadTrigger(this Component component)
         {
             return component.gameObject.GetAsyncAudioFilterReadTrigger();
@@ -453,7 +472,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncAudioFilterReadTrigger : AsyncTriggerBase<(float[] data, int channels)>
     {
-        void OnAudioFilterRead(float[] data, int channels)
+        private void OnAudioFilterRead(float[] data, int channels)
         {
             RaiseEvent((data, channels));
         }
@@ -470,17 +489,20 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<(float[] data, int channels)> OnAudioFilterReadAsync()
         {
-            return ((IAsyncOnAudioFilterReadHandler)new AsyncTriggerHandler<(float[] data, int channels)>(this, true)).OnAudioFilterReadAsync();
+            return ((IAsyncOnAudioFilterReadHandler)new AsyncTriggerHandler<(float[] data, int channels)>(this, true))
+                .OnAudioFilterReadAsync();
         }
 
         public UniTask<(float[] data, int channels)> OnAudioFilterReadAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnAudioFilterReadHandler)new AsyncTriggerHandler<(float[] data, int channels)>(this, cancellationToken, true)).OnAudioFilterReadAsync();
+            return ((IAsyncOnAudioFilterReadHandler)new AsyncTriggerHandler<(float[] data, int channels)>(this,
+                cancellationToken, true)).OnAudioFilterReadAsync();
         }
     }
-#endregion
 
-#region BecameInvisible
+    #endregion
+
+    #region BecameInvisible
 
     public interface IAsyncOnBecameInvisibleHandler
     {
@@ -492,7 +514,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnBecameInvisibleHandler.OnBecameInvisibleAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -502,7 +524,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncBecameInvisibleTrigger>(gameObject);
         }
-        
+
         public static AsyncBecameInvisibleTrigger GetAsyncBecameInvisibleTrigger(this Component component)
         {
             return component.gameObject.GetAsyncBecameInvisibleTrigger();
@@ -512,7 +534,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncBecameInvisibleTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnBecameInvisible()
+        private void OnBecameInvisible()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -529,17 +551,20 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask OnBecameInvisibleAsync()
         {
-            return ((IAsyncOnBecameInvisibleHandler)new AsyncTriggerHandler<AsyncUnit>(this, true)).OnBecameInvisibleAsync();
+            return ((IAsyncOnBecameInvisibleHandler)new AsyncTriggerHandler<AsyncUnit>(this, true))
+                .OnBecameInvisibleAsync();
         }
 
         public UniTask OnBecameInvisibleAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnBecameInvisibleHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnBecameInvisibleAsync();
+            return ((IAsyncOnBecameInvisibleHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true))
+                .OnBecameInvisibleAsync();
         }
     }
-#endregion
 
-#region BecameVisible
+    #endregion
+
+    #region BecameVisible
 
     public interface IAsyncOnBecameVisibleHandler
     {
@@ -551,7 +576,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnBecameVisibleHandler.OnBecameVisibleAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -561,7 +586,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncBecameVisibleTrigger>(gameObject);
         }
-        
+
         public static AsyncBecameVisibleTrigger GetAsyncBecameVisibleTrigger(this Component component)
         {
             return component.gameObject.GetAsyncBecameVisibleTrigger();
@@ -571,7 +596,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncBecameVisibleTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnBecameVisible()
+        private void OnBecameVisible()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -588,17 +613,20 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask OnBecameVisibleAsync()
         {
-            return ((IAsyncOnBecameVisibleHandler)new AsyncTriggerHandler<AsyncUnit>(this, true)).OnBecameVisibleAsync();
+            return ((IAsyncOnBecameVisibleHandler)new AsyncTriggerHandler<AsyncUnit>(this, true))
+                .OnBecameVisibleAsync();
         }
 
         public UniTask OnBecameVisibleAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnBecameVisibleHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnBecameVisibleAsync();
+            return ((IAsyncOnBecameVisibleHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true))
+                .OnBecameVisibleAsync();
         }
     }
-#endregion
 
-#region BeforeTransformParentChanged
+    #endregion
+
+    #region BeforeTransformParentChanged
 
     public interface IAsyncOnBeforeTransformParentChangedHandler
     {
@@ -610,18 +638,20 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnBeforeTransformParentChangedHandler.OnBeforeTransformParentChangedAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
     public static partial class AsyncTriggerExtensions
     {
-        public static AsyncBeforeTransformParentChangedTrigger GetAsyncBeforeTransformParentChangedTrigger(this GameObject gameObject)
+        public static AsyncBeforeTransformParentChangedTrigger GetAsyncBeforeTransformParentChangedTrigger(
+            this GameObject gameObject)
         {
             return GetOrAddComponent<AsyncBeforeTransformParentChangedTrigger>(gameObject);
         }
-        
-        public static AsyncBeforeTransformParentChangedTrigger GetAsyncBeforeTransformParentChangedTrigger(this Component component)
+
+        public static AsyncBeforeTransformParentChangedTrigger GetAsyncBeforeTransformParentChangedTrigger(
+            this Component component)
         {
             return component.gameObject.GetAsyncBeforeTransformParentChangedTrigger();
         }
@@ -630,7 +660,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncBeforeTransformParentChangedTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnBeforeTransformParentChanged()
+        private void OnBeforeTransformParentChanged()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -640,24 +670,28 @@ namespace Cysharp.Threading.Tasks.Triggers
             return new AsyncTriggerHandler<AsyncUnit>(this, false);
         }
 
-        public IAsyncOnBeforeTransformParentChangedHandler GetOnBeforeTransformParentChangedAsyncHandler(CancellationToken cancellationToken)
+        public IAsyncOnBeforeTransformParentChangedHandler GetOnBeforeTransformParentChangedAsyncHandler(
+            CancellationToken cancellationToken)
         {
             return new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, false);
         }
 
         public UniTask OnBeforeTransformParentChangedAsync()
         {
-            return ((IAsyncOnBeforeTransformParentChangedHandler)new AsyncTriggerHandler<AsyncUnit>(this, true)).OnBeforeTransformParentChangedAsync();
+            return ((IAsyncOnBeforeTransformParentChangedHandler)new AsyncTriggerHandler<AsyncUnit>(this, true))
+                .OnBeforeTransformParentChangedAsync();
         }
 
         public UniTask OnBeforeTransformParentChangedAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnBeforeTransformParentChangedHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnBeforeTransformParentChangedAsync();
+            return ((IAsyncOnBeforeTransformParentChangedHandler)new AsyncTriggerHandler<AsyncUnit>(this,
+                cancellationToken, true)).OnBeforeTransformParentChangedAsync();
         }
     }
-#endregion
 
-#region OnCanvasGroupChanged
+    #endregion
+
+    #region OnCanvasGroupChanged
 
     public interface IAsyncOnCanvasGroupChangedHandler
     {
@@ -669,7 +703,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnCanvasGroupChangedHandler.OnCanvasGroupChangedAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -679,7 +713,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncOnCanvasGroupChangedTrigger>(gameObject);
         }
-        
+
         public static AsyncOnCanvasGroupChangedTrigger GetAsyncOnCanvasGroupChangedTrigger(this Component component)
         {
             return component.gameObject.GetAsyncOnCanvasGroupChangedTrigger();
@@ -689,7 +723,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncOnCanvasGroupChangedTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnCanvasGroupChanged()
+        private void OnCanvasGroupChanged()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -699,24 +733,29 @@ namespace Cysharp.Threading.Tasks.Triggers
             return new AsyncTriggerHandler<AsyncUnit>(this, false);
         }
 
-        public IAsyncOnCanvasGroupChangedHandler GetOnCanvasGroupChangedAsyncHandler(CancellationToken cancellationToken)
+        public IAsyncOnCanvasGroupChangedHandler GetOnCanvasGroupChangedAsyncHandler(
+            CancellationToken cancellationToken)
         {
             return new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, false);
         }
 
         public UniTask OnCanvasGroupChangedAsync()
         {
-            return ((IAsyncOnCanvasGroupChangedHandler)new AsyncTriggerHandler<AsyncUnit>(this, true)).OnCanvasGroupChangedAsync();
+            return ((IAsyncOnCanvasGroupChangedHandler)new AsyncTriggerHandler<AsyncUnit>(this, true))
+                .OnCanvasGroupChangedAsync();
         }
 
         public UniTask OnCanvasGroupChangedAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnCanvasGroupChangedHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnCanvasGroupChangedAsync();
+            return ((IAsyncOnCanvasGroupChangedHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken,
+                true)).OnCanvasGroupChangedAsync();
         }
     }
-#endregion
 
-#region CollisionEnter
+    #endregion
+
+    #region CollisionEnter
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_PHYSICS_SUPPORT
 
     public interface IAsyncOnCollisionEnterHandler
@@ -739,7 +778,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncCollisionEnterTrigger>(gameObject);
         }
-        
+
         public static AsyncCollisionEnterTrigger GetAsyncCollisionEnterTrigger(this Component component)
         {
             return component.gameObject.GetAsyncCollisionEnterTrigger();
@@ -749,9 +788,9 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncCollisionEnterTrigger : AsyncTriggerBase<Collision>
     {
-        void OnCollisionEnter(Collision coll)
+        private void OnCollisionEnter(Collision coll)
         {
-            RaiseEvent((coll));
+            RaiseEvent(coll);
         }
 
         public IAsyncOnCollisionEnterHandler GetOnCollisionEnterAsyncHandler()
@@ -766,18 +805,22 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<Collision> OnCollisionEnterAsync()
         {
-            return ((IAsyncOnCollisionEnterHandler)new AsyncTriggerHandler<Collision>(this, true)).OnCollisionEnterAsync();
+            return ((IAsyncOnCollisionEnterHandler)new AsyncTriggerHandler<Collision>(this, true))
+                .OnCollisionEnterAsync();
         }
 
         public UniTask<Collision> OnCollisionEnterAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnCollisionEnterHandler)new AsyncTriggerHandler<Collision>(this, cancellationToken, true)).OnCollisionEnterAsync();
+            return ((IAsyncOnCollisionEnterHandler)new AsyncTriggerHandler<Collision>(this, cancellationToken, true))
+                .OnCollisionEnterAsync();
         }
     }
 #endif
-#endregion
 
-#region CollisionEnter2D
+    #endregion
+
+    #region CollisionEnter2D
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_PHYSICS2D_SUPPORT
 
     public interface IAsyncOnCollisionEnter2DHandler
@@ -800,7 +843,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncCollisionEnter2DTrigger>(gameObject);
         }
-        
+
         public static AsyncCollisionEnter2DTrigger GetAsyncCollisionEnter2DTrigger(this Component component)
         {
             return component.gameObject.GetAsyncCollisionEnter2DTrigger();
@@ -810,9 +853,9 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncCollisionEnter2DTrigger : AsyncTriggerBase<Collision2D>
     {
-        void OnCollisionEnter2D(Collision2D coll)
+        private void OnCollisionEnter2D(Collision2D coll)
         {
-            RaiseEvent((coll));
+            RaiseEvent(coll);
         }
 
         public IAsyncOnCollisionEnter2DHandler GetOnCollisionEnter2DAsyncHandler()
@@ -827,18 +870,22 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<Collision2D> OnCollisionEnter2DAsync()
         {
-            return ((IAsyncOnCollisionEnter2DHandler)new AsyncTriggerHandler<Collision2D>(this, true)).OnCollisionEnter2DAsync();
+            return ((IAsyncOnCollisionEnter2DHandler)new AsyncTriggerHandler<Collision2D>(this, true))
+                .OnCollisionEnter2DAsync();
         }
 
         public UniTask<Collision2D> OnCollisionEnter2DAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnCollisionEnter2DHandler)new AsyncTriggerHandler<Collision2D>(this, cancellationToken, true)).OnCollisionEnter2DAsync();
+            return ((IAsyncOnCollisionEnter2DHandler)new AsyncTriggerHandler<Collision2D>(this, cancellationToken,
+                true)).OnCollisionEnter2DAsync();
         }
     }
 #endif
-#endregion
 
-#region CollisionExit
+    #endregion
+
+    #region CollisionExit
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_PHYSICS_SUPPORT
 
     public interface IAsyncOnCollisionExitHandler
@@ -861,7 +908,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncCollisionExitTrigger>(gameObject);
         }
-        
+
         public static AsyncCollisionExitTrigger GetAsyncCollisionExitTrigger(this Component component)
         {
             return component.gameObject.GetAsyncCollisionExitTrigger();
@@ -871,9 +918,9 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncCollisionExitTrigger : AsyncTriggerBase<Collision>
     {
-        void OnCollisionExit(Collision coll)
+        private void OnCollisionExit(Collision coll)
         {
-            RaiseEvent((coll));
+            RaiseEvent(coll);
         }
 
         public IAsyncOnCollisionExitHandler GetOnCollisionExitAsyncHandler()
@@ -888,18 +935,22 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<Collision> OnCollisionExitAsync()
         {
-            return ((IAsyncOnCollisionExitHandler)new AsyncTriggerHandler<Collision>(this, true)).OnCollisionExitAsync();
+            return ((IAsyncOnCollisionExitHandler)new AsyncTriggerHandler<Collision>(this, true))
+                .OnCollisionExitAsync();
         }
 
         public UniTask<Collision> OnCollisionExitAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnCollisionExitHandler)new AsyncTriggerHandler<Collision>(this, cancellationToken, true)).OnCollisionExitAsync();
+            return ((IAsyncOnCollisionExitHandler)new AsyncTriggerHandler<Collision>(this, cancellationToken, true))
+                .OnCollisionExitAsync();
         }
     }
 #endif
-#endregion
 
-#region CollisionExit2D
+    #endregion
+
+    #region CollisionExit2D
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_PHYSICS2D_SUPPORT
 
     public interface IAsyncOnCollisionExit2DHandler
@@ -922,7 +973,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncCollisionExit2DTrigger>(gameObject);
         }
-        
+
         public static AsyncCollisionExit2DTrigger GetAsyncCollisionExit2DTrigger(this Component component)
         {
             return component.gameObject.GetAsyncCollisionExit2DTrigger();
@@ -932,9 +983,9 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncCollisionExit2DTrigger : AsyncTriggerBase<Collision2D>
     {
-        void OnCollisionExit2D(Collision2D coll)
+        private void OnCollisionExit2D(Collision2D coll)
         {
-            RaiseEvent((coll));
+            RaiseEvent(coll);
         }
 
         public IAsyncOnCollisionExit2DHandler GetOnCollisionExit2DAsyncHandler()
@@ -949,18 +1000,22 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<Collision2D> OnCollisionExit2DAsync()
         {
-            return ((IAsyncOnCollisionExit2DHandler)new AsyncTriggerHandler<Collision2D>(this, true)).OnCollisionExit2DAsync();
+            return ((IAsyncOnCollisionExit2DHandler)new AsyncTriggerHandler<Collision2D>(this, true))
+                .OnCollisionExit2DAsync();
         }
 
         public UniTask<Collision2D> OnCollisionExit2DAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnCollisionExit2DHandler)new AsyncTriggerHandler<Collision2D>(this, cancellationToken, true)).OnCollisionExit2DAsync();
+            return ((IAsyncOnCollisionExit2DHandler)new AsyncTriggerHandler<Collision2D>(this, cancellationToken, true))
+                .OnCollisionExit2DAsync();
         }
     }
 #endif
-#endregion
 
-#region CollisionStay
+    #endregion
+
+    #region CollisionStay
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_PHYSICS_SUPPORT
 
     public interface IAsyncOnCollisionStayHandler
@@ -983,7 +1038,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncCollisionStayTrigger>(gameObject);
         }
-        
+
         public static AsyncCollisionStayTrigger GetAsyncCollisionStayTrigger(this Component component)
         {
             return component.gameObject.GetAsyncCollisionStayTrigger();
@@ -993,9 +1048,9 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncCollisionStayTrigger : AsyncTriggerBase<Collision>
     {
-        void OnCollisionStay(Collision coll)
+        private void OnCollisionStay(Collision coll)
         {
-            RaiseEvent((coll));
+            RaiseEvent(coll);
         }
 
         public IAsyncOnCollisionStayHandler GetOnCollisionStayAsyncHandler()
@@ -1010,18 +1065,22 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<Collision> OnCollisionStayAsync()
         {
-            return ((IAsyncOnCollisionStayHandler)new AsyncTriggerHandler<Collision>(this, true)).OnCollisionStayAsync();
+            return ((IAsyncOnCollisionStayHandler)new AsyncTriggerHandler<Collision>(this, true))
+                .OnCollisionStayAsync();
         }
 
         public UniTask<Collision> OnCollisionStayAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnCollisionStayHandler)new AsyncTriggerHandler<Collision>(this, cancellationToken, true)).OnCollisionStayAsync();
+            return ((IAsyncOnCollisionStayHandler)new AsyncTriggerHandler<Collision>(this, cancellationToken, true))
+                .OnCollisionStayAsync();
         }
     }
 #endif
-#endregion
 
-#region CollisionStay2D
+    #endregion
+
+    #region CollisionStay2D
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_PHYSICS2D_SUPPORT
 
     public interface IAsyncOnCollisionStay2DHandler
@@ -1044,7 +1103,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncCollisionStay2DTrigger>(gameObject);
         }
-        
+
         public static AsyncCollisionStay2DTrigger GetAsyncCollisionStay2DTrigger(this Component component)
         {
             return component.gameObject.GetAsyncCollisionStay2DTrigger();
@@ -1054,9 +1113,9 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncCollisionStay2DTrigger : AsyncTriggerBase<Collision2D>
     {
-        void OnCollisionStay2D(Collision2D coll)
+        private void OnCollisionStay2D(Collision2D coll)
         {
-            RaiseEvent((coll));
+            RaiseEvent(coll);
         }
 
         public IAsyncOnCollisionStay2DHandler GetOnCollisionStay2DAsyncHandler()
@@ -1071,18 +1130,22 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<Collision2D> OnCollisionStay2DAsync()
         {
-            return ((IAsyncOnCollisionStay2DHandler)new AsyncTriggerHandler<Collision2D>(this, true)).OnCollisionStay2DAsync();
+            return ((IAsyncOnCollisionStay2DHandler)new AsyncTriggerHandler<Collision2D>(this, true))
+                .OnCollisionStay2DAsync();
         }
 
         public UniTask<Collision2D> OnCollisionStay2DAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnCollisionStay2DHandler)new AsyncTriggerHandler<Collision2D>(this, cancellationToken, true)).OnCollisionStay2DAsync();
+            return ((IAsyncOnCollisionStay2DHandler)new AsyncTriggerHandler<Collision2D>(this, cancellationToken, true))
+                .OnCollisionStay2DAsync();
         }
     }
 #endif
-#endregion
 
-#region ControllerColliderHit
+    #endregion
+
+    #region ControllerColliderHit
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_PHYSICS_SUPPORT
 
     public interface IAsyncOnControllerColliderHitHandler
@@ -1095,7 +1158,8 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask<ControllerColliderHit> IAsyncOnControllerColliderHitHandler.OnControllerColliderHitAsync()
         {
             core.Reset();
-            return new UniTask<ControllerColliderHit>((IUniTaskSource<ControllerColliderHit>)(object)this, core.Version);
+            return new UniTask<ControllerColliderHit>((IUniTaskSource<ControllerColliderHit>)(object)this,
+                core.Version);
         }
     }
 
@@ -1105,7 +1169,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncControllerColliderHitTrigger>(gameObject);
         }
-        
+
         public static AsyncControllerColliderHitTrigger GetAsyncControllerColliderHitTrigger(this Component component)
         {
             return component.gameObject.GetAsyncControllerColliderHitTrigger();
@@ -1115,9 +1179,9 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncControllerColliderHitTrigger : AsyncTriggerBase<ControllerColliderHit>
     {
-        void OnControllerColliderHit(ControllerColliderHit hit)
+        private void OnControllerColliderHit(ControllerColliderHit hit)
         {
-            RaiseEvent((hit));
+            RaiseEvent(hit);
         }
 
         public IAsyncOnControllerColliderHitHandler GetOnControllerColliderHitAsyncHandler()
@@ -1125,25 +1189,29 @@ namespace Cysharp.Threading.Tasks.Triggers
             return new AsyncTriggerHandler<ControllerColliderHit>(this, false);
         }
 
-        public IAsyncOnControllerColliderHitHandler GetOnControllerColliderHitAsyncHandler(CancellationToken cancellationToken)
+        public IAsyncOnControllerColliderHitHandler GetOnControllerColliderHitAsyncHandler(
+            CancellationToken cancellationToken)
         {
             return new AsyncTriggerHandler<ControllerColliderHit>(this, cancellationToken, false);
         }
 
         public UniTask<ControllerColliderHit> OnControllerColliderHitAsync()
         {
-            return ((IAsyncOnControllerColliderHitHandler)new AsyncTriggerHandler<ControllerColliderHit>(this, true)).OnControllerColliderHitAsync();
+            return ((IAsyncOnControllerColliderHitHandler)new AsyncTriggerHandler<ControllerColliderHit>(this, true))
+                .OnControllerColliderHitAsync();
         }
 
         public UniTask<ControllerColliderHit> OnControllerColliderHitAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnControllerColliderHitHandler)new AsyncTriggerHandler<ControllerColliderHit>(this, cancellationToken, true)).OnControllerColliderHitAsync();
+            return ((IAsyncOnControllerColliderHitHandler)new AsyncTriggerHandler<ControllerColliderHit>(this,
+                cancellationToken, true)).OnControllerColliderHitAsync();
         }
     }
 #endif
-#endregion
 
-#region Disable
+    #endregion
+
+    #region Disable
 
     public interface IAsyncOnDisableHandler
     {
@@ -1155,7 +1223,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnDisableHandler.OnDisableAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -1165,7 +1233,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncDisableTrigger>(gameObject);
         }
-        
+
         public static AsyncDisableTrigger GetAsyncDisableTrigger(this Component component)
         {
             return component.gameObject.GetAsyncDisableTrigger();
@@ -1175,7 +1243,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncDisableTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnDisable()
+        private void OnDisable()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -1197,12 +1265,14 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask OnDisableAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnDisableHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnDisableAsync();
+            return ((IAsyncOnDisableHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true))
+                .OnDisableAsync();
         }
     }
-#endregion
 
-#region DrawGizmos
+    #endregion
+
+    #region DrawGizmos
 
     public interface IAsyncOnDrawGizmosHandler
     {
@@ -1214,7 +1284,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnDrawGizmosHandler.OnDrawGizmosAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -1224,7 +1294,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncDrawGizmosTrigger>(gameObject);
         }
-        
+
         public static AsyncDrawGizmosTrigger GetAsyncDrawGizmosTrigger(this Component component)
         {
             return component.gameObject.GetAsyncDrawGizmosTrigger();
@@ -1234,7 +1304,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncDrawGizmosTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnDrawGizmos()
+        private void OnDrawGizmos()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -1256,12 +1326,14 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask OnDrawGizmosAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnDrawGizmosHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnDrawGizmosAsync();
+            return ((IAsyncOnDrawGizmosHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true))
+                .OnDrawGizmosAsync();
         }
     }
-#endregion
 
-#region DrawGizmosSelected
+    #endregion
+
+    #region DrawGizmosSelected
 
     public interface IAsyncOnDrawGizmosSelectedHandler
     {
@@ -1273,7 +1345,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnDrawGizmosSelectedHandler.OnDrawGizmosSelectedAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -1283,7 +1355,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncDrawGizmosSelectedTrigger>(gameObject);
         }
-        
+
         public static AsyncDrawGizmosSelectedTrigger GetAsyncDrawGizmosSelectedTrigger(this Component component)
         {
             return component.gameObject.GetAsyncDrawGizmosSelectedTrigger();
@@ -1293,7 +1365,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncDrawGizmosSelectedTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnDrawGizmosSelected()
+        private void OnDrawGizmosSelected()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -1303,24 +1375,28 @@ namespace Cysharp.Threading.Tasks.Triggers
             return new AsyncTriggerHandler<AsyncUnit>(this, false);
         }
 
-        public IAsyncOnDrawGizmosSelectedHandler GetOnDrawGizmosSelectedAsyncHandler(CancellationToken cancellationToken)
+        public IAsyncOnDrawGizmosSelectedHandler GetOnDrawGizmosSelectedAsyncHandler(
+            CancellationToken cancellationToken)
         {
             return new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, false);
         }
 
         public UniTask OnDrawGizmosSelectedAsync()
         {
-            return ((IAsyncOnDrawGizmosSelectedHandler)new AsyncTriggerHandler<AsyncUnit>(this, true)).OnDrawGizmosSelectedAsync();
+            return ((IAsyncOnDrawGizmosSelectedHandler)new AsyncTriggerHandler<AsyncUnit>(this, true))
+                .OnDrawGizmosSelectedAsync();
         }
 
         public UniTask OnDrawGizmosSelectedAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnDrawGizmosSelectedHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnDrawGizmosSelectedAsync();
+            return ((IAsyncOnDrawGizmosSelectedHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken,
+                true)).OnDrawGizmosSelectedAsync();
         }
     }
-#endregion
 
-#region Enable
+    #endregion
+
+    #region Enable
 
     public interface IAsyncOnEnableHandler
     {
@@ -1332,7 +1408,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnEnableHandler.OnEnableAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -1342,7 +1418,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncEnableTrigger>(gameObject);
         }
-        
+
         public static AsyncEnableTrigger GetAsyncEnableTrigger(this Component component)
         {
             return component.gameObject.GetAsyncEnableTrigger();
@@ -1352,7 +1428,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncEnableTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnEnable()
+        private void OnEnable()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -1374,12 +1450,14 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask OnEnableAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnEnableHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnEnableAsync();
+            return ((IAsyncOnEnableHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true))
+                .OnEnableAsync();
         }
     }
-#endregion
 
-#region GUI
+    #endregion
+
+    #region GUI
 
     public interface IAsyncOnGUIHandler
     {
@@ -1391,7 +1469,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnGUIHandler.OnGUIAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -1401,7 +1479,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncGUITrigger>(gameObject);
         }
-        
+
         public static AsyncGUITrigger GetAsyncGUITrigger(this Component component)
         {
             return component.gameObject.GetAsyncGUITrigger();
@@ -1411,7 +1489,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncGUITrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnGUI()
+        private void OnGUI()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -1436,9 +1514,11 @@ namespace Cysharp.Threading.Tasks.Triggers
             return ((IAsyncOnGUIHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnGUIAsync();
         }
     }
-#endregion
 
-#region JointBreak
+    #endregion
+
+    #region JointBreak
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_PHYSICS_SUPPORT
 
     public interface IAsyncOnJointBreakHandler
@@ -1461,7 +1541,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncJointBreakTrigger>(gameObject);
         }
-        
+
         public static AsyncJointBreakTrigger GetAsyncJointBreakTrigger(this Component component)
         {
             return component.gameObject.GetAsyncJointBreakTrigger();
@@ -1471,9 +1551,9 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncJointBreakTrigger : AsyncTriggerBase<float>
     {
-        void OnJointBreak(float breakForce)
+        private void OnJointBreak(float breakForce)
         {
-            RaiseEvent((breakForce));
+            RaiseEvent(breakForce);
         }
 
         public IAsyncOnJointBreakHandler GetOnJointBreakAsyncHandler()
@@ -1493,13 +1573,16 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<float> OnJointBreakAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnJointBreakHandler)new AsyncTriggerHandler<float>(this, cancellationToken, true)).OnJointBreakAsync();
+            return ((IAsyncOnJointBreakHandler)new AsyncTriggerHandler<float>(this, cancellationToken, true))
+                .OnJointBreakAsync();
         }
     }
 #endif
-#endregion
 
-#region JointBreak2D
+    #endregion
+
+    #region JointBreak2D
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_PHYSICS2D_SUPPORT
 
     public interface IAsyncOnJointBreak2DHandler
@@ -1522,7 +1605,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncJointBreak2DTrigger>(gameObject);
         }
-        
+
         public static AsyncJointBreak2DTrigger GetAsyncJointBreak2DTrigger(this Component component)
         {
             return component.gameObject.GetAsyncJointBreak2DTrigger();
@@ -1532,9 +1615,9 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncJointBreak2DTrigger : AsyncTriggerBase<Joint2D>
     {
-        void OnJointBreak2D(Joint2D brokenJoint)
+        private void OnJointBreak2D(Joint2D brokenJoint)
         {
-            RaiseEvent((brokenJoint));
+            RaiseEvent(brokenJoint);
         }
 
         public IAsyncOnJointBreak2DHandler GetOnJointBreak2DAsyncHandler()
@@ -1554,13 +1637,16 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<Joint2D> OnJointBreak2DAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnJointBreak2DHandler)new AsyncTriggerHandler<Joint2D>(this, cancellationToken, true)).OnJointBreak2DAsync();
+            return ((IAsyncOnJointBreak2DHandler)new AsyncTriggerHandler<Joint2D>(this, cancellationToken, true))
+                .OnJointBreak2DAsync();
         }
     }
 #endif
-#endregion
 
-#region MouseDown
+    #endregion
+
+    #region MouseDown
+
 #if !(UNITY_IPHONE || UNITY_ANDROID || UNITY_METRO)
 
     public interface IAsyncOnMouseDownHandler
@@ -1573,7 +1659,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnMouseDownHandler.OnMouseDownAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -1583,7 +1669,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncMouseDownTrigger>(gameObject);
         }
-        
+
         public static AsyncMouseDownTrigger GetAsyncMouseDownTrigger(this Component component)
         {
             return component.gameObject.GetAsyncMouseDownTrigger();
@@ -1593,7 +1679,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncMouseDownTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnMouseDown()
+        private void OnMouseDown()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -1615,13 +1701,16 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask OnMouseDownAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnMouseDownHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnMouseDownAsync();
+            return ((IAsyncOnMouseDownHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true))
+                .OnMouseDownAsync();
         }
     }
 #endif
-#endregion
 
-#region MouseDrag
+    #endregion
+
+    #region MouseDrag
+
 #if !(UNITY_IPHONE || UNITY_ANDROID || UNITY_METRO)
 
     public interface IAsyncOnMouseDragHandler
@@ -1634,7 +1723,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnMouseDragHandler.OnMouseDragAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -1644,7 +1733,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncMouseDragTrigger>(gameObject);
         }
-        
+
         public static AsyncMouseDragTrigger GetAsyncMouseDragTrigger(this Component component)
         {
             return component.gameObject.GetAsyncMouseDragTrigger();
@@ -1654,7 +1743,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncMouseDragTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnMouseDrag()
+        private void OnMouseDrag()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -1676,13 +1765,16 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask OnMouseDragAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnMouseDragHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnMouseDragAsync();
+            return ((IAsyncOnMouseDragHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true))
+                .OnMouseDragAsync();
         }
     }
 #endif
-#endregion
 
-#region MouseEnter
+    #endregion
+
+    #region MouseEnter
+
 #if !(UNITY_IPHONE || UNITY_ANDROID || UNITY_METRO)
 
     public interface IAsyncOnMouseEnterHandler
@@ -1695,7 +1787,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnMouseEnterHandler.OnMouseEnterAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -1705,7 +1797,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncMouseEnterTrigger>(gameObject);
         }
-        
+
         public static AsyncMouseEnterTrigger GetAsyncMouseEnterTrigger(this Component component)
         {
             return component.gameObject.GetAsyncMouseEnterTrigger();
@@ -1715,7 +1807,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncMouseEnterTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnMouseEnter()
+        private void OnMouseEnter()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -1737,13 +1829,16 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask OnMouseEnterAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnMouseEnterHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnMouseEnterAsync();
+            return ((IAsyncOnMouseEnterHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true))
+                .OnMouseEnterAsync();
         }
     }
 #endif
-#endregion
 
-#region MouseExit
+    #endregion
+
+    #region MouseExit
+
 #if !(UNITY_IPHONE || UNITY_ANDROID || UNITY_METRO)
 
     public interface IAsyncOnMouseExitHandler
@@ -1756,7 +1851,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnMouseExitHandler.OnMouseExitAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -1766,7 +1861,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncMouseExitTrigger>(gameObject);
         }
-        
+
         public static AsyncMouseExitTrigger GetAsyncMouseExitTrigger(this Component component)
         {
             return component.gameObject.GetAsyncMouseExitTrigger();
@@ -1776,7 +1871,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncMouseExitTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnMouseExit()
+        private void OnMouseExit()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -1798,13 +1893,16 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask OnMouseExitAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnMouseExitHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnMouseExitAsync();
+            return ((IAsyncOnMouseExitHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true))
+                .OnMouseExitAsync();
         }
     }
 #endif
-#endregion
 
-#region MouseOver
+    #endregion
+
+    #region MouseOver
+
 #if !(UNITY_IPHONE || UNITY_ANDROID || UNITY_METRO)
 
     public interface IAsyncOnMouseOverHandler
@@ -1817,7 +1915,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnMouseOverHandler.OnMouseOverAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -1827,7 +1925,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncMouseOverTrigger>(gameObject);
         }
-        
+
         public static AsyncMouseOverTrigger GetAsyncMouseOverTrigger(this Component component)
         {
             return component.gameObject.GetAsyncMouseOverTrigger();
@@ -1837,7 +1935,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncMouseOverTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnMouseOver()
+        private void OnMouseOver()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -1859,13 +1957,16 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask OnMouseOverAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnMouseOverHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnMouseOverAsync();
+            return ((IAsyncOnMouseOverHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true))
+                .OnMouseOverAsync();
         }
     }
 #endif
-#endregion
 
-#region MouseUp
+    #endregion
+
+    #region MouseUp
+
 #if !(UNITY_IPHONE || UNITY_ANDROID || UNITY_METRO)
 
     public interface IAsyncOnMouseUpHandler
@@ -1878,7 +1979,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnMouseUpHandler.OnMouseUpAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -1888,7 +1989,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncMouseUpTrigger>(gameObject);
         }
-        
+
         public static AsyncMouseUpTrigger GetAsyncMouseUpTrigger(this Component component)
         {
             return component.gameObject.GetAsyncMouseUpTrigger();
@@ -1898,7 +1999,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncMouseUpTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnMouseUp()
+        private void OnMouseUp()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -1920,13 +2021,16 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask OnMouseUpAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnMouseUpHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnMouseUpAsync();
+            return ((IAsyncOnMouseUpHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true))
+                .OnMouseUpAsync();
         }
     }
 #endif
-#endregion
 
-#region MouseUpAsButton
+    #endregion
+
+    #region MouseUpAsButton
+
 #if !(UNITY_IPHONE || UNITY_ANDROID || UNITY_METRO)
 
     public interface IAsyncOnMouseUpAsButtonHandler
@@ -1939,7 +2043,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnMouseUpAsButtonHandler.OnMouseUpAsButtonAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -1949,7 +2053,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncMouseUpAsButtonTrigger>(gameObject);
         }
-        
+
         public static AsyncMouseUpAsButtonTrigger GetAsyncMouseUpAsButtonTrigger(this Component component)
         {
             return component.gameObject.GetAsyncMouseUpAsButtonTrigger();
@@ -1959,7 +2063,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncMouseUpAsButtonTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnMouseUpAsButton()
+        private void OnMouseUpAsButton()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -1976,18 +2080,21 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask OnMouseUpAsButtonAsync()
         {
-            return ((IAsyncOnMouseUpAsButtonHandler)new AsyncTriggerHandler<AsyncUnit>(this, true)).OnMouseUpAsButtonAsync();
+            return ((IAsyncOnMouseUpAsButtonHandler)new AsyncTriggerHandler<AsyncUnit>(this, true))
+                .OnMouseUpAsButtonAsync();
         }
 
         public UniTask OnMouseUpAsButtonAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnMouseUpAsButtonHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnMouseUpAsButtonAsync();
+            return ((IAsyncOnMouseUpAsButtonHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true))
+                .OnMouseUpAsButtonAsync();
         }
     }
 #endif
-#endregion
 
-#region ParticleCollision
+    #endregion
+
+    #region ParticleCollision
 
     public interface IAsyncOnParticleCollisionHandler
     {
@@ -2009,7 +2116,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncParticleCollisionTrigger>(gameObject);
         }
-        
+
         public static AsyncParticleCollisionTrigger GetAsyncParticleCollisionTrigger(this Component component)
         {
             return component.gameObject.GetAsyncParticleCollisionTrigger();
@@ -2019,9 +2126,9 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncParticleCollisionTrigger : AsyncTriggerBase<GameObject>
     {
-        void OnParticleCollision(GameObject other)
+        private void OnParticleCollision(GameObject other)
         {
-            RaiseEvent((other));
+            RaiseEvent(other);
         }
 
         public IAsyncOnParticleCollisionHandler GetOnParticleCollisionAsyncHandler()
@@ -2036,17 +2143,20 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<GameObject> OnParticleCollisionAsync()
         {
-            return ((IAsyncOnParticleCollisionHandler)new AsyncTriggerHandler<GameObject>(this, true)).OnParticleCollisionAsync();
+            return ((IAsyncOnParticleCollisionHandler)new AsyncTriggerHandler<GameObject>(this, true))
+                .OnParticleCollisionAsync();
         }
 
         public UniTask<GameObject> OnParticleCollisionAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnParticleCollisionHandler)new AsyncTriggerHandler<GameObject>(this, cancellationToken, true)).OnParticleCollisionAsync();
+            return ((IAsyncOnParticleCollisionHandler)new AsyncTriggerHandler<GameObject>(this, cancellationToken,
+                true)).OnParticleCollisionAsync();
         }
     }
-#endregion
 
-#region ParticleSystemStopped
+    #endregion
+
+    #region ParticleSystemStopped
 
     public interface IAsyncOnParticleSystemStoppedHandler
     {
@@ -2058,7 +2168,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnParticleSystemStoppedHandler.OnParticleSystemStoppedAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -2068,7 +2178,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncParticleSystemStoppedTrigger>(gameObject);
         }
-        
+
         public static AsyncParticleSystemStoppedTrigger GetAsyncParticleSystemStoppedTrigger(this Component component)
         {
             return component.gameObject.GetAsyncParticleSystemStoppedTrigger();
@@ -2078,7 +2188,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncParticleSystemStoppedTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnParticleSystemStopped()
+        private void OnParticleSystemStopped()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -2088,24 +2198,28 @@ namespace Cysharp.Threading.Tasks.Triggers
             return new AsyncTriggerHandler<AsyncUnit>(this, false);
         }
 
-        public IAsyncOnParticleSystemStoppedHandler GetOnParticleSystemStoppedAsyncHandler(CancellationToken cancellationToken)
+        public IAsyncOnParticleSystemStoppedHandler GetOnParticleSystemStoppedAsyncHandler(
+            CancellationToken cancellationToken)
         {
             return new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, false);
         }
 
         public UniTask OnParticleSystemStoppedAsync()
         {
-            return ((IAsyncOnParticleSystemStoppedHandler)new AsyncTriggerHandler<AsyncUnit>(this, true)).OnParticleSystemStoppedAsync();
+            return ((IAsyncOnParticleSystemStoppedHandler)new AsyncTriggerHandler<AsyncUnit>(this, true))
+                .OnParticleSystemStoppedAsync();
         }
 
         public UniTask OnParticleSystemStoppedAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnParticleSystemStoppedHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnParticleSystemStoppedAsync();
+            return ((IAsyncOnParticleSystemStoppedHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken,
+                true)).OnParticleSystemStoppedAsync();
         }
     }
-#endregion
 
-#region ParticleTrigger
+    #endregion
+
+    #region ParticleTrigger
 
     public interface IAsyncOnParticleTriggerHandler
     {
@@ -2117,7 +2231,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnParticleTriggerHandler.OnParticleTriggerAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -2127,7 +2241,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncParticleTriggerTrigger>(gameObject);
         }
-        
+
         public static AsyncParticleTriggerTrigger GetAsyncParticleTriggerTrigger(this Component component)
         {
             return component.gameObject.GetAsyncParticleTriggerTrigger();
@@ -2137,7 +2251,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncParticleTriggerTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnParticleTrigger()
+        private void OnParticleTrigger()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -2154,78 +2268,89 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask OnParticleTriggerAsync()
         {
-            return ((IAsyncOnParticleTriggerHandler)new AsyncTriggerHandler<AsyncUnit>(this, true)).OnParticleTriggerAsync();
+            return ((IAsyncOnParticleTriggerHandler)new AsyncTriggerHandler<AsyncUnit>(this, true))
+                .OnParticleTriggerAsync();
         }
 
         public UniTask OnParticleTriggerAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnParticleTriggerHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnParticleTriggerAsync();
+            return ((IAsyncOnParticleTriggerHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true))
+                .OnParticleTriggerAsync();
         }
     }
-#endregion
 
-#region ParticleUpdateJobScheduled
+    #endregion
+
+    #region ParticleUpdateJobScheduled
+
 #if UNITY_2019_3_OR_NEWER && (!UNITY_2019_1_OR_NEWER || UNITASK_PARTICLESYSTEM_SUPPORT)
 
     public interface IAsyncOnParticleUpdateJobScheduledHandler
     {
-        UniTask<UnityEngine.ParticleSystemJobs.ParticleSystemJobData> OnParticleUpdateJobScheduledAsync();
+        UniTask<ParticleSystemJobData> OnParticleUpdateJobScheduledAsync();
     }
 
     public partial class AsyncTriggerHandler<T> : IAsyncOnParticleUpdateJobScheduledHandler
     {
-        UniTask<UnityEngine.ParticleSystemJobs.ParticleSystemJobData> IAsyncOnParticleUpdateJobScheduledHandler.OnParticleUpdateJobScheduledAsync()
+        UniTask<ParticleSystemJobData> IAsyncOnParticleUpdateJobScheduledHandler.OnParticleUpdateJobScheduledAsync()
         {
             core.Reset();
-            return new UniTask<UnityEngine.ParticleSystemJobs.ParticleSystemJobData>((IUniTaskSource<UnityEngine.ParticleSystemJobs.ParticleSystemJobData>)(object)this, core.Version);
+            return new UniTask<ParticleSystemJobData>((IUniTaskSource<ParticleSystemJobData>)(object)this,
+                core.Version);
         }
     }
 
     public static partial class AsyncTriggerExtensions
     {
-        public static AsyncParticleUpdateJobScheduledTrigger GetAsyncParticleUpdateJobScheduledTrigger(this GameObject gameObject)
+        public static AsyncParticleUpdateJobScheduledTrigger GetAsyncParticleUpdateJobScheduledTrigger(
+            this GameObject gameObject)
         {
             return GetOrAddComponent<AsyncParticleUpdateJobScheduledTrigger>(gameObject);
         }
-        
-        public static AsyncParticleUpdateJobScheduledTrigger GetAsyncParticleUpdateJobScheduledTrigger(this Component component)
+
+        public static AsyncParticleUpdateJobScheduledTrigger GetAsyncParticleUpdateJobScheduledTrigger(
+            this Component component)
         {
             return component.gameObject.GetAsyncParticleUpdateJobScheduledTrigger();
         }
     }
 
     [DisallowMultipleComponent]
-    public sealed class AsyncParticleUpdateJobScheduledTrigger : AsyncTriggerBase<UnityEngine.ParticleSystemJobs.ParticleSystemJobData>
+    public sealed class AsyncParticleUpdateJobScheduledTrigger : AsyncTriggerBase<ParticleSystemJobData>
     {
-        void OnParticleUpdateJobScheduled(UnityEngine.ParticleSystemJobs.ParticleSystemJobData particles)
+        private void OnParticleUpdateJobScheduled(ParticleSystemJobData particles)
         {
-            RaiseEvent((particles));
+            RaiseEvent(particles);
         }
 
         public IAsyncOnParticleUpdateJobScheduledHandler GetOnParticleUpdateJobScheduledAsyncHandler()
         {
-            return new AsyncTriggerHandler<UnityEngine.ParticleSystemJobs.ParticleSystemJobData>(this, false);
+            return new AsyncTriggerHandler<ParticleSystemJobData>(this, false);
         }
 
-        public IAsyncOnParticleUpdateJobScheduledHandler GetOnParticleUpdateJobScheduledAsyncHandler(CancellationToken cancellationToken)
+        public IAsyncOnParticleUpdateJobScheduledHandler GetOnParticleUpdateJobScheduledAsyncHandler(
+            CancellationToken cancellationToken)
         {
-            return new AsyncTriggerHandler<UnityEngine.ParticleSystemJobs.ParticleSystemJobData>(this, cancellationToken, false);
+            return new AsyncTriggerHandler<ParticleSystemJobData>(this, cancellationToken, false);
         }
 
-        public UniTask<UnityEngine.ParticleSystemJobs.ParticleSystemJobData> OnParticleUpdateJobScheduledAsync()
+        public UniTask<ParticleSystemJobData> OnParticleUpdateJobScheduledAsync()
         {
-            return ((IAsyncOnParticleUpdateJobScheduledHandler)new AsyncTriggerHandler<UnityEngine.ParticleSystemJobs.ParticleSystemJobData>(this, true)).OnParticleUpdateJobScheduledAsync();
+            return ((IAsyncOnParticleUpdateJobScheduledHandler)new AsyncTriggerHandler<ParticleSystemJobData>(this,
+                true)).OnParticleUpdateJobScheduledAsync();
         }
 
-        public UniTask<UnityEngine.ParticleSystemJobs.ParticleSystemJobData> OnParticleUpdateJobScheduledAsync(CancellationToken cancellationToken)
+        public UniTask<ParticleSystemJobData> OnParticleUpdateJobScheduledAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnParticleUpdateJobScheduledHandler)new AsyncTriggerHandler<UnityEngine.ParticleSystemJobs.ParticleSystemJobData>(this, cancellationToken, true)).OnParticleUpdateJobScheduledAsync();
+            return ((IAsyncOnParticleUpdateJobScheduledHandler)new AsyncTriggerHandler<ParticleSystemJobData>(this,
+                cancellationToken, true)).OnParticleUpdateJobScheduledAsync();
         }
     }
 #endif
-#endregion
 
-#region PostRender
+    #endregion
+
+    #region PostRender
 
     public interface IAsyncOnPostRenderHandler
     {
@@ -2237,7 +2362,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnPostRenderHandler.OnPostRenderAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -2247,7 +2372,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncPostRenderTrigger>(gameObject);
         }
-        
+
         public static AsyncPostRenderTrigger GetAsyncPostRenderTrigger(this Component component)
         {
             return component.gameObject.GetAsyncPostRenderTrigger();
@@ -2257,7 +2382,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncPostRenderTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnPostRender()
+        private void OnPostRender()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -2279,12 +2404,14 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask OnPostRenderAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnPostRenderHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnPostRenderAsync();
+            return ((IAsyncOnPostRenderHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true))
+                .OnPostRenderAsync();
         }
     }
-#endregion
 
-#region PreCull
+    #endregion
+
+    #region PreCull
 
     public interface IAsyncOnPreCullHandler
     {
@@ -2296,7 +2423,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnPreCullHandler.OnPreCullAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -2306,7 +2433,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncPreCullTrigger>(gameObject);
         }
-        
+
         public static AsyncPreCullTrigger GetAsyncPreCullTrigger(this Component component)
         {
             return component.gameObject.GetAsyncPreCullTrigger();
@@ -2316,7 +2443,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncPreCullTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnPreCull()
+        private void OnPreCull()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -2338,12 +2465,14 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask OnPreCullAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnPreCullHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnPreCullAsync();
+            return ((IAsyncOnPreCullHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true))
+                .OnPreCullAsync();
         }
     }
-#endregion
 
-#region PreRender
+    #endregion
+
+    #region PreRender
 
     public interface IAsyncOnPreRenderHandler
     {
@@ -2355,7 +2484,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnPreRenderHandler.OnPreRenderAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -2365,7 +2494,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncPreRenderTrigger>(gameObject);
         }
-        
+
         public static AsyncPreRenderTrigger GetAsyncPreRenderTrigger(this Component component)
         {
             return component.gameObject.GetAsyncPreRenderTrigger();
@@ -2375,7 +2504,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncPreRenderTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnPreRender()
+        private void OnPreRender()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -2397,12 +2526,14 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask OnPreRenderAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnPreRenderHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnPreRenderAsync();
+            return ((IAsyncOnPreRenderHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true))
+                .OnPreRenderAsync();
         }
     }
-#endregion
 
-#region RectTransformDimensionsChange
+    #endregion
+
+    #region RectTransformDimensionsChange
 
     public interface IAsyncOnRectTransformDimensionsChangeHandler
     {
@@ -2414,18 +2545,20 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnRectTransformDimensionsChangeHandler.OnRectTransformDimensionsChangeAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
     public static partial class AsyncTriggerExtensions
     {
-        public static AsyncRectTransformDimensionsChangeTrigger GetAsyncRectTransformDimensionsChangeTrigger(this GameObject gameObject)
+        public static AsyncRectTransformDimensionsChangeTrigger GetAsyncRectTransformDimensionsChangeTrigger(
+            this GameObject gameObject)
         {
             return GetOrAddComponent<AsyncRectTransformDimensionsChangeTrigger>(gameObject);
         }
-        
-        public static AsyncRectTransformDimensionsChangeTrigger GetAsyncRectTransformDimensionsChangeTrigger(this Component component)
+
+        public static AsyncRectTransformDimensionsChangeTrigger GetAsyncRectTransformDimensionsChangeTrigger(
+            this Component component)
         {
             return component.gameObject.GetAsyncRectTransformDimensionsChangeTrigger();
         }
@@ -2434,7 +2567,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncRectTransformDimensionsChangeTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnRectTransformDimensionsChange()
+        private void OnRectTransformDimensionsChange()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -2444,24 +2577,28 @@ namespace Cysharp.Threading.Tasks.Triggers
             return new AsyncTriggerHandler<AsyncUnit>(this, false);
         }
 
-        public IAsyncOnRectTransformDimensionsChangeHandler GetOnRectTransformDimensionsChangeAsyncHandler(CancellationToken cancellationToken)
+        public IAsyncOnRectTransformDimensionsChangeHandler GetOnRectTransformDimensionsChangeAsyncHandler(
+            CancellationToken cancellationToken)
         {
             return new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, false);
         }
 
         public UniTask OnRectTransformDimensionsChangeAsync()
         {
-            return ((IAsyncOnRectTransformDimensionsChangeHandler)new AsyncTriggerHandler<AsyncUnit>(this, true)).OnRectTransformDimensionsChangeAsync();
+            return ((IAsyncOnRectTransformDimensionsChangeHandler)new AsyncTriggerHandler<AsyncUnit>(this, true))
+                .OnRectTransformDimensionsChangeAsync();
         }
 
         public UniTask OnRectTransformDimensionsChangeAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnRectTransformDimensionsChangeHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnRectTransformDimensionsChangeAsync();
+            return ((IAsyncOnRectTransformDimensionsChangeHandler)new AsyncTriggerHandler<AsyncUnit>(this,
+                cancellationToken, true)).OnRectTransformDimensionsChangeAsync();
         }
     }
-#endregion
 
-#region RectTransformRemoved
+    #endregion
+
+    #region RectTransformRemoved
 
     public interface IAsyncOnRectTransformRemovedHandler
     {
@@ -2473,7 +2610,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnRectTransformRemovedHandler.OnRectTransformRemovedAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -2483,7 +2620,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncRectTransformRemovedTrigger>(gameObject);
         }
-        
+
         public static AsyncRectTransformRemovedTrigger GetAsyncRectTransformRemovedTrigger(this Component component)
         {
             return component.gameObject.GetAsyncRectTransformRemovedTrigger();
@@ -2493,7 +2630,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncRectTransformRemovedTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnRectTransformRemoved()
+        private void OnRectTransformRemoved()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -2503,24 +2640,28 @@ namespace Cysharp.Threading.Tasks.Triggers
             return new AsyncTriggerHandler<AsyncUnit>(this, false);
         }
 
-        public IAsyncOnRectTransformRemovedHandler GetOnRectTransformRemovedAsyncHandler(CancellationToken cancellationToken)
+        public IAsyncOnRectTransformRemovedHandler GetOnRectTransformRemovedAsyncHandler(
+            CancellationToken cancellationToken)
         {
             return new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, false);
         }
 
         public UniTask OnRectTransformRemovedAsync()
         {
-            return ((IAsyncOnRectTransformRemovedHandler)new AsyncTriggerHandler<AsyncUnit>(this, true)).OnRectTransformRemovedAsync();
+            return ((IAsyncOnRectTransformRemovedHandler)new AsyncTriggerHandler<AsyncUnit>(this, true))
+                .OnRectTransformRemovedAsync();
         }
 
         public UniTask OnRectTransformRemovedAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnRectTransformRemovedHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnRectTransformRemovedAsync();
+            return ((IAsyncOnRectTransformRemovedHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken,
+                true)).OnRectTransformRemovedAsync();
         }
     }
-#endregion
 
-#region RenderImage
+    #endregion
+
+    #region RenderImage
 
     public interface IAsyncOnRenderImageHandler
     {
@@ -2532,7 +2673,8 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask<(RenderTexture source, RenderTexture destination)> IAsyncOnRenderImageHandler.OnRenderImageAsync()
         {
             core.Reset();
-            return new UniTask<(RenderTexture source, RenderTexture destination)>((IUniTaskSource<(RenderTexture source, RenderTexture destination)>)(object)this, core.Version);
+            return new UniTask<(RenderTexture source, RenderTexture destination)>(
+                (IUniTaskSource<(RenderTexture source, RenderTexture destination)>)(object)this, core.Version);
         }
     }
 
@@ -2542,7 +2684,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncRenderImageTrigger>(gameObject);
         }
-        
+
         public static AsyncRenderImageTrigger GetAsyncRenderImageTrigger(this Component component)
         {
             return component.gameObject.GetAsyncRenderImageTrigger();
@@ -2552,7 +2694,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncRenderImageTrigger : AsyncTriggerBase<(RenderTexture source, RenderTexture destination)>
     {
-        void OnRenderImage(RenderTexture source, RenderTexture destination)
+        private void OnRenderImage(RenderTexture source, RenderTexture destination)
         {
             RaiseEvent((source, destination));
         }
@@ -2564,22 +2706,29 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public IAsyncOnRenderImageHandler GetOnRenderImageAsyncHandler(CancellationToken cancellationToken)
         {
-            return new AsyncTriggerHandler<(RenderTexture source, RenderTexture destination)>(this, cancellationToken, false);
+            return new AsyncTriggerHandler<(RenderTexture source, RenderTexture destination)>(this, cancellationToken,
+                false);
         }
 
         public UniTask<(RenderTexture source, RenderTexture destination)> OnRenderImageAsync()
         {
-            return ((IAsyncOnRenderImageHandler)new AsyncTriggerHandler<(RenderTexture source, RenderTexture destination)>(this, true)).OnRenderImageAsync();
+            return ((IAsyncOnRenderImageHandler)
+                    new AsyncTriggerHandler<(RenderTexture source, RenderTexture destination)>(this, true))
+                .OnRenderImageAsync();
         }
 
-        public UniTask<(RenderTexture source, RenderTexture destination)> OnRenderImageAsync(CancellationToken cancellationToken)
+        public UniTask<(RenderTexture source, RenderTexture destination)> OnRenderImageAsync(
+            CancellationToken cancellationToken)
         {
-            return ((IAsyncOnRenderImageHandler)new AsyncTriggerHandler<(RenderTexture source, RenderTexture destination)>(this, cancellationToken, true)).OnRenderImageAsync();
+            return ((IAsyncOnRenderImageHandler)
+                new AsyncTriggerHandler<(RenderTexture source, RenderTexture destination)>(this, cancellationToken,
+                    true)).OnRenderImageAsync();
         }
     }
-#endregion
 
-#region RenderObject
+    #endregion
+
+    #region RenderObject
 
     public interface IAsyncOnRenderObjectHandler
     {
@@ -2591,7 +2740,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnRenderObjectHandler.OnRenderObjectAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -2601,7 +2750,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncRenderObjectTrigger>(gameObject);
         }
-        
+
         public static AsyncRenderObjectTrigger GetAsyncRenderObjectTrigger(this Component component)
         {
             return component.gameObject.GetAsyncRenderObjectTrigger();
@@ -2611,7 +2760,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncRenderObjectTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnRenderObject()
+        private void OnRenderObject()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -2633,12 +2782,14 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask OnRenderObjectAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnRenderObjectHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnRenderObjectAsync();
+            return ((IAsyncOnRenderObjectHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true))
+                .OnRenderObjectAsync();
         }
     }
-#endregion
 
-#region ServerInitialized
+    #endregion
+
+    #region ServerInitialized
 
     public interface IAsyncOnServerInitializedHandler
     {
@@ -2650,7 +2801,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnServerInitializedHandler.OnServerInitializedAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -2660,7 +2811,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncServerInitializedTrigger>(gameObject);
         }
-        
+
         public static AsyncServerInitializedTrigger GetAsyncServerInitializedTrigger(this Component component)
         {
             return component.gameObject.GetAsyncServerInitializedTrigger();
@@ -2670,7 +2821,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncServerInitializedTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnServerInitialized()
+        private void OnServerInitialized()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -2687,17 +2838,20 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask OnServerInitializedAsync()
         {
-            return ((IAsyncOnServerInitializedHandler)new AsyncTriggerHandler<AsyncUnit>(this, true)).OnServerInitializedAsync();
+            return ((IAsyncOnServerInitializedHandler)new AsyncTriggerHandler<AsyncUnit>(this, true))
+                .OnServerInitializedAsync();
         }
 
         public UniTask OnServerInitializedAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnServerInitializedHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnServerInitializedAsync();
+            return ((IAsyncOnServerInitializedHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true))
+                .OnServerInitializedAsync();
         }
     }
-#endregion
 
-#region TransformChildrenChanged
+    #endregion
+
+    #region TransformChildrenChanged
 
     public interface IAsyncOnTransformChildrenChangedHandler
     {
@@ -2709,18 +2863,20 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnTransformChildrenChangedHandler.OnTransformChildrenChangedAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
     public static partial class AsyncTriggerExtensions
     {
-        public static AsyncTransformChildrenChangedTrigger GetAsyncTransformChildrenChangedTrigger(this GameObject gameObject)
+        public static AsyncTransformChildrenChangedTrigger GetAsyncTransformChildrenChangedTrigger(
+            this GameObject gameObject)
         {
             return GetOrAddComponent<AsyncTransformChildrenChangedTrigger>(gameObject);
         }
-        
-        public static AsyncTransformChildrenChangedTrigger GetAsyncTransformChildrenChangedTrigger(this Component component)
+
+        public static AsyncTransformChildrenChangedTrigger GetAsyncTransformChildrenChangedTrigger(
+            this Component component)
         {
             return component.gameObject.GetAsyncTransformChildrenChangedTrigger();
         }
@@ -2729,7 +2885,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncTransformChildrenChangedTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnTransformChildrenChanged()
+        private void OnTransformChildrenChanged()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -2739,24 +2895,28 @@ namespace Cysharp.Threading.Tasks.Triggers
             return new AsyncTriggerHandler<AsyncUnit>(this, false);
         }
 
-        public IAsyncOnTransformChildrenChangedHandler GetOnTransformChildrenChangedAsyncHandler(CancellationToken cancellationToken)
+        public IAsyncOnTransformChildrenChangedHandler GetOnTransformChildrenChangedAsyncHandler(
+            CancellationToken cancellationToken)
         {
             return new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, false);
         }
 
         public UniTask OnTransformChildrenChangedAsync()
         {
-            return ((IAsyncOnTransformChildrenChangedHandler)new AsyncTriggerHandler<AsyncUnit>(this, true)).OnTransformChildrenChangedAsync();
+            return ((IAsyncOnTransformChildrenChangedHandler)new AsyncTriggerHandler<AsyncUnit>(this, true))
+                .OnTransformChildrenChangedAsync();
         }
 
         public UniTask OnTransformChildrenChangedAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnTransformChildrenChangedHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnTransformChildrenChangedAsync();
+            return ((IAsyncOnTransformChildrenChangedHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken,
+                true)).OnTransformChildrenChangedAsync();
         }
     }
-#endregion
 
-#region TransformParentChanged
+    #endregion
+
+    #region TransformParentChanged
 
     public interface IAsyncOnTransformParentChangedHandler
     {
@@ -2768,17 +2928,18 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnTransformParentChangedHandler.OnTransformParentChangedAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
     public static partial class AsyncTriggerExtensions
     {
-        public static AsyncTransformParentChangedTrigger GetAsyncTransformParentChangedTrigger(this GameObject gameObject)
+        public static AsyncTransformParentChangedTrigger GetAsyncTransformParentChangedTrigger(
+            this GameObject gameObject)
         {
             return GetOrAddComponent<AsyncTransformParentChangedTrigger>(gameObject);
         }
-        
+
         public static AsyncTransformParentChangedTrigger GetAsyncTransformParentChangedTrigger(this Component component)
         {
             return component.gameObject.GetAsyncTransformParentChangedTrigger();
@@ -2788,7 +2949,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncTransformParentChangedTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnTransformParentChanged()
+        private void OnTransformParentChanged()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -2798,24 +2959,29 @@ namespace Cysharp.Threading.Tasks.Triggers
             return new AsyncTriggerHandler<AsyncUnit>(this, false);
         }
 
-        public IAsyncOnTransformParentChangedHandler GetOnTransformParentChangedAsyncHandler(CancellationToken cancellationToken)
+        public IAsyncOnTransformParentChangedHandler GetOnTransformParentChangedAsyncHandler(
+            CancellationToken cancellationToken)
         {
             return new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, false);
         }
 
         public UniTask OnTransformParentChangedAsync()
         {
-            return ((IAsyncOnTransformParentChangedHandler)new AsyncTriggerHandler<AsyncUnit>(this, true)).OnTransformParentChangedAsync();
+            return ((IAsyncOnTransformParentChangedHandler)new AsyncTriggerHandler<AsyncUnit>(this, true))
+                .OnTransformParentChangedAsync();
         }
 
         public UniTask OnTransformParentChangedAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnTransformParentChangedHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnTransformParentChangedAsync();
+            return ((IAsyncOnTransformParentChangedHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken,
+                true)).OnTransformParentChangedAsync();
         }
     }
-#endregion
 
-#region TriggerEnter
+    #endregion
+
+    #region TriggerEnter
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_PHYSICS_SUPPORT
 
     public interface IAsyncOnTriggerEnterHandler
@@ -2838,7 +3004,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncTriggerEnterTrigger>(gameObject);
         }
-        
+
         public static AsyncTriggerEnterTrigger GetAsyncTriggerEnterTrigger(this Component component)
         {
             return component.gameObject.GetAsyncTriggerEnterTrigger();
@@ -2848,9 +3014,9 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncTriggerEnterTrigger : AsyncTriggerBase<Collider>
     {
-        void OnTriggerEnter(Collider other)
+        private void OnTriggerEnter(Collider other)
         {
-            RaiseEvent((other));
+            RaiseEvent(other);
         }
 
         public IAsyncOnTriggerEnterHandler GetOnTriggerEnterAsyncHandler()
@@ -2870,13 +3036,16 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<Collider> OnTriggerEnterAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnTriggerEnterHandler)new AsyncTriggerHandler<Collider>(this, cancellationToken, true)).OnTriggerEnterAsync();
+            return ((IAsyncOnTriggerEnterHandler)new AsyncTriggerHandler<Collider>(this, cancellationToken, true))
+                .OnTriggerEnterAsync();
         }
     }
 #endif
-#endregion
 
-#region TriggerEnter2D
+    #endregion
+
+    #region TriggerEnter2D
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_PHYSICS2D_SUPPORT
 
     public interface IAsyncOnTriggerEnter2DHandler
@@ -2899,7 +3068,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncTriggerEnter2DTrigger>(gameObject);
         }
-        
+
         public static AsyncTriggerEnter2DTrigger GetAsyncTriggerEnter2DTrigger(this Component component)
         {
             return component.gameObject.GetAsyncTriggerEnter2DTrigger();
@@ -2909,9 +3078,9 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncTriggerEnter2DTrigger : AsyncTriggerBase<Collider2D>
     {
-        void OnTriggerEnter2D(Collider2D other)
+        private void OnTriggerEnter2D(Collider2D other)
         {
-            RaiseEvent((other));
+            RaiseEvent(other);
         }
 
         public IAsyncOnTriggerEnter2DHandler GetOnTriggerEnter2DAsyncHandler()
@@ -2926,18 +3095,22 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<Collider2D> OnTriggerEnter2DAsync()
         {
-            return ((IAsyncOnTriggerEnter2DHandler)new AsyncTriggerHandler<Collider2D>(this, true)).OnTriggerEnter2DAsync();
+            return ((IAsyncOnTriggerEnter2DHandler)new AsyncTriggerHandler<Collider2D>(this, true))
+                .OnTriggerEnter2DAsync();
         }
 
         public UniTask<Collider2D> OnTriggerEnter2DAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnTriggerEnter2DHandler)new AsyncTriggerHandler<Collider2D>(this, cancellationToken, true)).OnTriggerEnter2DAsync();
+            return ((IAsyncOnTriggerEnter2DHandler)new AsyncTriggerHandler<Collider2D>(this, cancellationToken, true))
+                .OnTriggerEnter2DAsync();
         }
     }
 #endif
-#endregion
 
-#region TriggerExit
+    #endregion
+
+    #region TriggerExit
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_PHYSICS_SUPPORT
 
     public interface IAsyncOnTriggerExitHandler
@@ -2960,7 +3133,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncTriggerExitTrigger>(gameObject);
         }
-        
+
         public static AsyncTriggerExitTrigger GetAsyncTriggerExitTrigger(this Component component)
         {
             return component.gameObject.GetAsyncTriggerExitTrigger();
@@ -2970,9 +3143,9 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncTriggerExitTrigger : AsyncTriggerBase<Collider>
     {
-        void OnTriggerExit(Collider other)
+        private void OnTriggerExit(Collider other)
         {
-            RaiseEvent((other));
+            RaiseEvent(other);
         }
 
         public IAsyncOnTriggerExitHandler GetOnTriggerExitAsyncHandler()
@@ -2992,13 +3165,16 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<Collider> OnTriggerExitAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnTriggerExitHandler)new AsyncTriggerHandler<Collider>(this, cancellationToken, true)).OnTriggerExitAsync();
+            return ((IAsyncOnTriggerExitHandler)new AsyncTriggerHandler<Collider>(this, cancellationToken, true))
+                .OnTriggerExitAsync();
         }
     }
 #endif
-#endregion
 
-#region TriggerExit2D
+    #endregion
+
+    #region TriggerExit2D
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_PHYSICS2D_SUPPORT
 
     public interface IAsyncOnTriggerExit2DHandler
@@ -3021,7 +3197,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncTriggerExit2DTrigger>(gameObject);
         }
-        
+
         public static AsyncTriggerExit2DTrigger GetAsyncTriggerExit2DTrigger(this Component component)
         {
             return component.gameObject.GetAsyncTriggerExit2DTrigger();
@@ -3031,9 +3207,9 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncTriggerExit2DTrigger : AsyncTriggerBase<Collider2D>
     {
-        void OnTriggerExit2D(Collider2D other)
+        private void OnTriggerExit2D(Collider2D other)
         {
-            RaiseEvent((other));
+            RaiseEvent(other);
         }
 
         public IAsyncOnTriggerExit2DHandler GetOnTriggerExit2DAsyncHandler()
@@ -3048,18 +3224,22 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<Collider2D> OnTriggerExit2DAsync()
         {
-            return ((IAsyncOnTriggerExit2DHandler)new AsyncTriggerHandler<Collider2D>(this, true)).OnTriggerExit2DAsync();
+            return ((IAsyncOnTriggerExit2DHandler)new AsyncTriggerHandler<Collider2D>(this, true))
+                .OnTriggerExit2DAsync();
         }
 
         public UniTask<Collider2D> OnTriggerExit2DAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnTriggerExit2DHandler)new AsyncTriggerHandler<Collider2D>(this, cancellationToken, true)).OnTriggerExit2DAsync();
+            return ((IAsyncOnTriggerExit2DHandler)new AsyncTriggerHandler<Collider2D>(this, cancellationToken, true))
+                .OnTriggerExit2DAsync();
         }
     }
 #endif
-#endregion
 
-#region TriggerStay
+    #endregion
+
+    #region TriggerStay
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_PHYSICS_SUPPORT
 
     public interface IAsyncOnTriggerStayHandler
@@ -3082,7 +3262,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncTriggerStayTrigger>(gameObject);
         }
-        
+
         public static AsyncTriggerStayTrigger GetAsyncTriggerStayTrigger(this Component component)
         {
             return component.gameObject.GetAsyncTriggerStayTrigger();
@@ -3092,9 +3272,9 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncTriggerStayTrigger : AsyncTriggerBase<Collider>
     {
-        void OnTriggerStay(Collider other)
+        private void OnTriggerStay(Collider other)
         {
-            RaiseEvent((other));
+            RaiseEvent(other);
         }
 
         public IAsyncOnTriggerStayHandler GetOnTriggerStayAsyncHandler()
@@ -3114,13 +3294,16 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<Collider> OnTriggerStayAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnTriggerStayHandler)new AsyncTriggerHandler<Collider>(this, cancellationToken, true)).OnTriggerStayAsync();
+            return ((IAsyncOnTriggerStayHandler)new AsyncTriggerHandler<Collider>(this, cancellationToken, true))
+                .OnTriggerStayAsync();
         }
     }
 #endif
-#endregion
 
-#region TriggerStay2D
+    #endregion
+
+    #region TriggerStay2D
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_PHYSICS2D_SUPPORT
 
     public interface IAsyncOnTriggerStay2DHandler
@@ -3143,7 +3326,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncTriggerStay2DTrigger>(gameObject);
         }
-        
+
         public static AsyncTriggerStay2DTrigger GetAsyncTriggerStay2DTrigger(this Component component)
         {
             return component.gameObject.GetAsyncTriggerStay2DTrigger();
@@ -3153,9 +3336,9 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncTriggerStay2DTrigger : AsyncTriggerBase<Collider2D>
     {
-        void OnTriggerStay2D(Collider2D other)
+        private void OnTriggerStay2D(Collider2D other)
         {
-            RaiseEvent((other));
+            RaiseEvent(other);
         }
 
         public IAsyncOnTriggerStay2DHandler GetOnTriggerStay2DAsyncHandler()
@@ -3170,18 +3353,21 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<Collider2D> OnTriggerStay2DAsync()
         {
-            return ((IAsyncOnTriggerStay2DHandler)new AsyncTriggerHandler<Collider2D>(this, true)).OnTriggerStay2DAsync();
+            return ((IAsyncOnTriggerStay2DHandler)new AsyncTriggerHandler<Collider2D>(this, true))
+                .OnTriggerStay2DAsync();
         }
 
         public UniTask<Collider2D> OnTriggerStay2DAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnTriggerStay2DHandler)new AsyncTriggerHandler<Collider2D>(this, cancellationToken, true)).OnTriggerStay2DAsync();
+            return ((IAsyncOnTriggerStay2DHandler)new AsyncTriggerHandler<Collider2D>(this, cancellationToken, true))
+                .OnTriggerStay2DAsync();
         }
     }
 #endif
-#endregion
 
-#region Validate
+    #endregion
+
+    #region Validate
 
     public interface IAsyncOnValidateHandler
     {
@@ -3193,7 +3379,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnValidateHandler.OnValidateAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -3203,7 +3389,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncValidateTrigger>(gameObject);
         }
-        
+
         public static AsyncValidateTrigger GetAsyncValidateTrigger(this Component component)
         {
             return component.gameObject.GetAsyncValidateTrigger();
@@ -3213,7 +3399,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncValidateTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnValidate()
+        private void OnValidate()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -3235,12 +3421,14 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask OnValidateAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnValidateHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnValidateAsync();
+            return ((IAsyncOnValidateHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true))
+                .OnValidateAsync();
         }
     }
-#endregion
 
-#region WillRenderObject
+    #endregion
+
+    #region WillRenderObject
 
     public interface IAsyncOnWillRenderObjectHandler
     {
@@ -3252,7 +3440,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncOnWillRenderObjectHandler.OnWillRenderObjectAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -3262,7 +3450,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncWillRenderObjectTrigger>(gameObject);
         }
-        
+
         public static AsyncWillRenderObjectTrigger GetAsyncWillRenderObjectTrigger(this Component component)
         {
             return component.gameObject.GetAsyncWillRenderObjectTrigger();
@@ -3272,7 +3460,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncWillRenderObjectTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void OnWillRenderObject()
+        private void OnWillRenderObject()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -3289,17 +3477,20 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask OnWillRenderObjectAsync()
         {
-            return ((IAsyncOnWillRenderObjectHandler)new AsyncTriggerHandler<AsyncUnit>(this, true)).OnWillRenderObjectAsync();
+            return ((IAsyncOnWillRenderObjectHandler)new AsyncTriggerHandler<AsyncUnit>(this, true))
+                .OnWillRenderObjectAsync();
         }
 
         public UniTask OnWillRenderObjectAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnWillRenderObjectHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).OnWillRenderObjectAsync();
+            return ((IAsyncOnWillRenderObjectHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true))
+                .OnWillRenderObjectAsync();
         }
     }
-#endregion
 
-#region Reset
+    #endregion
+
+    #region Reset
 
     public interface IAsyncResetHandler
     {
@@ -3311,7 +3502,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncResetHandler.ResetAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -3321,7 +3512,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncResetTrigger>(gameObject);
         }
-        
+
         public static AsyncResetTrigger GetAsyncResetTrigger(this Component component)
         {
             return component.gameObject.GetAsyncResetTrigger();
@@ -3331,7 +3522,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncResetTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void Reset()
+        private void Reset()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -3356,9 +3547,10 @@ namespace Cysharp.Threading.Tasks.Triggers
             return ((IAsyncResetHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).ResetAsync();
         }
     }
-#endregion
 
-#region Update
+    #endregion
+
+    #region Update
 
     public interface IAsyncUpdateHandler
     {
@@ -3370,7 +3562,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         UniTask IAsyncUpdateHandler.UpdateAsync()
         {
             core.Reset();
-            return new UniTask((IUniTaskSource)(object)this, core.Version);
+            return new UniTask((IUniTaskSource)this, core.Version);
         }
     }
 
@@ -3380,7 +3572,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncUpdateTrigger>(gameObject);
         }
-        
+
         public static AsyncUpdateTrigger GetAsyncUpdateTrigger(this Component component)
         {
             return component.gameObject.GetAsyncUpdateTrigger();
@@ -3390,7 +3582,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncUpdateTrigger : AsyncTriggerBase<AsyncUnit>
     {
-        void Update()
+        private void Update()
         {
             RaiseEvent(AsyncUnit.Default);
         }
@@ -3412,12 +3604,15 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask UpdateAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncUpdateHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true)).UpdateAsync();
+            return ((IAsyncUpdateHandler)new AsyncTriggerHandler<AsyncUnit>(this, cancellationToken, true))
+                .UpdateAsync();
         }
     }
-#endregion
 
-#region BeginDrag
+    #endregion
+
+    #region BeginDrag
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_UGUI_SUPPORT
 
     public interface IAsyncOnBeginDragHandler
@@ -3440,7 +3635,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncBeginDragTrigger>(gameObject);
         }
-        
+
         public static AsyncBeginDragTrigger GetAsyncBeginDragTrigger(this Component component)
         {
             return component.gameObject.GetAsyncBeginDragTrigger();
@@ -3452,7 +3647,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     {
         void IBeginDragHandler.OnBeginDrag(PointerEventData eventData)
         {
-            RaiseEvent((eventData));
+            RaiseEvent(eventData);
         }
 
         public IAsyncOnBeginDragHandler GetOnBeginDragAsyncHandler()
@@ -3472,13 +3667,16 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<PointerEventData> OnBeginDragAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnBeginDragHandler)new AsyncTriggerHandler<PointerEventData>(this, cancellationToken, true)).OnBeginDragAsync();
+            return ((IAsyncOnBeginDragHandler)new AsyncTriggerHandler<PointerEventData>(this, cancellationToken, true))
+                .OnBeginDragAsync();
         }
     }
 #endif
-#endregion
 
-#region Cancel
+    #endregion
+
+    #region Cancel
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_UGUI_SUPPORT
 
     public interface IAsyncOnCancelHandler
@@ -3501,7 +3699,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncCancelTrigger>(gameObject);
         }
-        
+
         public static AsyncCancelTrigger GetAsyncCancelTrigger(this Component component)
         {
             return component.gameObject.GetAsyncCancelTrigger();
@@ -3513,7 +3711,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     {
         void ICancelHandler.OnCancel(BaseEventData eventData)
         {
-            RaiseEvent((eventData));
+            RaiseEvent(eventData);
         }
 
         public IAsyncOnCancelHandler GetOnCancelAsyncHandler()
@@ -3533,13 +3731,16 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<BaseEventData> OnCancelAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnCancelHandler)new AsyncTriggerHandler<BaseEventData>(this, cancellationToken, true)).OnCancelAsync();
+            return ((IAsyncOnCancelHandler)new AsyncTriggerHandler<BaseEventData>(this, cancellationToken, true))
+                .OnCancelAsync();
         }
     }
 #endif
-#endregion
 
-#region Deselect
+    #endregion
+
+    #region Deselect
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_UGUI_SUPPORT
 
     public interface IAsyncOnDeselectHandler
@@ -3562,7 +3763,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncDeselectTrigger>(gameObject);
         }
-        
+
         public static AsyncDeselectTrigger GetAsyncDeselectTrigger(this Component component)
         {
             return component.gameObject.GetAsyncDeselectTrigger();
@@ -3574,7 +3775,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     {
         void IDeselectHandler.OnDeselect(BaseEventData eventData)
         {
-            RaiseEvent((eventData));
+            RaiseEvent(eventData);
         }
 
         public IAsyncOnDeselectHandler GetOnDeselectAsyncHandler()
@@ -3594,13 +3795,16 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<BaseEventData> OnDeselectAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnDeselectHandler)new AsyncTriggerHandler<BaseEventData>(this, cancellationToken, true)).OnDeselectAsync();
+            return ((IAsyncOnDeselectHandler)new AsyncTriggerHandler<BaseEventData>(this, cancellationToken, true))
+                .OnDeselectAsync();
         }
     }
 #endif
-#endregion
 
-#region Drag
+    #endregion
+
+    #region Drag
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_UGUI_SUPPORT
 
     public interface IAsyncOnDragHandler
@@ -3623,7 +3827,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncDragTrigger>(gameObject);
         }
-        
+
         public static AsyncDragTrigger GetAsyncDragTrigger(this Component component)
         {
             return component.gameObject.GetAsyncDragTrigger();
@@ -3635,7 +3839,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     {
         void IDragHandler.OnDrag(PointerEventData eventData)
         {
-            RaiseEvent((eventData));
+            RaiseEvent(eventData);
         }
 
         public IAsyncOnDragHandler GetOnDragAsyncHandler()
@@ -3655,13 +3859,16 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<PointerEventData> OnDragAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnDragHandler)new AsyncTriggerHandler<PointerEventData>(this, cancellationToken, true)).OnDragAsync();
+            return ((IAsyncOnDragHandler)new AsyncTriggerHandler<PointerEventData>(this, cancellationToken, true))
+                .OnDragAsync();
         }
     }
 #endif
-#endregion
 
-#region Drop
+    #endregion
+
+    #region Drop
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_UGUI_SUPPORT
 
     public interface IAsyncOnDropHandler
@@ -3684,7 +3891,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncDropTrigger>(gameObject);
         }
-        
+
         public static AsyncDropTrigger GetAsyncDropTrigger(this Component component)
         {
             return component.gameObject.GetAsyncDropTrigger();
@@ -3696,7 +3903,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     {
         void IDropHandler.OnDrop(PointerEventData eventData)
         {
-            RaiseEvent((eventData));
+            RaiseEvent(eventData);
         }
 
         public IAsyncOnDropHandler GetOnDropAsyncHandler()
@@ -3716,13 +3923,16 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<PointerEventData> OnDropAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnDropHandler)new AsyncTriggerHandler<PointerEventData>(this, cancellationToken, true)).OnDropAsync();
+            return ((IAsyncOnDropHandler)new AsyncTriggerHandler<PointerEventData>(this, cancellationToken, true))
+                .OnDropAsync();
         }
     }
 #endif
-#endregion
 
-#region EndDrag
+    #endregion
+
+    #region EndDrag
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_UGUI_SUPPORT
 
     public interface IAsyncOnEndDragHandler
@@ -3745,7 +3955,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncEndDragTrigger>(gameObject);
         }
-        
+
         public static AsyncEndDragTrigger GetAsyncEndDragTrigger(this Component component)
         {
             return component.gameObject.GetAsyncEndDragTrigger();
@@ -3757,7 +3967,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     {
         void IEndDragHandler.OnEndDrag(PointerEventData eventData)
         {
-            RaiseEvent((eventData));
+            RaiseEvent(eventData);
         }
 
         public IAsyncOnEndDragHandler GetOnEndDragAsyncHandler()
@@ -3777,13 +3987,16 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<PointerEventData> OnEndDragAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnEndDragHandler)new AsyncTriggerHandler<PointerEventData>(this, cancellationToken, true)).OnEndDragAsync();
+            return ((IAsyncOnEndDragHandler)new AsyncTriggerHandler<PointerEventData>(this, cancellationToken, true))
+                .OnEndDragAsync();
         }
     }
 #endif
-#endregion
 
-#region InitializePotentialDrag
+    #endregion
+
+    #region InitializePotentialDrag
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_UGUI_SUPPORT
 
     public interface IAsyncOnInitializePotentialDragHandler
@@ -3802,23 +4015,26 @@ namespace Cysharp.Threading.Tasks.Triggers
 
     public static partial class AsyncTriggerExtensions
     {
-        public static AsyncInitializePotentialDragTrigger GetAsyncInitializePotentialDragTrigger(this GameObject gameObject)
+        public static AsyncInitializePotentialDragTrigger GetAsyncInitializePotentialDragTrigger(
+            this GameObject gameObject)
         {
             return GetOrAddComponent<AsyncInitializePotentialDragTrigger>(gameObject);
         }
-        
-        public static AsyncInitializePotentialDragTrigger GetAsyncInitializePotentialDragTrigger(this Component component)
+
+        public static AsyncInitializePotentialDragTrigger GetAsyncInitializePotentialDragTrigger(
+            this Component component)
         {
             return component.gameObject.GetAsyncInitializePotentialDragTrigger();
         }
     }
 
     [DisallowMultipleComponent]
-    public sealed class AsyncInitializePotentialDragTrigger : AsyncTriggerBase<PointerEventData>, IInitializePotentialDragHandler
+    public sealed class AsyncInitializePotentialDragTrigger : AsyncTriggerBase<PointerEventData>,
+        IInitializePotentialDragHandler
     {
         void IInitializePotentialDragHandler.OnInitializePotentialDrag(PointerEventData eventData)
         {
-            RaiseEvent((eventData));
+            RaiseEvent(eventData);
         }
 
         public IAsyncOnInitializePotentialDragHandler GetOnInitializePotentialDragAsyncHandler()
@@ -3826,25 +4042,30 @@ namespace Cysharp.Threading.Tasks.Triggers
             return new AsyncTriggerHandler<PointerEventData>(this, false);
         }
 
-        public IAsyncOnInitializePotentialDragHandler GetOnInitializePotentialDragAsyncHandler(CancellationToken cancellationToken)
+        public IAsyncOnInitializePotentialDragHandler GetOnInitializePotentialDragAsyncHandler(
+            CancellationToken cancellationToken)
         {
             return new AsyncTriggerHandler<PointerEventData>(this, cancellationToken, false);
         }
 
         public UniTask<PointerEventData> OnInitializePotentialDragAsync()
         {
-            return ((IAsyncOnInitializePotentialDragHandler)new AsyncTriggerHandler<PointerEventData>(this, true)).OnInitializePotentialDragAsync();
+            return ((IAsyncOnInitializePotentialDragHandler)new AsyncTriggerHandler<PointerEventData>(this, true))
+                .OnInitializePotentialDragAsync();
         }
 
         public UniTask<PointerEventData> OnInitializePotentialDragAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnInitializePotentialDragHandler)new AsyncTriggerHandler<PointerEventData>(this, cancellationToken, true)).OnInitializePotentialDragAsync();
+            return ((IAsyncOnInitializePotentialDragHandler)new AsyncTriggerHandler<PointerEventData>(this,
+                cancellationToken, true)).OnInitializePotentialDragAsync();
         }
     }
 #endif
-#endregion
 
-#region Move
+    #endregion
+
+    #region Move
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_UGUI_SUPPORT
 
     public interface IAsyncOnMoveHandler
@@ -3867,7 +4088,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncMoveTrigger>(gameObject);
         }
-        
+
         public static AsyncMoveTrigger GetAsyncMoveTrigger(this Component component)
         {
             return component.gameObject.GetAsyncMoveTrigger();
@@ -3879,7 +4100,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     {
         void IMoveHandler.OnMove(AxisEventData eventData)
         {
-            RaiseEvent((eventData));
+            RaiseEvent(eventData);
         }
 
         public IAsyncOnMoveHandler GetOnMoveAsyncHandler()
@@ -3899,13 +4120,16 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<AxisEventData> OnMoveAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnMoveHandler)new AsyncTriggerHandler<AxisEventData>(this, cancellationToken, true)).OnMoveAsync();
+            return ((IAsyncOnMoveHandler)new AsyncTriggerHandler<AxisEventData>(this, cancellationToken, true))
+                .OnMoveAsync();
         }
     }
 #endif
-#endregion
 
-#region PointerClick
+    #endregion
+
+    #region PointerClick
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_UGUI_SUPPORT
 
     public interface IAsyncOnPointerClickHandler
@@ -3928,7 +4152,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncPointerClickTrigger>(gameObject);
         }
-        
+
         public static AsyncPointerClickTrigger GetAsyncPointerClickTrigger(this Component component)
         {
             return component.gameObject.GetAsyncPointerClickTrigger();
@@ -3940,7 +4164,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     {
         void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
         {
-            RaiseEvent((eventData));
+            RaiseEvent(eventData);
         }
 
         public IAsyncOnPointerClickHandler GetOnPointerClickAsyncHandler()
@@ -3955,18 +4179,22 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<PointerEventData> OnPointerClickAsync()
         {
-            return ((IAsyncOnPointerClickHandler)new AsyncTriggerHandler<PointerEventData>(this, true)).OnPointerClickAsync();
+            return ((IAsyncOnPointerClickHandler)new AsyncTriggerHandler<PointerEventData>(this, true))
+                .OnPointerClickAsync();
         }
 
         public UniTask<PointerEventData> OnPointerClickAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnPointerClickHandler)new AsyncTriggerHandler<PointerEventData>(this, cancellationToken, true)).OnPointerClickAsync();
+            return ((IAsyncOnPointerClickHandler)new AsyncTriggerHandler<PointerEventData>(this, cancellationToken,
+                true)).OnPointerClickAsync();
         }
     }
 #endif
-#endregion
 
-#region PointerDown
+    #endregion
+
+    #region PointerDown
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_UGUI_SUPPORT
 
     public interface IAsyncOnPointerDownHandler
@@ -3989,7 +4217,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncPointerDownTrigger>(gameObject);
         }
-        
+
         public static AsyncPointerDownTrigger GetAsyncPointerDownTrigger(this Component component)
         {
             return component.gameObject.GetAsyncPointerDownTrigger();
@@ -4001,7 +4229,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     {
         void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
         {
-            RaiseEvent((eventData));
+            RaiseEvent(eventData);
         }
 
         public IAsyncOnPointerDownHandler GetOnPointerDownAsyncHandler()
@@ -4016,18 +4244,22 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<PointerEventData> OnPointerDownAsync()
         {
-            return ((IAsyncOnPointerDownHandler)new AsyncTriggerHandler<PointerEventData>(this, true)).OnPointerDownAsync();
+            return ((IAsyncOnPointerDownHandler)new AsyncTriggerHandler<PointerEventData>(this, true))
+                .OnPointerDownAsync();
         }
 
         public UniTask<PointerEventData> OnPointerDownAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnPointerDownHandler)new AsyncTriggerHandler<PointerEventData>(this, cancellationToken, true)).OnPointerDownAsync();
+            return ((IAsyncOnPointerDownHandler)new AsyncTriggerHandler<PointerEventData>(this, cancellationToken,
+                true)).OnPointerDownAsync();
         }
     }
 #endif
-#endregion
 
-#region PointerEnter
+    #endregion
+
+    #region PointerEnter
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_UGUI_SUPPORT
 
     public interface IAsyncOnPointerEnterHandler
@@ -4050,7 +4282,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncPointerEnterTrigger>(gameObject);
         }
-        
+
         public static AsyncPointerEnterTrigger GetAsyncPointerEnterTrigger(this Component component)
         {
             return component.gameObject.GetAsyncPointerEnterTrigger();
@@ -4062,7 +4294,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     {
         void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData)
         {
-            RaiseEvent((eventData));
+            RaiseEvent(eventData);
         }
 
         public IAsyncOnPointerEnterHandler GetOnPointerEnterAsyncHandler()
@@ -4077,18 +4309,22 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<PointerEventData> OnPointerEnterAsync()
         {
-            return ((IAsyncOnPointerEnterHandler)new AsyncTriggerHandler<PointerEventData>(this, true)).OnPointerEnterAsync();
+            return ((IAsyncOnPointerEnterHandler)new AsyncTriggerHandler<PointerEventData>(this, true))
+                .OnPointerEnterAsync();
         }
 
         public UniTask<PointerEventData> OnPointerEnterAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnPointerEnterHandler)new AsyncTriggerHandler<PointerEventData>(this, cancellationToken, true)).OnPointerEnterAsync();
+            return ((IAsyncOnPointerEnterHandler)new AsyncTriggerHandler<PointerEventData>(this, cancellationToken,
+                true)).OnPointerEnterAsync();
         }
     }
 #endif
-#endregion
 
-#region PointerExit
+    #endregion
+
+    #region PointerExit
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_UGUI_SUPPORT
 
     public interface IAsyncOnPointerExitHandler
@@ -4111,7 +4347,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncPointerExitTrigger>(gameObject);
         }
-        
+
         public static AsyncPointerExitTrigger GetAsyncPointerExitTrigger(this Component component)
         {
             return component.gameObject.GetAsyncPointerExitTrigger();
@@ -4123,7 +4359,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     {
         void IPointerExitHandler.OnPointerExit(PointerEventData eventData)
         {
-            RaiseEvent((eventData));
+            RaiseEvent(eventData);
         }
 
         public IAsyncOnPointerExitHandler GetOnPointerExitAsyncHandler()
@@ -4138,18 +4374,22 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<PointerEventData> OnPointerExitAsync()
         {
-            return ((IAsyncOnPointerExitHandler)new AsyncTriggerHandler<PointerEventData>(this, true)).OnPointerExitAsync();
+            return ((IAsyncOnPointerExitHandler)new AsyncTriggerHandler<PointerEventData>(this, true))
+                .OnPointerExitAsync();
         }
 
         public UniTask<PointerEventData> OnPointerExitAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnPointerExitHandler)new AsyncTriggerHandler<PointerEventData>(this, cancellationToken, true)).OnPointerExitAsync();
+            return ((IAsyncOnPointerExitHandler)new AsyncTriggerHandler<PointerEventData>(this, cancellationToken,
+                true)).OnPointerExitAsync();
         }
     }
 #endif
-#endregion
 
-#region PointerUp
+    #endregion
+
+    #region PointerUp
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_UGUI_SUPPORT
 
     public interface IAsyncOnPointerUpHandler
@@ -4172,7 +4412,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncPointerUpTrigger>(gameObject);
         }
-        
+
         public static AsyncPointerUpTrigger GetAsyncPointerUpTrigger(this Component component)
         {
             return component.gameObject.GetAsyncPointerUpTrigger();
@@ -4184,7 +4424,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     {
         void IPointerUpHandler.OnPointerUp(PointerEventData eventData)
         {
-            RaiseEvent((eventData));
+            RaiseEvent(eventData);
         }
 
         public IAsyncOnPointerUpHandler GetOnPointerUpAsyncHandler()
@@ -4204,13 +4444,16 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<PointerEventData> OnPointerUpAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnPointerUpHandler)new AsyncTriggerHandler<PointerEventData>(this, cancellationToken, true)).OnPointerUpAsync();
+            return ((IAsyncOnPointerUpHandler)new AsyncTriggerHandler<PointerEventData>(this, cancellationToken, true))
+                .OnPointerUpAsync();
         }
     }
 #endif
-#endregion
 
-#region Scroll
+    #endregion
+
+    #region Scroll
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_UGUI_SUPPORT
 
     public interface IAsyncOnScrollHandler
@@ -4233,7 +4476,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncScrollTrigger>(gameObject);
         }
-        
+
         public static AsyncScrollTrigger GetAsyncScrollTrigger(this Component component)
         {
             return component.gameObject.GetAsyncScrollTrigger();
@@ -4245,7 +4488,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     {
         void IScrollHandler.OnScroll(PointerEventData eventData)
         {
-            RaiseEvent((eventData));
+            RaiseEvent(eventData);
         }
 
         public IAsyncOnScrollHandler GetOnScrollAsyncHandler()
@@ -4265,13 +4508,16 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<PointerEventData> OnScrollAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnScrollHandler)new AsyncTriggerHandler<PointerEventData>(this, cancellationToken, true)).OnScrollAsync();
+            return ((IAsyncOnScrollHandler)new AsyncTriggerHandler<PointerEventData>(this, cancellationToken, true))
+                .OnScrollAsync();
         }
     }
 #endif
-#endregion
 
-#region Select
+    #endregion
+
+    #region Select
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_UGUI_SUPPORT
 
     public interface IAsyncOnSelectHandler
@@ -4294,7 +4540,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncSelectTrigger>(gameObject);
         }
-        
+
         public static AsyncSelectTrigger GetAsyncSelectTrigger(this Component component)
         {
             return component.gameObject.GetAsyncSelectTrigger();
@@ -4306,7 +4552,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     {
         void ISelectHandler.OnSelect(BaseEventData eventData)
         {
-            RaiseEvent((eventData));
+            RaiseEvent(eventData);
         }
 
         public IAsyncOnSelectHandler GetOnSelectAsyncHandler()
@@ -4326,13 +4572,16 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<BaseEventData> OnSelectAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnSelectHandler)new AsyncTriggerHandler<BaseEventData>(this, cancellationToken, true)).OnSelectAsync();
+            return ((IAsyncOnSelectHandler)new AsyncTriggerHandler<BaseEventData>(this, cancellationToken, true))
+                .OnSelectAsync();
         }
     }
 #endif
-#endregion
 
-#region Submit
+    #endregion
+
+    #region Submit
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_UGUI_SUPPORT
 
     public interface IAsyncOnSubmitHandler
@@ -4355,7 +4604,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncSubmitTrigger>(gameObject);
         }
-        
+
         public static AsyncSubmitTrigger GetAsyncSubmitTrigger(this Component component)
         {
             return component.gameObject.GetAsyncSubmitTrigger();
@@ -4367,7 +4616,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     {
         void ISubmitHandler.OnSubmit(BaseEventData eventData)
         {
-            RaiseEvent((eventData));
+            RaiseEvent(eventData);
         }
 
         public IAsyncOnSubmitHandler GetOnSubmitAsyncHandler()
@@ -4387,13 +4636,16 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<BaseEventData> OnSubmitAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnSubmitHandler)new AsyncTriggerHandler<BaseEventData>(this, cancellationToken, true)).OnSubmitAsync();
+            return ((IAsyncOnSubmitHandler)new AsyncTriggerHandler<BaseEventData>(this, cancellationToken, true))
+                .OnSubmitAsync();
         }
     }
 #endif
-#endregion
 
-#region UpdateSelected
+    #endregion
+
+    #region UpdateSelected
+
 #if !UNITY_2019_1_OR_NEWER || UNITASK_UGUI_SUPPORT
 
     public interface IAsyncOnUpdateSelectedHandler
@@ -4416,7 +4668,7 @@ namespace Cysharp.Threading.Tasks.Triggers
         {
             return GetOrAddComponent<AsyncUpdateSelectedTrigger>(gameObject);
         }
-        
+
         public static AsyncUpdateSelectedTrigger GetAsyncUpdateSelectedTrigger(this Component component)
         {
             return component.gameObject.GetAsyncUpdateSelectedTrigger();
@@ -4428,7 +4680,7 @@ namespace Cysharp.Threading.Tasks.Triggers
     {
         void IUpdateSelectedHandler.OnUpdateSelected(BaseEventData eventData)
         {
-            RaiseEvent((eventData));
+            RaiseEvent(eventData);
         }
 
         public IAsyncOnUpdateSelectedHandler GetOnUpdateSelectedAsyncHandler()
@@ -4443,15 +4695,17 @@ namespace Cysharp.Threading.Tasks.Triggers
 
         public UniTask<BaseEventData> OnUpdateSelectedAsync()
         {
-            return ((IAsyncOnUpdateSelectedHandler)new AsyncTriggerHandler<BaseEventData>(this, true)).OnUpdateSelectedAsync();
+            return ((IAsyncOnUpdateSelectedHandler)new AsyncTriggerHandler<BaseEventData>(this, true))
+                .OnUpdateSelectedAsync();
         }
 
         public UniTask<BaseEventData> OnUpdateSelectedAsync(CancellationToken cancellationToken)
         {
-            return ((IAsyncOnUpdateSelectedHandler)new AsyncTriggerHandler<BaseEventData>(this, cancellationToken, true)).OnUpdateSelectedAsync();
+            return ((IAsyncOnUpdateSelectedHandler)new AsyncTriggerHandler<BaseEventData>(this, cancellationToken,
+                true)).OnUpdateSelectedAsync();
         }
     }
 #endif
-#endregion
 
+    #endregion
 }

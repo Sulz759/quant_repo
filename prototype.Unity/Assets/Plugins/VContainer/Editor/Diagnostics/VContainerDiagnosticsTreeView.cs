@@ -1,9 +1,9 @@
-using UnityEngine;
-using UnityEditor;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEditor.IMGUI.Controls;
+using UnityEngine;
 using VContainer.Diagnostics;
 using VContainer.Unity;
 
@@ -11,6 +11,13 @@ namespace VContainer.Editor.Diagnostics
 {
     public sealed class DiagnosticsInfoTreeViewItem : TreeViewItem
     {
+        public DiagnosticsInfoTreeViewItem(DiagnosticsInfo info)
+        {
+            ScopeName = info.ScopeName;
+            DiagnosticsInfo = info;
+            displayName = TypeSummary;
+        }
+
         public string ScopeName { get; set; }
         public DiagnosticsInfo DiagnosticsInfo { get; }
 
@@ -30,6 +37,7 @@ namespace VContainer.Editor.Diagnostics
                     var values = Registration.InterfaceTypes.Select(TypeNameHelper.GetTypeAlias);
                     return string.Join(", ", values);
                 }
+
                 return "";
             }
         }
@@ -42,76 +50,47 @@ namespace VContainer.Editor.Diagnostics
                     return "";
 
                 var type = RegistrationBuilder.GetType();
-                if (type == typeof(RegistrationBuilder))
-                {
-                    return "";
-                }
+                if (type == typeof(RegistrationBuilder)) return "";
 
                 var typeName = type.Name;
                 var suffixIndex = typeName.IndexOf("Builder");
-                if (suffixIndex > 0)
-                {
-                    typeName = typeName.Substring(0, suffixIndex);
-                }
+                if (suffixIndex > 0) typeName = typeName.Substring(0, suffixIndex);
                 suffixIndex = typeName.IndexOf("Registration");
-                if (suffixIndex > 0)
-                {
-                    typeName = typeName.Substring(0, suffixIndex);
-                }
+                if (suffixIndex > 0) typeName = typeName.Substring(0, suffixIndex);
 
-                if (typeName.StartsWith("Instance") && TypeSummary.StartsWith("Func<"))
-                {
-                    return "FuncFactory";
-                }
+                if (typeName.StartsWith("Instance") && TypeSummary.StartsWith("Func<")) return "FuncFactory";
 
                 return typeName;
             }
-        }
-
-        public DiagnosticsInfoTreeViewItem(DiagnosticsInfo info)
-        {
-            ScopeName = info.ScopeName;
-            DiagnosticsInfo = info;
-            displayName = TypeSummary;
         }
     }
 
     public sealed class VContainerDiagnosticsInfoTreeView : TreeView
     {
-        static readonly MultiColumnHeaderState.Column[] Columns =
+        private const string SessionStateKeySortedColumnIndex =
+            "VContainer.Editor.DiagnosticsInfoTreeView:sortedColumnIndex";
+
+        private static readonly MultiColumnHeaderState.Column[] Columns =
         {
-            new MultiColumnHeaderState.Column { headerContent = new GUIContent("Type") },
-            new MultiColumnHeaderState.Column { headerContent = new GUIContent("ContractTypes"), canSort = false },
-            new MultiColumnHeaderState.Column { headerContent = new GUIContent("Lifetime"), width = 15f },
-            new MultiColumnHeaderState.Column { headerContent = new GUIContent("Register"), width = 15f },
-            new MultiColumnHeaderState.Column { headerContent = new GUIContent("RefCount"), width = 5f },
-            new MultiColumnHeaderState.Column { headerContent = new GUIContent("Scope"), width = 20f },
-            new MultiColumnHeaderState.Column { headerContent = new GUIContent("Time"), width = 20f },
+            new() { headerContent = new GUIContent("Type") },
+            new() { headerContent = new GUIContent("ContractTypes"), canSort = false },
+            new() { headerContent = new GUIContent("Lifetime"), width = 15f },
+            new() { headerContent = new GUIContent("Register"), width = 15f },
+            new() { headerContent = new GUIContent("RefCount"), width = 5f },
+            new() { headerContent = new GUIContent("Scope"), width = 20f },
+            new() { headerContent = new GUIContent("Time"), width = 20f }
         };
 
-        static int idSeed;
-        static int NextId() => ++idSeed;
+        private static int idSeed;
 
-        const string SessionStateKeySortedColumnIndex = "VContainer.Editor.DiagnosticsInfoTreeView:sortedColumnIndex";
-
-        public bool Flatten
-        {
-            get => flatten;
-            set
-            {
-                flatten = value;
-                multiColumnHeader.ResizeToFit();
-            }
-        }
-
-        bool flatten;
+        private bool flatten;
 
         public VContainerDiagnosticsInfoTreeView()
             : this(new TreeViewState(), new MultiColumnHeader(new MultiColumnHeaderState(Columns)))
         {
         }
 
-        VContainerDiagnosticsInfoTreeView(TreeViewState state, MultiColumnHeader header)
+        private VContainerDiagnosticsInfoTreeView(TreeViewState state, MultiColumnHeader header)
             : base(state, header)
         {
             rowHeight = 20;
@@ -125,6 +104,21 @@ namespace VContainer.Editor.Diagnostics
             header.sortedColumnIndex = Math.Min(
                 header.state.columns.Length - 1,
                 SessionState.GetInt(SessionStateKeySortedColumnIndex, 0));
+        }
+
+        public bool Flatten
+        {
+            get => flatten;
+            set
+            {
+                flatten = value;
+                multiColumnHeader.ResizeToFit();
+            }
+        }
+
+        private static int NextId()
+        {
+            return ++idSeed;
         }
 
         public DiagnosticsInfoTreeViewItem GetSelectedItem()
@@ -143,7 +137,7 @@ namespace VContainer.Editor.Diagnostics
             state.selectedIDs = currentSelected;
         }
 
-        void OnSortedChanged(MultiColumnHeader multiColumnHeader)
+        private void OnSortedChanged(MultiColumnHeader multiColumnHeader)
         {
             var columnIndex = multiColumnHeader.sortedColumnIndex;
             if (columnIndex < 0) return;
@@ -164,6 +158,7 @@ namespace VContainer.Editor.Diagnostics
                     sectionHeaderItem.children = new List<TreeViewItem>(Sort(items, columnIndex, ascending));
                 }
             }
+
             BuildRows(rootItem);
         }
 
@@ -178,14 +173,12 @@ namespace VContainer.Editor.Diagnostics
                 {
                     var infos = DiagnositcsContext.GetDiagnosticsInfos();
                     foreach (var info in infos)
-                    {
                         children.Add(new DiagnosticsInfoTreeViewItem(info)
                         {
                             id = NextId(),
                             depth = 0,
-                            ScopeName = info.ScopeName,
+                            ScopeName = info.ScopeName
                         });
-                    }
                 }
                 else
                 {
@@ -196,10 +189,7 @@ namespace VContainer.Editor.Diagnostics
                         children.Add(sectionHeaderItem);
                         SetExpanded(sectionHeaderItem.id, true);
 
-                        foreach (var info in scope)
-                        {
-                            AddDependencyItemsRecursive(info, sectionHeaderItem);
-                        }
+                        foreach (var info in scope) AddDependencyItemsRecursive(info, sectionHeaderItem);
                     }
                 }
             }
@@ -208,7 +198,10 @@ namespace VContainer.Editor.Diagnostics
             return root;
         }
 
-        protected override bool CanMultiSelect(TreeViewItem item) => false;
+        protected override bool CanMultiSelect(TreeViewItem item)
+        {
+            return false;
+        }
 
         protected override void RowGUI(RowGUIArgs args)
         {
@@ -257,7 +250,7 @@ namespace VContainer.Editor.Diagnostics
             }
         }
 
-        void AddDependencyItemsRecursive(DiagnosticsInfo info, TreeViewItem parent)
+        private void AddDependencyItemsRecursive(DiagnosticsInfo info, TreeViewItem parent)
         {
             var item = new DiagnosticsInfoTreeViewItem(info)
             {
@@ -267,13 +260,10 @@ namespace VContainer.Editor.Diagnostics
             parent.AddChild(item);
             SetExpanded(item.id, item.depth <= 1);
 
-            foreach (var dependency in info.Dependencies)
-            {
-                AddDependencyItemsRecursive(dependency, item);
-            }
+            foreach (var dependency in info.Dependencies) AddDependencyItemsRecursive(dependency, item);
         }
 
-        IEnumerable<DiagnosticsInfoTreeViewItem> Sort(
+        private IEnumerable<DiagnosticsInfoTreeViewItem> Sort(
             IEnumerable<DiagnosticsInfoTreeViewItem> items,
             int sortedColumnIndex,
             bool ascending)

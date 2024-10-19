@@ -10,25 +10,25 @@ namespace Cysharp.Threading.Tasks.Internal
     internal class WeakDictionary<TKey, TValue>
         where TKey : class
     {
-        Entry[] buckets;
-        int size;
-        SpinLock gate; // mutable struct(not readonly)
+        private readonly IEqualityComparer<TKey> keyEqualityComparer;
 
-        readonly float loadFactor;
-        readonly IEqualityComparer<TKey> keyEqualityComparer;
+        private readonly float loadFactor;
+        private Entry[] buckets;
+        private SpinLock gate; // mutable struct(not readonly)
+        private int size;
 
         public WeakDictionary(int capacity = 4, float loadFactor = 0.75f, IEqualityComparer<TKey> keyComparer = null)
         {
             var tableSize = CalculateCapacity(capacity, loadFactor);
-            this.buckets = new Entry[tableSize];
+            buckets = new Entry[tableSize];
             this.loadFactor = loadFactor;
-            this.gate = new SpinLock(false);
-            this.keyEqualityComparer = keyComparer ?? EqualityComparer<TKey>.Default;
+            gate = new SpinLock(false);
+            keyEqualityComparer = keyComparer ?? EqualityComparer<TKey>.Default;
         }
 
         public bool TryAdd(TKey key, TValue value)
         {
-            bool lockTaken = false;
+            var lockTaken = false;
             try
             {
                 gate.Enter(ref lockTaken);
@@ -42,7 +42,7 @@ namespace Cysharp.Threading.Tasks.Internal
 
         public bool TryGetValue(TKey key, out TValue value)
         {
-            bool lockTaken = false;
+            var lockTaken = false;
             try
             {
                 gate.Enter(ref lockTaken);
@@ -52,7 +52,7 @@ namespace Cysharp.Threading.Tasks.Internal
                     return true;
                 }
 
-                value = default(TValue);
+                value = default;
                 return false;
             }
             finally
@@ -63,7 +63,7 @@ namespace Cysharp.Threading.Tasks.Internal
 
         public bool TryRemove(TKey key)
         {
-            bool lockTaken = false;
+            var lockTaken = false;
             try
             {
                 gate.Enter(ref lockTaken);
@@ -81,7 +81,7 @@ namespace Cysharp.Threading.Tasks.Internal
             }
         }
 
-        bool TryAddInternal(TKey key, TValue value)
+        private bool TryAddInternal(TKey key, TValue value)
         {
             var nextCapacity = CalculateCapacity(size + 1, loadFactor);
 
@@ -90,7 +90,7 @@ namespace Cysharp.Threading.Tasks.Internal
             {
                 // rehash
                 var nextBucket = new Entry[nextCapacity];
-                for (int i = 0; i < buckets.Length; i++)
+                for (var i = 0; i < buckets.Length; i++)
                 {
                     var e = buckets[i];
                     while (e != null)
@@ -103,16 +103,14 @@ namespace Cysharp.Threading.Tasks.Internal
                 buckets = nextBucket;
                 goto TRY_ADD_AGAIN;
             }
-            else
-            {
-                // add entry
-                var successAdd = AddToBuckets(buckets, key, value, keyEqualityComparer.GetHashCode(key));
-                if (successAdd) size++;
-                return successAdd;
-            }
+
+            // add entry
+            var successAdd = AddToBuckets(buckets, key, value, keyEqualityComparer.GetHashCode(key));
+            if (successAdd) size++;
+            return successAdd;
         }
 
-        bool AddToBuckets(Entry[] targetBuckets, TKey newKey, TValue value, int keyHash)
+        private bool AddToBuckets(Entry[] targetBuckets, TKey newKey, TValue value, int keyHash)
         {
             var h = keyHash;
             var hashIndex = h & (targetBuckets.Length - 1);
@@ -129,61 +127,53 @@ namespace Cysharp.Threading.Tasks.Internal
 
                 return true;
             }
-            else
-            {
-                // add to last.
-                var entry = targetBuckets[hashIndex];
-                while (entry != null)
-                {
-                    if (entry.Key.TryGetTarget(out var target))
-                    {
-                        if (keyEqualityComparer.Equals(newKey, target))
-                        {
-                            return false; // duplicate
-                        }
-                    }
-                    else
-                    {
-                        Remove(hashIndex, entry);
-                        if (targetBuckets[hashIndex] == null) goto TRY_ADD_AGAIN; // add new entry
-                    }
 
-                    if (entry.Next != null)
-                    {
-                        entry = entry.Next;
-                    }
-                    else
-                    {
-                        // found last
-                        entry.Next = new Entry
-                        {
-                            Key = new WeakReference<TKey>(newKey, false),
-                            Value = value,
-                            Hash = h
-                        };
-                        entry.Next.Prev = entry;
-                    }
+            // add to last.
+            var entry = targetBuckets[hashIndex];
+            while (entry != null)
+            {
+                if (entry.Key.TryGetTarget(out var target))
+                {
+                    if (keyEqualityComparer.Equals(newKey, target)) return false; // duplicate
+                }
+                else
+                {
+                    Remove(hashIndex, entry);
+                    if (targetBuckets[hashIndex] == null) goto TRY_ADD_AGAIN; // add new entry
                 }
 
-                return false;
+                if (entry.Next != null)
+                {
+                    entry = entry.Next;
+                }
+                else
+                {
+                    // found last
+                    entry.Next = new Entry
+                    {
+                        Key = new WeakReference<TKey>(newKey, false),
+                        Value = value,
+                        Hash = h
+                    };
+                    entry.Next.Prev = entry;
+                }
             }
+
+            return false;
         }
 
-        bool TryGetEntry(TKey key, out int hashIndex, out Entry entry)
+        private bool TryGetEntry(TKey key, out int hashIndex, out Entry entry)
         {
             var table = buckets;
             var hash = keyEqualityComparer.GetHashCode(key);
-            hashIndex = hash & table.Length - 1;
+            hashIndex = hash & (table.Length - 1);
             entry = table[hashIndex];
 
             while (entry != null)
             {
                 if (entry.Key.TryGetTarget(out var target))
                 {
-                    if (keyEqualityComparer.Equals(key, target))
-                    {
-                        return true;
-                    }
+                    if (keyEqualityComparer.Equals(key, target)) return true;
                 }
                 else
                 {
@@ -197,7 +187,7 @@ namespace Cysharp.Threading.Tasks.Internal
             return false;
         }
 
-        void Remove(int hashIndex, Entry entry)
+        private void Remove(int hashIndex, Entry entry)
         {
             if (entry.Prev == null && entry.Next == null)
             {
@@ -205,19 +195,11 @@ namespace Cysharp.Threading.Tasks.Internal
             }
             else
             {
-                if (entry.Prev == null)
-                {
-                    buckets[hashIndex] = entry.Next;
-                }
-                if (entry.Prev != null)
-                {
-                    entry.Prev.Next = entry.Next;
-                }
-                if (entry.Next != null)
-                {
-                    entry.Next.Prev = entry.Prev;
-                }
+                if (entry.Prev == null) buckets[hashIndex] = entry.Next;
+                if (entry.Prev != null) entry.Prev.Next = entry.Next;
+                if (entry.Next != null) entry.Next.Prev = entry.Prev;
             }
+
             size--;
         }
 
@@ -231,17 +213,14 @@ namespace Cysharp.Threading.Tasks.Internal
         // avoid allocate everytime.
         public int ToList(ref List<KeyValuePair<TKey, TValue>> list, bool clear = true)
         {
-            if (clear)
-            {
-                list.Clear();
-            }
+            if (clear) list.Clear();
 
             var listIndex = 0;
 
-            bool lockTaken = false;
+            var lockTaken = false;
             try
             {
-                for (int i = 0; i < buckets.Length; i++)
+                for (var i = 0; i < buckets.Length; i++)
                 {
                     var entry = buckets[i];
                     while (entry != null)
@@ -277,9 +256,9 @@ namespace Cysharp.Threading.Tasks.Internal
             return listIndex;
         }
 
-        static int CalculateCapacity(int collectionSize, float loadFactor)
+        private static int CalculateCapacity(int collectionSize, float loadFactor)
         {
-            var size = (int)(((float)collectionSize) / loadFactor);
+            var size = (int)(collectionSize / loadFactor);
 
             size--;
             size |= size >> 1;
@@ -289,35 +268,27 @@ namespace Cysharp.Threading.Tasks.Internal
             size |= size >> 16;
             size += 1;
 
-            if (size < 8)
-            {
-                size = 8;
-            }
+            if (size < 8) size = 8;
             return size;
         }
 
-        class Entry
+        private class Entry
         {
-            public WeakReference<TKey> Key;
-            public TValue Value;
             public int Hash;
-            public Entry Prev;
+            public WeakReference<TKey> Key;
             public Entry Next;
+            public Entry Prev;
+            public TValue Value;
 
             // debug only
             public override string ToString()
             {
                 if (Key.TryGetTarget(out var target))
-                {
                     return target + "(" + Count() + ")";
-                }
-                else
-                {
-                    return "(Dead)";
-                }
+                return "(Dead)";
             }
 
-            int Count()
+            private int Count()
             {
                 var count = 1;
                 var n = this;
@@ -326,9 +297,9 @@ namespace Cysharp.Threading.Tasks.Internal
                     count++;
                     n = n.Next;
                 }
+
                 return count;
             }
         }
     }
 }
-

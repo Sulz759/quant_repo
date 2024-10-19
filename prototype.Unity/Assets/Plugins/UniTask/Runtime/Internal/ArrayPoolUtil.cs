@@ -11,22 +11,19 @@ namespace Cysharp.Threading.Tasks.Internal
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void EnsureCapacity<T>(ref T[] array, int index, ArrayPool<T> pool)
         {
-            if (array.Length <= index)
-            {
-                EnsureCapacityCore(ref array, index, pool);
-            }
+            if (array.Length <= index) EnsureCapacityCore(ref array, index, pool);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        static void EnsureCapacityCore<T>(ref T[] array, int index, ArrayPool<T> pool)
+        private static void EnsureCapacityCore<T>(ref T[] array, int index, ArrayPool<T> pool)
         {
             if (array.Length <= index)
             {
                 var newSize = array.Length * 2;
-                var newArray = pool.Rent((index < newSize) ? newSize : (index * 2));
+                var newArray = pool.Rent(index < newSize ? newSize : index * 2);
                 Array.Copy(array, 0, newArray, 0, array.Length);
 
-                pool.Return(array, clearArray: !RuntimeHelpersAbstraction.IsWellKnownNoReferenceContainsType<T>());
+                pool.Return(array, !RuntimeHelpersAbstraction.IsWellKnownNoReferenceContainsType<T>());
 
                 array = newArray;
             }
@@ -34,18 +31,12 @@ namespace Cysharp.Threading.Tasks.Internal
 
         public static RentArray<T> Materialize<T>(IEnumerable<T> source)
         {
-            if (source is T[] array)
-            {
-                return new RentArray<T>(array, array.Length, null);
-            }
+            if (source is T[] array) return new RentArray<T>(array, array.Length, null);
 
             var defaultCount = 32;
             if (source is ICollection<T> coll)
             {
-                if (coll.Count == 0)
-                {
-                    return new RentArray<T>(Array.Empty<T>(), 0, null);
-                }
+                if (coll.Count == 0) return new RentArray<T>(Array.Empty<T>(), 0, null);
 
                 defaultCount = coll.Count;
                 var pool = ArrayPool<T>.Shared;
@@ -53,15 +44,13 @@ namespace Cysharp.Threading.Tasks.Internal
                 coll.CopyTo(buffer, 0);
                 return new RentArray<T>(buffer, coll.Count, pool);
             }
-            else if (source is IReadOnlyCollection<T> rcoll)
+
+            if (source is IReadOnlyCollection<T> rcoll)
             {
                 defaultCount = rcoll.Count;
             }
 
-            if (defaultCount == 0)
-            {
-                return new RentArray<T>(Array.Empty<T>(), 0, null);
-            }
+            if (defaultCount == 0) return new RentArray<T>(Array.Empty<T>(), 0, null);
 
             {
                 var pool = ArrayPool<T>.Shared;
@@ -82,12 +71,12 @@ namespace Cysharp.Threading.Tasks.Internal
         {
             public readonly T[] Array;
             public readonly int Length;
-            ArrayPool<T> pool;
+            private ArrayPool<T> pool;
 
             public RentArray(T[] array, int length, ArrayPool<T> pool)
             {
-                this.Array = array;
-                this.Length = length;
+                Array = array;
+                Length = length;
                 this.pool = pool;
             }
 
@@ -100,16 +89,12 @@ namespace Cysharp.Threading.Tasks.Internal
             {
                 if (pool != null)
                 {
-                    if (clearArray)
-                    {
-                        System.Array.Clear(Array, 0, Length);
-                    }
+                    if (clearArray) System.Array.Clear(Array, 0, Length);
 
-                    pool.Return(Array, clearArray: false);
+                    pool.Return(Array, false);
                     pool = null;
                 }
             }
         }
     }
 }
-

@@ -1,7 +1,5 @@
-﻿using Cysharp.Threading.Tasks.Internal;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
+﻿using System.Threading;
+using Cysharp.Threading.Tasks.Internal;
 
 namespace Cysharp.Threading.Tasks.Linq
 {
@@ -16,7 +14,7 @@ namespace Cysharp.Threading.Tasks.Linq
 
     internal sealed class Reverse<TSource> : IUniTaskAsyncEnumerable<TSource>
     {
-        readonly IUniTaskAsyncEnumerable<TSource> source;
+        private readonly IUniTaskAsyncEnumerable<TSource> source;
 
         public Reverse(IUniTaskAsyncEnumerable<TSource> source)
         {
@@ -28,13 +26,13 @@ namespace Cysharp.Threading.Tasks.Linq
             return new _Reverse(source, cancellationToken);
         }
 
-        sealed class _Reverse : MoveNextSource, IUniTaskAsyncEnumerator<TSource>
+        private sealed class _Reverse : MoveNextSource, IUniTaskAsyncEnumerator<TSource>
         {
-            readonly IUniTaskAsyncEnumerable<TSource> source;
-            CancellationToken cancellationToken;
+            private readonly IUniTaskAsyncEnumerable<TSource> source;
 
-            TSource[] array;
-            int index;
+            private TSource[] array;
+            private readonly CancellationToken cancellationToken;
+            private int index;
 
             public _Reverse(IUniTaskAsyncEnumerable<TSource> source, CancellationToken cancellationToken)
             {
@@ -62,10 +60,8 @@ namespace Cysharp.Threading.Tasks.Linq
                     --index;
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
 
             public UniTask DisposeAsync()

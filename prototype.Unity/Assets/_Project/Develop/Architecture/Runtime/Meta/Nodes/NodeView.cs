@@ -1,17 +1,15 @@
-﻿
-using UnityEngine;
-using UnityEngine.Serialization;
+﻿using UnityEngine;
 
 namespace _Project.Develop.Architecture.Runtime.Meta.Nodes
 {
-    public class NodeView: MonoBehaviour
+    public class NodeView : MonoBehaviour
     {
         public string type;
+        [SerializeField] private SpriteRenderer spriteRenderer;
         private NodeConfig _nodeConfig;
         private NodeType _nodeType;
-        [SerializeField] private SpriteRenderer spriteRenderer;
-        
-        
+
+
         public void Initialize(NodeConfig nodeConfig, NodeType nodeType)
         {
             _nodeConfig = nodeConfig;

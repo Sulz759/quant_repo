@@ -1,5 +1,4 @@
-﻿
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+﻿#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 using System;
 using System.Diagnostics;
@@ -12,7 +11,7 @@ namespace Cysharp.Threading.Tasks.CompilerServices
     [StructLayout(LayoutKind.Auto)]
     public struct AsyncUniTaskVoidMethodBuilder
     {
-        IStateMachineRunner runner;
+        private IStateMachineRunner runner;
 
         // 1. Static Create method.
         [DebuggerHidden]
@@ -27,10 +26,7 @@ namespace Cysharp.Threading.Tasks.CompilerServices
         {
             [DebuggerHidden]
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                return default;
-            }
+            get => default;
         }
 
         // 3. SetException
@@ -78,10 +74,7 @@ namespace Cysharp.Threading.Tasks.CompilerServices
             where TAwaiter : INotifyCompletion
             where TStateMachine : IAsyncStateMachine
         {
-            if (runner == null)
-            {
-                AsyncUniTaskVoid<TStateMachine>.SetStateMachine(ref stateMachine, ref runner);
-            }
+            if (runner == null) AsyncUniTaskVoid<TStateMachine>.SetStateMachine(ref stateMachine, ref runner);
 
             awaiter.OnCompleted(runner.MoveNext);
         }
@@ -90,14 +83,12 @@ namespace Cysharp.Threading.Tasks.CompilerServices
         [DebuggerHidden]
         [SecuritySafeCritical]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AwaitUnsafeOnCompleted<TAwaiter, TStateMachine>(ref TAwaiter awaiter, ref TStateMachine stateMachine)
+        public void AwaitUnsafeOnCompleted<TAwaiter, TStateMachine>(ref TAwaiter awaiter,
+            ref TStateMachine stateMachine)
             where TAwaiter : ICriticalNotifyCompletion
             where TStateMachine : IAsyncStateMachine
         {
-            if (runner == null)
-            {
-                AsyncUniTaskVoid<TStateMachine>.SetStateMachine(ref stateMachine, ref runner);
-            }
+            if (runner == null) AsyncUniTaskVoid<TStateMachine>.SetStateMachine(ref stateMachine, ref runner);
 
             awaiter.UnsafeOnCompleted(runner.MoveNext);
         }
@@ -119,19 +110,15 @@ namespace Cysharp.Threading.Tasks.CompilerServices
 
 #if DEBUG || !UNITY_2018_3_OR_NEWER
         // Important for IDE debugger.
-        object debuggingId;
+        private object debuggingId;
         private object ObjectIdForDebugger
         {
             get
             {
-                if (debuggingId == null)
-                {
-                    debuggingId = new object();
-                }
+                if (debuggingId == null) debuggingId = new object();
                 return debuggingId;
             }
         }
 #endif
     }
 }
-

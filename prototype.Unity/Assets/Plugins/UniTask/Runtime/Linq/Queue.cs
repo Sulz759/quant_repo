@@ -13,7 +13,7 @@ namespace Cysharp.Threading.Tasks.Linq
 
     internal sealed class QueueOperator<TSource> : IUniTaskAsyncEnumerable<TSource>
     {
-        readonly IUniTaskAsyncEnumerable<TSource> source;
+        private readonly IUniTaskAsyncEnumerable<TSource> source;
 
         public QueueOperator(IUniTaskAsyncEnumerable<TSource> source)
         {
@@ -25,15 +25,15 @@ namespace Cysharp.Threading.Tasks.Linq
             return new _Queue(source, cancellationToken);
         }
 
-        sealed class _Queue : IUniTaskAsyncEnumerator<TSource>
+        private sealed class _Queue : IUniTaskAsyncEnumerator<TSource>
         {
-            readonly IUniTaskAsyncEnumerable<TSource> source;
-            CancellationToken cancellationToken;
+            private readonly IUniTaskAsyncEnumerable<TSource> source;
+            private readonly CancellationToken cancellationToken;
 
-            Channel<TSource> channel;
-            IUniTaskAsyncEnumerator<TSource> channelEnumerator;
-            IUniTaskAsyncEnumerator<TSource> sourceEnumerator;
-            bool channelClosed;
+            private Channel<TSource> channel;
+            private bool channelClosed;
+            private IUniTaskAsyncEnumerator<TSource> channelEnumerator;
+            private IUniTaskAsyncEnumerator<TSource> sourceEnumerator;
 
             public _Queue(IUniTaskAsyncEnumerable<TSource> source, CancellationToken cancellationToken)
             {
@@ -60,14 +60,24 @@ namespace Cysharp.Threading.Tasks.Linq
                 return channelEnumerator.MoveNextAsync();
             }
 
-            static async UniTaskVoid ConsumeAll(_Queue self, IUniTaskAsyncEnumerator<TSource> enumerator, ChannelWriter<TSource> writer)
+            public async UniTask DisposeAsync()
+            {
+                if (sourceEnumerator != null) await sourceEnumerator.DisposeAsync();
+                if (channelEnumerator != null) await channelEnumerator.DisposeAsync();
+
+                if (!channelClosed)
+                {
+                    channelClosed = true;
+                    channel.Writer.TryComplete(new OperationCanceledException());
+                }
+            }
+
+            private static async UniTaskVoid ConsumeAll(_Queue self, IUniTaskAsyncEnumerator<TSource> enumerator,
+                ChannelWriter<TSource> writer)
             {
                 try
                 {
-                    while (await enumerator.MoveNextAsync())
-                    {
-                        writer.TryWrite(enumerator.Current);
-                    }
+                    while (await enumerator.MoveNextAsync()) writer.TryWrite(enumerator.Current);
                     writer.TryComplete();
                 }
                 catch (Exception ex)
@@ -78,24 +88,6 @@ namespace Cysharp.Threading.Tasks.Linq
                 {
                     self.channelClosed = true;
                     await enumerator.DisposeAsync();
-                }
-            }
-
-            public async UniTask DisposeAsync()
-            {
-                if (sourceEnumerator != null)
-                {
-                    await sourceEnumerator.DisposeAsync();
-                }
-                if (channelEnumerator != null)
-                {
-                    await channelEnumerator.DisposeAsync();
-                }
-
-                if (!channelClosed)
-                {
-                    channelClosed = true;
-                    channel.Writer.TryComplete(new OperationCanceledException());
                 }
             }
         }

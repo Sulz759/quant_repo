@@ -8,16 +8,12 @@ namespace VContainer.Diagnostics
 {
     public sealed class RegisterInfo
     {
-        static bool displayFileNames = true;
-        static int idSeed;
-
-        public int Id { get; }
-        public RegistrationBuilder RegistrationBuilder { get; }
-        public StackTrace StackTrace { get; }
-
-        StackFrame headLineStackFrame;
+        private static bool displayFileNames = true;
+        private static int idSeed;
 
         internal string formattedStackTrace = default; // cache field for internal use(Unity Editor, etc...)
+
+        private readonly StackFrame headLineStackFrame;
 
         public RegisterInfo(RegistrationBuilder registrationBuilder)
         {
@@ -27,10 +23,13 @@ namespace VContainer.Diagnostics
             headLineStackFrame = GetHeadlineFrame(StackTrace);
         }
 
+        public int Id { get; }
+        public RegistrationBuilder RegistrationBuilder { get; }
+        public StackTrace StackTrace { get; }
+
         public string GetFilename()
         {
             if (headLineStackFrame != null && displayFileNames && headLineStackFrame.GetILOffset() != -1)
-            {
                 try
                 {
                     return headLineStackFrame.GetFileName();
@@ -43,14 +42,13 @@ namespace VContainer.Diagnostics
                 {
                     displayFileNames = false;
                 }
-            }
+
             return null;
         }
 
         public int GetFileLineNumber()
         {
             if (headLineStackFrame != null && displayFileNames && headLineStackFrame.GetILOffset() != -1)
-            {
                 try
                 {
                     return headLineStackFrame.GetFileLineNumber();
@@ -63,7 +61,7 @@ namespace VContainer.Diagnostics
                 {
                     displayFileNames = false;
                 }
-            }
+
             return -1;
         }
 
@@ -90,14 +88,11 @@ namespace VContainer.Diagnostics
             }
 
             var ilOffset = headLineStackFrame.GetILOffset();
-            if (ilOffset != -1)
-            {
-                return $"{method.DeclaringType?.FullName}.{method.Name}(offset: {ilOffset})";
-            }
+            if (ilOffset != -1) return $"{method.DeclaringType?.FullName}.{method.Name}(offset: {ilOffset})";
             return $"{method.DeclaringType?.FullName}.{method.Name}";
         }
 
-        StackFrame GetHeadlineFrame(StackTrace stackTrace)
+        private StackFrame GetHeadlineFrame(StackTrace stackTrace)
         {
             for (var i = 0; i < stackTrace.FrameCount; i++)
             {
@@ -108,11 +103,9 @@ namespace VContainer.Diagnostics
                 if (m == null) continue;
 
                 if (m.DeclaringType == null) continue;
-                if (m.DeclaringType.Namespace == null || !m.DeclaringType.Namespace.StartsWith("VContainer"))
-                {
-                    return sf;
-                }
+                if (m.DeclaringType.Namespace == null || !m.DeclaringType.Namespace.StartsWith("VContainer")) return sf;
             }
+
             return stackTrace.FrameCount > 0 ? stackTrace.GetFrame(0) : null;
         }
     }

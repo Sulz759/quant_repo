@@ -1,12 +1,13 @@
-﻿using Cysharp.Threading.Tasks.Internal;
-using System;
+﻿using System;
 using System.Threading;
+using Cysharp.Threading.Tasks.Internal;
 
 namespace Cysharp.Threading.Tasks.Linq
 {
     public static partial class UniTaskAsyncEnumerable
     {
-        public static IUniTaskAsyncEnumerable<TSource> Concat<TSource>(this IUniTaskAsyncEnumerable<TSource> first, IUniTaskAsyncEnumerable<TSource> second)
+        public static IUniTaskAsyncEnumerable<TSource> Concat<TSource>(this IUniTaskAsyncEnumerable<TSource> first,
+            IUniTaskAsyncEnumerable<TSource> second)
         {
             Error.ThrowArgumentNullException(first, nameof(first));
             Error.ThrowArgumentNullException(second, nameof(second));
@@ -17,8 +18,8 @@ namespace Cysharp.Threading.Tasks.Linq
 
     internal sealed class Concat<TSource> : IUniTaskAsyncEnumerable<TSource>
     {
-        readonly IUniTaskAsyncEnumerable<TSource> first;
-        readonly IUniTaskAsyncEnumerable<TSource> second;
+        private readonly IUniTaskAsyncEnumerable<TSource> first;
+        private readonly IUniTaskAsyncEnumerable<TSource> second;
 
         public Concat(IUniTaskAsyncEnumerable<TSource> first, IUniTaskAsyncEnumerable<TSource> second)
         {
@@ -31,32 +32,26 @@ namespace Cysharp.Threading.Tasks.Linq
             return new _Concat(first, second, cancellationToken);
         }
 
-        sealed class _Concat : MoveNextSource, IUniTaskAsyncEnumerator<TSource>
+        private sealed class _Concat : MoveNextSource, IUniTaskAsyncEnumerator<TSource>
         {
-            static readonly Action<object> MoveNextCoreDelegate = MoveNextCore;
+            private static readonly Action<object> MoveNextCoreDelegate = MoveNextCore;
 
-            enum IteratingState
-            {
-                IteratingFirst,
-                IteratingSecond,
-                Complete
-            }
+            private readonly IUniTaskAsyncEnumerable<TSource> first;
+            private readonly IUniTaskAsyncEnumerable<TSource> second;
+            private UniTask<bool>.Awaiter awaiter;
+            private readonly CancellationToken cancellationToken;
 
-            readonly IUniTaskAsyncEnumerable<TSource> first;
-            readonly IUniTaskAsyncEnumerable<TSource> second;
-            CancellationToken cancellationToken;
+            private IUniTaskAsyncEnumerator<TSource> enumerator;
 
-            IteratingState iteratingState;
+            private IteratingState iteratingState;
 
-            IUniTaskAsyncEnumerator<TSource> enumerator;
-            UniTask<bool>.Awaiter awaiter;
-
-            public _Concat(IUniTaskAsyncEnumerable<TSource> first, IUniTaskAsyncEnumerable<TSource> second, CancellationToken cancellationToken)
+            public _Concat(IUniTaskAsyncEnumerable<TSource> first, IUniTaskAsyncEnumerable<TSource> second,
+                CancellationToken cancellationToken)
             {
                 this.first = first;
                 this.second = second;
                 this.cancellationToken = cancellationToken;
-                this.iteratingState = IteratingState.IteratingFirst;
+                iteratingState = IteratingState.IteratingFirst;
                 TaskTracker.TrackActiveTask(this, 3);
             }
 
@@ -73,18 +68,22 @@ namespace Cysharp.Threading.Tasks.Linq
                 return new UniTask<bool>(this, completionSource.Version);
             }
 
-            void StartIterate()
+            public UniTask DisposeAsync()
+            {
+                TaskTracker.RemoveTracking(this);
+                if (enumerator != null) return enumerator.DisposeAsync();
+
+                return default;
+            }
+
+            private void StartIterate()
             {
                 if (enumerator == null)
                 {
                     if (iteratingState == IteratingState.IteratingFirst)
-                    {
                         enumerator = first.GetAsyncEnumerator(cancellationToken);
-                    }
                     else if (iteratingState == IteratingState.IteratingSecond)
-                    {
                         enumerator = second.GetAsyncEnumerator(cancellationToken);
-                    }
                 }
 
                 try
@@ -98,16 +97,12 @@ namespace Cysharp.Threading.Tasks.Linq
                 }
 
                 if (awaiter.IsCompleted)
-                {
                     MoveNextCoreDelegate(this);
-                }
                 else
-                {
                     awaiter.SourceOnCompleted(MoveNextCoreDelegate, this);
-                }
             }
 
-            static void MoveNextCore(object state)
+            private static void MoveNextCore(object state)
             {
                 var self = (_Concat)state;
 
@@ -132,7 +127,7 @@ namespace Cysharp.Threading.Tasks.Linq
                 }
             }
 
-            async UniTaskVoid RunSecondAfterDisposeAsync()
+            private async UniTaskVoid RunSecondAfterDisposeAsync()
             {
                 try
                 {
@@ -149,15 +144,11 @@ namespace Cysharp.Threading.Tasks.Linq
                 StartIterate();
             }
 
-            public UniTask DisposeAsync()
+            private enum IteratingState
             {
-                TaskTracker.RemoveTracking(this);
-                if (enumerator != null)
-                {
-                    return enumerator.DisposeAsync();
-                }
-
-                return default;
+                IteratingFirst,
+                IteratingSecond,
+                Complete
             }
         }
     }

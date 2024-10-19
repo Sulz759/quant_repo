@@ -20,27 +20,23 @@ namespace Cysharp.Threading.Tasks
         public long ResponseCode { get; }
         public Dictionary<string, string> ResponseHeaders { get; }
 
-        string msg;
+        private string msg;
 
         public UnityWebRequestException(UnityWebRequest unityWebRequest)
         {
-            this.UnityWebRequest = unityWebRequest;
+            UnityWebRequest = unityWebRequest;
 #if UNITY_2020_2_OR_NEWER
-            this.Result = unityWebRequest.result;
+            Result = unityWebRequest.result;
 #else
             this.IsNetworkError = unityWebRequest.isNetworkError;
             this.IsHttpError = unityWebRequest.isHttpError;
 #endif
-            this.Error = unityWebRequest.error;
-            this.ResponseCode = unityWebRequest.responseCode;
+            Error = unityWebRequest.error;
+            ResponseCode = unityWebRequest.responseCode;
             if (UnityWebRequest.downloadHandler != null)
-            {
                 if (unityWebRequest.downloadHandler is DownloadHandlerBuffer dhb)
-                {
-                    this.Text = dhb.text;
-                }
-            }
-            this.ResponseHeaders = unityWebRequest.GetResponseHeaders();
+                    Text = dhb.text;
+            ResponseHeaders = unityWebRequest.GetResponseHeaders();
         }
 
         public override string Message
@@ -49,15 +45,12 @@ namespace Cysharp.Threading.Tasks
             {
                 if (msg == null)
                 {
-                    if(!string.IsNullOrWhiteSpace(Text))
-                    {
+                    if (!string.IsNullOrWhiteSpace(Text))
                         msg = Error + Environment.NewLine + Text;
-                    }
                     else
-                    {
                         msg = Error;
-                    }
                 }
+
                 return msg;
             }
         }

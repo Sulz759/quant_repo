@@ -22,10 +22,10 @@
 //
 
 #if UNITY_2021_3_OR_NEWER
-using System;
 #if UNITY_2023_1_OR_NEWER
 using UnityEngine;
 #else
+using System;
 using Awaitable = System.Threading.Tasks.Task;
 #endif
 

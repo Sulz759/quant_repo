@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace VContainer.Editor.Diagnostics
 {
-    static class TypeNameHelper
+    internal static class TypeNameHelper
     {
-        static readonly IReadOnlyDictionary<Type, string> TypeAlias = new Dictionary<Type, string>
+        private static readonly IReadOnlyDictionary<Type, string> TypeAlias = new Dictionary<Type, string>
         {
             { typeof(bool), "bool" },
             { typeof(byte), "byte" },
@@ -27,16 +27,14 @@ namespace VContainer.Editor.Diagnostics
 
         public static string GetTypeAlias(Type type)
         {
-            if (TypeAlias.TryGetValue(type, out var alias))
-            {
-                return alias;
-            }
+            if (TypeAlias.TryGetValue(type, out var alias)) return alias;
             if (type.IsGenericType)
             {
                 var typeParameters = type.GetGenericArguments().Select(GetTypeAlias);
                 var typeNameBase = type.Name.Split('`')[0];
                 return $"{typeNameBase}<{string.Join(",", typeParameters)}>";
             }
+
             return type.Name;
         }
     }

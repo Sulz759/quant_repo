@@ -1,13 +1,14 @@
-﻿using Cysharp.Threading.Tasks.Internal;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using Cysharp.Threading.Tasks.Internal;
 
 namespace Cysharp.Threading.Tasks.Linq
 {
     public static partial class UniTaskAsyncEnumerable
     {
-        public static IUniTaskAsyncEnumerable<IList<TSource>> Buffer<TSource>(this IUniTaskAsyncEnumerable<TSource> source, Int32 count)
+        public static IUniTaskAsyncEnumerable<IList<TSource>> Buffer<TSource>(
+            this IUniTaskAsyncEnumerable<TSource> source, int count)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             if (count <= 0) throw Error.ArgumentOutOfRange(nameof(count));
@@ -15,7 +16,8 @@ namespace Cysharp.Threading.Tasks.Linq
             return new Buffer<TSource>(source, count);
         }
 
-        public static IUniTaskAsyncEnumerable<IList<TSource>> Buffer<TSource>(this IUniTaskAsyncEnumerable<TSource> source, Int32 count, Int32 skip)
+        public static IUniTaskAsyncEnumerable<IList<TSource>> Buffer<TSource>(
+            this IUniTaskAsyncEnumerable<TSource> source, int count, int skip)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             if (count <= 0) throw Error.ArgumentOutOfRange(nameof(count));
@@ -27,8 +29,8 @@ namespace Cysharp.Threading.Tasks.Linq
 
     internal sealed class Buffer<TSource> : IUniTaskAsyncEnumerable<IList<TSource>>
     {
-        readonly IUniTaskAsyncEnumerable<TSource> source;
-        readonly int count;
+        private readonly int count;
+        private readonly IUniTaskAsyncEnumerable<TSource> source;
 
         public Buffer(IUniTaskAsyncEnumerable<TSource> source, int count)
         {
@@ -41,20 +43,20 @@ namespace Cysharp.Threading.Tasks.Linq
             return new _Buffer(source, count, cancellationToken);
         }
 
-        sealed class _Buffer : MoveNextSource, IUniTaskAsyncEnumerator<IList<TSource>>
+        private sealed class _Buffer : MoveNextSource, IUniTaskAsyncEnumerator<IList<TSource>>
         {
-            static readonly Action<object> MoveNextCoreDelegate = MoveNextCore;
+            private static readonly Action<object> MoveNextCoreDelegate = MoveNextCore;
+            private readonly int count;
 
-            readonly IUniTaskAsyncEnumerable<TSource> source;
-            readonly int count;
-            CancellationToken cancellationToken;
+            private readonly IUniTaskAsyncEnumerable<TSource> source;
+            private UniTask<bool>.Awaiter awaiter;
+            private List<TSource> buffer;
+            private readonly CancellationToken cancellationToken;
 
-            IUniTaskAsyncEnumerator<TSource> enumerator;
-            UniTask<bool>.Awaiter awaiter;
-            bool continueNext;
+            private bool completed;
+            private bool continueNext;
 
-            bool completed;
-            List<TSource> buffer;
+            private IUniTaskAsyncEnumerator<TSource> enumerator;
 
             public _Buffer(IUniTaskAsyncEnumerable<TSource> source, int count, CancellationToken cancellationToken)
             {
@@ -82,7 +84,14 @@ namespace Cysharp.Threading.Tasks.Linq
                 return new UniTask<bool>(this, completionSource.Version);
             }
 
-            void SourceMoveNext()
+            public UniTask DisposeAsync()
+            {
+                TaskTracker.RemoveTracking(this);
+                if (enumerator != null) return enumerator.DisposeAsync();
+                return default;
+            }
+
+            private void SourceMoveNext()
             {
                 if (completed)
                 {
@@ -94,16 +103,13 @@ namespace Cysharp.Threading.Tasks.Linq
                         completionSource.TrySetResult(true);
                         return;
                     }
-                    else
-                    {
-                        completionSource.TrySetResult(false);
-                        return;
-                    }
+
+                    completionSource.TrySetResult(false);
+                    return;
                 }
 
                 try
                 {
-
                     LOOP:
                     awaiter = enumerator.MoveNextAsync().GetAwaiter();
                     if (awaiter.IsCompleted)
@@ -128,7 +134,7 @@ namespace Cysharp.Threading.Tasks.Linq
             }
 
 
-            static void MoveNextCore(object state)
+            private static void MoveNextCore(object state)
             {
                 var self = (_Buffer)state;
 
@@ -146,13 +152,8 @@ namespace Cysharp.Threading.Tasks.Linq
                             self.completionSource.TrySetResult(true);
                             return;
                         }
-                        else
-                        {
-                            if (!self.continueNext)
-                            {
-                                self.SourceMoveNext();
-                            }
-                        }
+
+                        if (!self.continueNext) self.SourceMoveNext();
                     }
                     else
                     {
@@ -166,24 +167,14 @@ namespace Cysharp.Threading.Tasks.Linq
                     self.continueNext = false;
                 }
             }
-
-            public UniTask DisposeAsync()
-            {
-                TaskTracker.RemoveTracking(this);
-                if (enumerator != null)
-                {
-                    return enumerator.DisposeAsync();
-                }
-                return default;
-            }
         }
     }
 
     internal sealed class BufferSkip<TSource> : IUniTaskAsyncEnumerable<IList<TSource>>
     {
-        readonly IUniTaskAsyncEnumerable<TSource> source;
-        readonly int count;
-        readonly int skip;
+        private readonly int count;
+        private readonly int skip;
+        private readonly IUniTaskAsyncEnumerable<TSource> source;
 
         public BufferSkip(IUniTaskAsyncEnumerable<TSource> source, int count, int skip)
         {
@@ -197,24 +188,25 @@ namespace Cysharp.Threading.Tasks.Linq
             return new _BufferSkip(source, count, skip, cancellationToken);
         }
 
-        sealed class _BufferSkip : MoveNextSource, IUniTaskAsyncEnumerator<IList<TSource>>
+        private sealed class _BufferSkip : MoveNextSource, IUniTaskAsyncEnumerator<IList<TSource>>
         {
-            static readonly Action<object> MoveNextCoreDelegate = MoveNextCore;
+            private static readonly Action<object> MoveNextCoreDelegate = MoveNextCore;
+            private readonly int count;
+            private readonly int skip;
 
-            readonly IUniTaskAsyncEnumerable<TSource> source;
-            readonly int count;
-            readonly int skip;
-            CancellationToken cancellationToken;
+            private readonly IUniTaskAsyncEnumerable<TSource> source;
+            private UniTask<bool>.Awaiter awaiter;
+            private Queue<List<TSource>> buffers;
+            private readonly CancellationToken cancellationToken;
 
-            IUniTaskAsyncEnumerator<TSource> enumerator;
-            UniTask<bool>.Awaiter awaiter;
-            bool continueNext;
+            private bool completed;
+            private bool continueNext;
 
-            bool completed;
-            Queue<List<TSource>> buffers;
-            int index = 0;
+            private IUniTaskAsyncEnumerator<TSource> enumerator;
+            private int index;
 
-            public _BufferSkip(IUniTaskAsyncEnumerable<TSource> source, int count, int skip, CancellationToken cancellationToken)
+            public _BufferSkip(IUniTaskAsyncEnumerable<TSource> source, int count, int skip,
+                CancellationToken cancellationToken)
             {
                 this.source = source;
                 this.count = count;
@@ -240,7 +232,14 @@ namespace Cysharp.Threading.Tasks.Linq
                 return new UniTask<bool>(this, completionSource.Version);
             }
 
-            void SourceMoveNext()
+            public UniTask DisposeAsync()
+            {
+                TaskTracker.RemoveTracking(this);
+                if (enumerator != null) return enumerator.DisposeAsync();
+                return default;
+            }
+
+            private void SourceMoveNext()
             {
                 if (completed)
                 {
@@ -250,16 +249,13 @@ namespace Cysharp.Threading.Tasks.Linq
                         completionSource.TrySetResult(true);
                         return;
                     }
-                    else
-                    {
-                        completionSource.TrySetResult(false);
-                        return;
-                    }
+
+                    completionSource.TrySetResult(false);
+                    return;
                 }
 
                 try
                 {
-
                     LOOP:
                     awaiter = enumerator.MoveNextAsync().GetAwaiter();
                     if (awaiter.IsCompleted)
@@ -284,7 +280,7 @@ namespace Cysharp.Threading.Tasks.Linq
             }
 
 
-            static void MoveNextCore(object state)
+            private static void MoveNextCore(object state)
             {
                 var self = (_BufferSkip)state;
 
@@ -292,16 +288,10 @@ namespace Cysharp.Threading.Tasks.Linq
                 {
                     if (result)
                     {
-                        if (self.index++ % self.skip == 0)
-                        {
-                            self.buffers.Enqueue(new List<TSource>(self.count));
-                        }
+                        if (self.index++ % self.skip == 0) self.buffers.Enqueue(new List<TSource>(self.count));
 
                         var item = self.enumerator.Current;
-                        foreach (var buffer in self.buffers)
-                        {
-                            buffer.Add(item);
-                        }
+                        foreach (var buffer in self.buffers) buffer.Add(item);
 
                         if (self.buffers.Count > 0 && self.buffers.Peek().Count == self.count)
                         {
@@ -310,13 +300,8 @@ namespace Cysharp.Threading.Tasks.Linq
                             self.completionSource.TrySetResult(true);
                             return;
                         }
-                        else
-                        {
-                            if (!self.continueNext)
-                            {
-                                self.SourceMoveNext();
-                            }
-                        }
+
+                        if (!self.continueNext) self.SourceMoveNext();
                     }
                     else
                     {
@@ -329,16 +314,6 @@ namespace Cysharp.Threading.Tasks.Linq
                 {
                     self.continueNext = false;
                 }
-            }
-
-            public UniTask DisposeAsync()
-            {
-                TaskTracker.RemoveTracking(this);
-                if (enumerator != null)
-                {
-                    return enumerator.DisposeAsync();
-                }
-                return default;
             }
         }
     }

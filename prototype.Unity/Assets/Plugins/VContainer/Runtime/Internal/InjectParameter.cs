@@ -2,7 +2,7 @@ using System;
 
 namespace VContainer.Internal
 {
-    sealed class TypedParameter : IInjectParameter
+    internal sealed class TypedParameter : IInjectParameter
     {
         public readonly Type Type;
         public readonly object Value;
@@ -13,18 +13,21 @@ namespace VContainer.Internal
             Value = value;
         }
 
-        public bool Match(Type parameterType, string _) => parameterType == Type;
-        
+        public bool Match(Type parameterType, string _)
+        {
+            return parameterType == Type;
+        }
+
         public object GetValue(IObjectResolver _)
         {
             return Value;
         }
     }
-    
-    sealed class FuncTypedParameter : IInjectParameter
+
+    internal sealed class FuncTypedParameter : IInjectParameter
     {
-        public readonly Type Type;
         public readonly Func<IObjectResolver, object> Func;
+        public readonly Type Type;
 
         public FuncTypedParameter(Type type, Func<IObjectResolver, object> func)
         {
@@ -32,15 +35,18 @@ namespace VContainer.Internal
             Func = func;
         }
 
-        public bool Match(Type parameterType, string _) => parameterType == Type;
-        
+        public bool Match(Type parameterType, string _)
+        {
+            return parameterType == Type;
+        }
+
         public object GetValue(IObjectResolver resolver)
         {
             return Func(resolver);
         }
     }
 
-    sealed class NamedParameter : IInjectParameter
+    internal sealed class NamedParameter : IInjectParameter
     {
         public readonly string Name;
         public readonly object Value;
@@ -51,18 +57,21 @@ namespace VContainer.Internal
             Value = value;
         }
 
-        public bool Match(Type _, string parameterName) => parameterName == Name;
-        
+        public bool Match(Type _, string parameterName)
+        {
+            return parameterName == Name;
+        }
+
         public object GetValue(IObjectResolver _)
         {
             return Value;
         }
     }
-    
-    sealed class FuncNamedParameter : IInjectParameter
+
+    internal sealed class FuncNamedParameter : IInjectParameter
     {
-        public readonly string Name;
         public readonly Func<IObjectResolver, object> Func;
+        public readonly string Name;
 
         public FuncNamedParameter(string name, Func<IObjectResolver, object> func)
         {
@@ -70,8 +79,11 @@ namespace VContainer.Internal
             Func = func;
         }
 
-        public bool Match(Type _, string parameterName) => parameterName == Name;
-        
+        public bool Match(Type _, string parameterName)
+        {
+            return parameterName == Name;
+        }
+
         public object GetValue(IObjectResolver resolver)
         {
             return Func(resolver);

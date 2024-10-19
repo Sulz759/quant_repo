@@ -1,56 +1,42 @@
 ﻿#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
-using UnityEngine;
-using UnityEditor;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System;
-using UnityEditor.IMGUI.Controls;
-using Cysharp.Threading.Tasks.Internal;
+using System.Linq;
+using UnityEditor;
+using UnityEngine;
 
 namespace Cysharp.Threading.Tasks.Editor
 {
     public class UniTaskTrackerWindow : EditorWindow
     {
-        static int interval;
+        private static int interval;
 
-        static UniTaskTrackerWindow window;
+        private static UniTaskTrackerWindow window;
 
-        [MenuItem("Window/UniTask Tracker")]
-        public static void OpenWindow()
-        {
-            if (window != null)
-            {
-                window.Close();
-            }
+        private static readonly GUILayoutOption[] EmptyLayoutOption = new GUILayoutOption[0];
+        private object splitterState;
 
-            // will called OnEnable(singleton instance will be set).
-            GetWindow<UniTaskTrackerWindow>("UniTask Tracker").Show();
-        }
+        private UniTaskTrackerTreeView treeView;
 
-        static readonly GUILayoutOption[] EmptyLayoutOption = new GUILayoutOption[0];
-
-        UniTaskTrackerTreeView treeView;
-        object splitterState;
-
-        void OnEnable()
+        private void OnEnable()
         {
             window = this; // set singleton.
-            splitterState = SplitterGUILayout.CreateSplitterState(new float[] { 75f, 25f }, new int[] { 32, 32 }, null);
+            splitterState = SplitterGUILayout.CreateSplitterState(new[] { 75f, 25f }, new[] { 32, 32 }, null);
             treeView = new UniTaskTrackerTreeView();
-            TaskTracker.EditorEnableState.EnableAutoReload = EditorPrefs.GetBool(TaskTracker.EnableAutoReloadKey, false);
+            TaskTracker.EditorEnableState.EnableAutoReload =
+                EditorPrefs.GetBool(TaskTracker.EnableAutoReloadKey, false);
             TaskTracker.EditorEnableState.EnableTracking = EditorPrefs.GetBool(TaskTracker.EnableTrackingKey, false);
-            TaskTracker.EditorEnableState.EnableStackTrace = EditorPrefs.GetBool(TaskTracker.EnableStackTraceKey, false);
+            TaskTracker.EditorEnableState.EnableStackTrace =
+                EditorPrefs.GetBool(TaskTracker.EnableStackTraceKey, false);
         }
 
-        void OnGUI()
+        private void OnGUI()
         {
             // Head
             RenderHeadPanel();
 
             // Splittable
-            SplitterGUILayout.BeginVerticalSplit(this.splitterState, EmptyLayoutOption);
+            SplitterGUILayout.BeginVerticalSplit(splitterState, EmptyLayoutOption);
             {
                 // Column Tabble
                 RenderTable();
@@ -61,37 +47,53 @@ namespace Cysharp.Threading.Tasks.Editor
             SplitterGUILayout.EndVerticalSplit();
         }
 
+        [MenuItem("Window/UniTask Tracker")]
+        public static void OpenWindow()
+        {
+            if (window != null) window.Close();
+
+            // will called OnEnable(singleton instance will be set).
+            GetWindow<UniTaskTrackerWindow>("UniTask Tracker").Show();
+        }
+
         #region HeadPanel
 
         public static bool EnableAutoReload => TaskTracker.EditorEnableState.EnableAutoReload;
         public static bool EnableTracking => TaskTracker.EditorEnableState.EnableTracking;
         public static bool EnableStackTrace => TaskTracker.EditorEnableState.EnableStackTrace;
-        static readonly GUIContent EnableAutoReloadHeadContent = EditorGUIUtility.TrTextContent("Enable AutoReload", "Reload automatically.", (Texture)null);
-        static readonly GUIContent ReloadHeadContent = EditorGUIUtility.TrTextContent("Reload", "Reload View.", (Texture)null);
-        static readonly GUIContent GCHeadContent = EditorGUIUtility.TrTextContent("GC.Collect", "Invoke GC.Collect.", (Texture)null);
-        static readonly GUIContent EnableTrackingHeadContent = EditorGUIUtility.TrTextContent("Enable Tracking", "Start to track async/await UniTask. Performance impact: low", (Texture)null);
-        static readonly GUIContent EnableStackTraceHeadContent = EditorGUIUtility.TrTextContent("Enable StackTrace", "Capture StackTrace when task is started. Performance impact: high", (Texture)null);
+
+        private static readonly GUIContent EnableAutoReloadHeadContent =
+            EditorGUIUtility.TrTextContent("Enable AutoReload", "Reload automatically.");
+
+        private static readonly GUIContent ReloadHeadContent = EditorGUIUtility.TrTextContent("Reload", "Reload View.");
+
+        private static readonly GUIContent GCHeadContent =
+            EditorGUIUtility.TrTextContent("GC.Collect", "Invoke GC.Collect.");
+
+        private static readonly GUIContent EnableTrackingHeadContent = EditorGUIUtility.TrTextContent("Enable Tracking",
+            "Start to track async/await UniTask. Performance impact: low");
+
+        private static readonly GUIContent EnableStackTraceHeadContent =
+            EditorGUIUtility.TrTextContent("Enable StackTrace",
+                "Capture StackTrace when task is started. Performance impact: high");
 
         // [Enable Tracking] | [Enable StackTrace]
-        void RenderHeadPanel()
+        private void RenderHeadPanel()
         {
             EditorGUILayout.BeginVertical(EmptyLayoutOption);
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar, EmptyLayoutOption);
 
-            if (GUILayout.Toggle(EnableAutoReload, EnableAutoReloadHeadContent, EditorStyles.toolbarButton, EmptyLayoutOption) != EnableAutoReload)
-            {
-                TaskTracker.EditorEnableState.EnableAutoReload = !EnableAutoReload;
-            }
+            if (GUILayout.Toggle(EnableAutoReload, EnableAutoReloadHeadContent, EditorStyles.toolbarButton,
+                    EmptyLayoutOption) !=
+                EnableAutoReload) TaskTracker.EditorEnableState.EnableAutoReload = !EnableAutoReload;
 
-            if (GUILayout.Toggle(EnableTracking, EnableTrackingHeadContent, EditorStyles.toolbarButton, EmptyLayoutOption) != EnableTracking)
-            {
-                TaskTracker.EditorEnableState.EnableTracking = !EnableTracking;
-            }
+            if (GUILayout.Toggle(EnableTracking, EnableTrackingHeadContent, EditorStyles.toolbarButton,
+                    EmptyLayoutOption) !=
+                EnableTracking) TaskTracker.EditorEnableState.EnableTracking = !EnableTracking;
 
-            if (GUILayout.Toggle(EnableStackTrace, EnableStackTraceHeadContent, EditorStyles.toolbarButton, EmptyLayoutOption) != EnableStackTrace)
-            {
-                TaskTracker.EditorEnableState.EnableStackTrace = !EnableStackTrace;
-            }
+            if (GUILayout.Toggle(EnableStackTrace, EnableStackTraceHeadContent, EditorStyles.toolbarButton,
+                    EmptyLayoutOption) !=
+                EnableStackTrace) TaskTracker.EditorEnableState.EnableStackTrace = !EnableStackTrace;
 
             GUILayout.FlexibleSpace();
 
@@ -102,10 +104,7 @@ namespace Cysharp.Threading.Tasks.Editor
                 Repaint();
             }
 
-            if (GUILayout.Button(GCHeadContent, EditorStyles.toolbarButton, EmptyLayoutOption))
-            {
-                GC.Collect(0);
-            }
+            if (GUILayout.Button(GCHeadContent, EditorStyles.toolbarButton, EmptyLayoutOption)) GC.Collect(0);
 
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.EndVertical();
@@ -115,10 +114,10 @@ namespace Cysharp.Threading.Tasks.Editor
 
         #region TableColumn
 
-        Vector2 tableScroll;
-        GUIStyle tableListStyle;
+        private Vector2 tableScroll;
+        private GUIStyle tableListStyle;
 
-        void RenderTable()
+        private void RenderTable()
         {
             if (tableListStyle == null)
             {
@@ -129,16 +128,9 @@ namespace Cysharp.Threading.Tasks.Editor
 
             EditorGUILayout.BeginVertical(tableListStyle, EmptyLayoutOption);
 
-            this.tableScroll = EditorGUILayout.BeginScrollView(this.tableScroll, new GUILayoutOption[]
-            {
-                GUILayout.ExpandWidth(true),
-                GUILayout.MaxWidth(2000f)
-            });
-            var controlRect = EditorGUILayout.GetControlRect(new GUILayoutOption[]
-            {
-                GUILayout.ExpandHeight(true),
-                GUILayout.ExpandWidth(true)
-            });
+            tableScroll =
+                EditorGUILayout.BeginScrollView(tableScroll, GUILayout.ExpandWidth(true), GUILayout.MaxWidth(2000f));
+            var controlRect = EditorGUILayout.GetControlRect(GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
 
 
             treeView?.OnGUI(controlRect);
@@ -150,26 +142,22 @@ namespace Cysharp.Threading.Tasks.Editor
         private void Update()
         {
             if (EnableAutoReload)
-            {
                 if (interval++ % 120 == 0)
-                {
                     if (TaskTracker.CheckAndResetDirty())
                     {
                         treeView.ReloadAndSort();
                         Repaint();
                     }
-                }
-            }
         }
 
         #endregion
 
         #region Details
 
-        static GUIStyle detailsStyle;
-        Vector2 detailsScroll;
+        private static GUIStyle detailsStyle;
+        private Vector2 detailsScroll;
 
-        void RenderDetailsPanel()
+        private void RenderDetailsPanel()
         {
             if (detailsStyle == null)
             {
@@ -179,31 +167,22 @@ namespace Cysharp.Threading.Tasks.Editor
                 detailsStyle.margin.right = 15;
             }
 
-            string message = "";
+            var message = "";
             var selected = treeView.state.selectedIDs;
             if (selected.Count > 0)
             {
                 var first = selected[0];
                 var item = treeView.CurrentBindingItems.FirstOrDefault(x => x.id == first) as UniTaskTrackerViewItem;
-                if (item != null)
-                {
-                    message = item.Position;
-                }
+                if (item != null) message = item.Position;
             }
 
-            detailsScroll = EditorGUILayout.BeginScrollView(this.detailsScroll, EmptyLayoutOption);
+            detailsScroll = EditorGUILayout.BeginScrollView(detailsScroll, EmptyLayoutOption);
             var vector = detailsStyle.CalcSize(new GUIContent(message));
-            EditorGUILayout.SelectableLabel(message, detailsStyle, new GUILayoutOption[]
-            {
-                GUILayout.ExpandHeight(true),
-                GUILayout.ExpandWidth(true),
-                GUILayout.MinWidth(vector.x),
-                GUILayout.MinHeight(vector.y)
-            });
+            EditorGUILayout.SelectableLabel(message, detailsStyle, GUILayout.ExpandHeight(true),
+                GUILayout.ExpandWidth(true), GUILayout.MinWidth(vector.x), GUILayout.MinHeight(vector.y));
             EditorGUILayout.EndScrollView();
         }
 
         #endregion
     }
 }
-

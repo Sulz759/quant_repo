@@ -7,9 +7,10 @@ using UnityEngine.Networking;
 
 namespace _Project.Architecture.Scripts.Runtime.Utilities.SaveService
 {
-    public class DataFromStreamingAssetsService: ILoaderService
+    public class DataFromStreamingAssetsService : ILoaderService
     {
         private string _path;
+
         public void Load<T>(string key, Action<T> callback)
         {
             var path = BuildPathToLoad(key);
@@ -42,10 +43,9 @@ namespace _Project.Architecture.Scripts.Runtime.Utilities.SaveService
                     Coroutines.StartRoutine(BuildPathOnAndroidRoutine(loadJson));
                     Debug.Log("step 2" + _path);
                     return _path;
-                    
+
                 default: return null;
             }
-            
         }
 
         private IEnumerator BuildPathOnAndroidRoutine(string json)

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Numerics;
 using _Project.Develop.Architecture.Runtime.Utilities;
 using Cysharp.Threading.Tasks;
 
@@ -18,19 +16,19 @@ namespace _Project.Develop.Architecture.Runtime
             return UniTask.CompletedTask;
         }
     }
-    
+
     [Serializable]
     public class BattleConfigContainer
     {
-        public InputConfig InputConfig;
-        public TrainConfig TrainConfig;
         public BotTrainConfig BotTrainConfig;
+        public TrainConfig TrainConfig;
     }
-    
-    public class InputConfig{}
-    
-    public class TrainConfig { }
 
-    public class BotTrainConfig : TrainConfig { }
-    
+    public class TrainConfig
+    {
+    }
+
+    public class BotTrainConfig : TrainConfig
+    {
+    }
 }

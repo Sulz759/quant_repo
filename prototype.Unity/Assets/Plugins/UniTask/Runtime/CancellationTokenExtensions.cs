@@ -8,8 +8,8 @@ namespace Cysharp.Threading.Tasks
 {
     public static class CancellationTokenExtensions
     {
-        static readonly Action<object> cancellationTokenCallback = Callback;
-        static readonly Action<object> disposeCallback = DisposeCallback;
+        private static readonly Action<object> cancellationTokenCallback = Callback;
+        private static readonly Action<object> disposeCallback = DisposeCallback;
 
         public static CancellationToken ToCancellationToken(this UniTask task)
         {
@@ -20,15 +20,9 @@ namespace Cysharp.Threading.Tasks
 
         public static CancellationToken ToCancellationToken(this UniTask task, CancellationToken linkToken)
         {
-            if (linkToken.IsCancellationRequested)
-            {
-                return linkToken;
-            }
+            if (linkToken.IsCancellationRequested) return linkToken;
 
-            if (!linkToken.CanBeCanceled)
-            {
-                return ToCancellationToken(task);
-            }
+            if (!linkToken.CanBeCanceled) return ToCancellationToken(task);
 
             var cts = CancellationTokenSource.CreateLinkedTokenSource(linkToken);
             ToCancellationTokenCore(task, cts).Forget();
@@ -46,7 +40,7 @@ namespace Cysharp.Threading.Tasks
             return ToCancellationToken(task.AsUniTask(), linkToken);
         }
 
-        static async UniTaskVoid ToCancellationTokenCore(UniTask task, CancellationTokenSource cts)
+        private static async UniTaskVoid ToCancellationTokenCore(UniTask task, CancellationTokenSource cts)
         {
             try
             {
@@ -56,22 +50,21 @@ namespace Cysharp.Threading.Tasks
             {
                 UniTaskScheduler.PublishUnobservedTaskException(ex);
             }
+
             cts.Cancel();
             cts.Dispose();
         }
 
         public static (UniTask, CancellationTokenRegistration) ToUniTask(this CancellationToken cancellationToken)
         {
-            if (cancellationToken.IsCancellationRequested)
-            {
-                return (UniTask.FromCanceled(cancellationToken), default(CancellationTokenRegistration));
-            }
+            if (cancellationToken.IsCancellationRequested) return (UniTask.FromCanceled(cancellationToken), default);
 
             var promise = new UniTaskCompletionSource();
-            return (promise.Task, cancellationToken.RegisterWithoutCaptureExecutionContext(cancellationTokenCallback, promise));
+            return (promise.Task,
+                cancellationToken.RegisterWithoutCaptureExecutionContext(cancellationTokenCallback, promise));
         }
 
-        static void Callback(object state)
+        private static void Callback(object state)
         {
             var promise = (UniTaskCompletionSource)state;
             promise.TrySetResult();
@@ -82,7 +75,8 @@ namespace Cysharp.Threading.Tasks
             return new CancellationTokenAwaitable(cancellationToken);
         }
 
-        public static CancellationTokenRegistration RegisterWithoutCaptureExecutionContext(this CancellationToken cancellationToken, Action callback)
+        public static CancellationTokenRegistration RegisterWithoutCaptureExecutionContext(
+            this CancellationToken cancellationToken, Action callback)
         {
             var restoreFlow = false;
             if (!ExecutionContext.IsFlowSuppressed())
@@ -97,14 +91,12 @@ namespace Cysharp.Threading.Tasks
             }
             finally
             {
-                if (restoreFlow)
-                {
-                    ExecutionContext.RestoreFlow();
-                }
+                if (restoreFlow) ExecutionContext.RestoreFlow();
             }
         }
 
-        public static CancellationTokenRegistration RegisterWithoutCaptureExecutionContext(this CancellationToken cancellationToken, Action<object> callback, object state)
+        public static CancellationTokenRegistration RegisterWithoutCaptureExecutionContext(
+            this CancellationToken cancellationToken, Action<object> callback, object state)
         {
             var restoreFlow = false;
             if (!ExecutionContext.IsFlowSuppressed())
@@ -119,19 +111,17 @@ namespace Cysharp.Threading.Tasks
             }
             finally
             {
-                if (restoreFlow)
-                {
-                    ExecutionContext.RestoreFlow();
-                }
+                if (restoreFlow) ExecutionContext.RestoreFlow();
             }
         }
 
-        public static CancellationTokenRegistration AddTo(this IDisposable disposable, CancellationToken cancellationToken)
+        public static CancellationTokenRegistration AddTo(this IDisposable disposable,
+            CancellationToken cancellationToken)
         {
             return cancellationToken.RegisterWithoutCaptureExecutionContext(disposeCallback, disposable);
         }
 
-        static void DisposeCallback(object state)
+        private static void DisposeCallback(object state)
         {
             var d = (IDisposable)state;
             d.Dispose();
@@ -140,7 +130,7 @@ namespace Cysharp.Threading.Tasks
 
     public struct CancellationTokenAwaitable
     {
-        CancellationToken cancellationToken;
+        private readonly CancellationToken cancellationToken;
 
         public CancellationTokenAwaitable(CancellationToken cancellationToken)
         {
@@ -154,7 +144,7 @@ namespace Cysharp.Threading.Tasks
 
         public struct Awaiter : ICriticalNotifyCompletion
         {
-            CancellationToken cancellationToken;
+            private readonly CancellationToken cancellationToken;
 
             public Awaiter(CancellationToken cancellationToken)
             {
@@ -179,4 +169,3 @@ namespace Cysharp.Threading.Tasks
         }
     }
 }
-

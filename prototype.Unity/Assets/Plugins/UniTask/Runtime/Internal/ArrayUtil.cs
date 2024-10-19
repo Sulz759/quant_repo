@@ -11,32 +11,26 @@ namespace Cysharp.Threading.Tasks.Internal
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void EnsureCapacity<T>(ref T[] array, int index)
         {
-            if (array.Length <= index)
-            {
-                EnsureCore(ref array, index);
-            }
+            if (array.Length <= index) EnsureCore(ref array, index);
         }
 
         // rare case, no inlining.
         [MethodImpl(MethodImplOptions.NoInlining)]
-        static void EnsureCore<T>(ref T[] array, int index)
+        private static void EnsureCore<T>(ref T[] array, int index)
         {
             var newSize = array.Length * 2;
-            var newArray = new T[(index < newSize) ? newSize : (index * 2)];
+            var newArray = new T[index < newSize ? newSize : index * 2];
             Array.Copy(array, 0, newArray, 0, array.Length);
 
             array = newArray;
         }
 
         /// <summary>
-        /// Optimizing utility to avoid .ToArray() that creates buffer copy(cut to just size).
+        ///     Optimizing utility to avoid .ToArray() that creates buffer copy(cut to just size).
         /// </summary>
         public static (T[] array, int length) Materialize<T>(IEnumerable<T> source)
         {
-            if (source is T[] array)
-            {
-                return (array, array.Length);
-            }
+            if (source is T[] array) return (array, array.Length);
 
             var defaultCount = 4;
             if (source is ICollection<T> coll)
@@ -46,15 +40,13 @@ namespace Cysharp.Threading.Tasks.Internal
                 coll.CopyTo(buffer, 0);
                 return (buffer, defaultCount);
             }
-            else if (source is IReadOnlyCollection<T> rcoll)
+
+            if (source is IReadOnlyCollection<T> rcoll)
             {
                 defaultCount = rcoll.Count;
             }
 
-            if (defaultCount == 0)
-            {
-                return (Array.Empty<T>(), 0);
-            }
+            if (defaultCount == 0) return (Array.Empty<T>(), 0);
 
             {
                 var index = 0;
@@ -70,4 +62,3 @@ namespace Cysharp.Threading.Tasks.Internal
         }
     }
 }
-

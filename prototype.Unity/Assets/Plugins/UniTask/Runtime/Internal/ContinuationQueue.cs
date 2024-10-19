@@ -1,25 +1,27 @@
 ﻿#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 using System;
+using System.Diagnostics;
 using System.Threading;
+using Debug = UnityEngine.Debug;
 
 namespace Cysharp.Threading.Tasks.Internal
 {
     internal sealed class ContinuationQueue
     {
-        const int MaxArrayLength = 0X7FEFFFFF;
-        const int InitialSize = 16;
+        private const int MaxArrayLength = 0X7FEFFFFF;
+        private const int InitialSize = 16;
 
-        readonly PlayerLoopTiming timing;
+        private readonly PlayerLoopTiming timing;
+        private Action[] actionList = new Action[InitialSize];
 
-        SpinLock gate = new SpinLock(false);
-        bool dequing = false;
+        private int actionListCount;
+        private bool dequing;
 
-        int actionListCount = 0;
-        Action[] actionList = new Action[InitialSize];
+        private SpinLock gate = new(false);
+        private Action[] waitingList = new Action[InitialSize];
 
-        int waitingListCount = 0;
-        Action[] waitingList = new Action[InitialSize];
+        private int waitingListCount;
 
         public ContinuationQueue(PlayerLoopTiming timing)
         {
@@ -28,7 +30,7 @@ namespace Cysharp.Threading.Tasks.Internal
 
         public void Enqueue(Action continuation)
         {
-            bool lockTaken = false;
+            var lockTaken = false;
             try
             {
                 gate.Enter(ref lockTaken);
@@ -45,6 +47,7 @@ namespace Cysharp.Threading.Tasks.Internal
                         Array.Copy(waitingList, newArray, waitingListCount);
                         waitingList = newArray;
                     }
+
                     waitingList[waitingListCount] = continuation;
                     waitingListCount++;
                 }
@@ -60,6 +63,7 @@ namespace Cysharp.Threading.Tasks.Internal
                         Array.Copy(actionList, newArray, actionListCount);
                         actionList = newArray;
                     }
+
                     actionList[actionListCount] = continuation;
                     actionListCount++;
                 }
@@ -148,30 +152,81 @@ namespace Cysharp.Threading.Tasks.Internal
 #endif
         }
 
-        void Initialization() => RunCore();
-        void LastInitialization() => RunCore();
-        void EarlyUpdate() => RunCore();
-        void LastEarlyUpdate() => RunCore();
-        void FixedUpdate() => RunCore();
-        void LastFixedUpdate() => RunCore();
-        void PreUpdate() => RunCore();
-        void LastPreUpdate() => RunCore();
-        void Update() => RunCore();
-        void LastUpdate() => RunCore();
-        void PreLateUpdate() => RunCore();
-        void LastPreLateUpdate() => RunCore();
-        void PostLateUpdate() => RunCore();
-        void LastPostLateUpdate() => RunCore();
-#if UNITY_2020_2_OR_NEWER
-        void TimeUpdate() => RunCore();
-        void LastTimeUpdate() => RunCore();
-#endif
+        private void Initialization()
+        {
+            RunCore();
+        }
 
-        [System.Diagnostics.DebuggerHidden]
-        void RunCore()
+        private void LastInitialization()
+        {
+            RunCore();
+        }
+
+        private void EarlyUpdate()
+        {
+            RunCore();
+        }
+
+        private void LastEarlyUpdate()
+        {
+            RunCore();
+        }
+
+        private void FixedUpdate()
+        {
+            RunCore();
+        }
+
+        private void LastFixedUpdate()
+        {
+            RunCore();
+        }
+
+        private void PreUpdate()
+        {
+            RunCore();
+        }
+
+        private void LastPreUpdate()
+        {
+            RunCore();
+        }
+
+        private void Update()
+        {
+            RunCore();
+        }
+
+        private void LastUpdate()
+        {
+            RunCore();
+        }
+
+        private void PreLateUpdate()
+        {
+            RunCore();
+        }
+
+        private void LastPreLateUpdate()
+        {
+            RunCore();
+        }
+
+        private void PostLateUpdate()
+        {
+            RunCore();
+        }
+
+        private void LastPostLateUpdate()
+        {
+            RunCore();
+        }
+
+        [DebuggerHidden]
+        private void RunCore()
         {
             {
-                bool lockTaken = false;
+                var lockTaken = false;
                 try
                 {
                     gate.Enter(ref lockTaken);
@@ -184,9 +239,8 @@ namespace Cysharp.Threading.Tasks.Internal
                 }
             }
 
-            for (int i = 0; i < actionListCount; i++)
+            for (var i = 0; i < actionListCount; i++)
             {
-
                 var action = actionList[i];
                 actionList[i] = null;
                 try
@@ -195,12 +249,12 @@ namespace Cysharp.Threading.Tasks.Internal
                 }
                 catch (Exception ex)
                 {
-                    UnityEngine.Debug.LogException(ex);
+                    Debug.LogException(ex);
                 }
             }
 
             {
-                bool lockTaken = false;
+                var lockTaken = false;
                 try
                 {
                     gate.Enter(ref lockTaken);
@@ -220,6 +274,16 @@ namespace Cysharp.Threading.Tasks.Internal
                 }
             }
         }
+#if UNITY_2020_2_OR_NEWER
+        private void TimeUpdate()
+        {
+            RunCore();
+        }
+
+        private void LastTimeUpdate()
+        {
+            RunCore();
+        }
+#endif
     }
 }
-

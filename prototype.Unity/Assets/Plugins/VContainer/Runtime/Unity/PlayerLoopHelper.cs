@@ -3,6 +3,7 @@ using System.Threading;
 #if UNITY_2019_3_OR_NEWER
 using UnityEngine.LowLevel;
 using UnityEngine.PlayerLoop;
+
 #else
 using UnityEngine.Experimental.LowLevel;
 using UnityEngine.Experimental.PlayerLoop;
@@ -10,18 +11,47 @@ using UnityEngine.Experimental.PlayerLoop;
 
 namespace VContainer.Unity
 {
-    public struct VContainerInitialization {}
-    public struct VContainerPostInitialization {}
-    public struct VContainerStartup {}
-    public struct VContainerPostStartup {}
-    public struct VContainerFixedUpdate {}
-    public struct VContainerPostFixedUpdate {}
-    public struct VContainerUpdate {}
-    public struct VContainerPostUpdate {}
-    public struct VContainerLateUpdate {}
-    public struct VContainerPostLateUpdate {}
+    public struct VContainerInitialization
+    {
+    }
 
-    enum PlayerLoopTiming
+    public struct VContainerPostInitialization
+    {
+    }
+
+    public struct VContainerStartup
+    {
+    }
+
+    public struct VContainerPostStartup
+    {
+    }
+
+    public struct VContainerFixedUpdate
+    {
+    }
+
+    public struct VContainerPostFixedUpdate
+    {
+    }
+
+    public struct VContainerUpdate
+    {
+    }
+
+    public struct VContainerPostUpdate
+    {
+    }
+
+    public struct VContainerLateUpdate
+    {
+    }
+
+    public struct VContainerPostLateUpdate
+    {
+    }
+
+    internal enum PlayerLoopTiming
     {
         Initialization = 0,
         PostInitialization = 1,
@@ -36,13 +66,13 @@ namespace VContainer.Unity
         PostUpdate = 7,
 
         LateUpdate = 8,
-        PostLateUpdate = 9,
+        PostLateUpdate = 9
     }
 
-    static class PlayerLoopHelper
+    internal static class PlayerLoopHelper
     {
-        static readonly PlayerLoopRunner[] Runners = new PlayerLoopRunner[10];
-        static long initialized;
+        private static readonly PlayerLoopRunner[] Runners = new PlayerLoopRunner[10];
+        private static long initialized;
 
         // [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         public static void EnsureInitialized()
@@ -50,10 +80,7 @@ namespace VContainer.Unity
             if (Interlocked.CompareExchange(ref initialized, 1, 0) != 0)
                 return;
 
-            for (var i = 0; i < Runners.Length; i++)
-            {
-                Runners[i] = new PlayerLoopRunner();
-            }
+            for (var i = 0; i < Runners.Length; i++) Runners[i] = new PlayerLoopRunner();
 
             var playerLoop =
 #if UNITY_2019_3_OR_NEWER
@@ -150,17 +177,15 @@ namespace VContainer.Unity
             Runners[(int)timing].Dispatch(item);
         }
 
-        static ref PlayerLoopSystem FindSubSystem(Type targetType, PlayerLoopSystem[] systems)
+        private static ref PlayerLoopSystem FindSubSystem(Type targetType, PlayerLoopSystem[] systems)
         {
             for (var i = 0; i < systems.Length; i++)
-            {
                 if (systems[i].type == targetType)
                     return ref systems[i];
-            }
             throw new InvalidOperationException($"{targetType.FullName} not in systems");
         }
 
-        static void InsertSubsystem(
+        private static void InsertSubsystem(
             ref PlayerLoopSystem parentSystem,
             Type beforeType,
             PlayerLoopSystem newSystem,
@@ -168,43 +193,25 @@ namespace VContainer.Unity
         {
             var source = parentSystem.subSystemList;
             var insertIndex = -1;
-            if (beforeType == null)
-            {
-                insertIndex = 0;
-            }
+            if (beforeType == null) insertIndex = 0;
             for (var i = 0; i < source.Length; i++)
-            {
                 if (source[i].type == beforeType)
-                {
                     insertIndex = i;
-                }
-            }
 
             if (insertIndex < 0)
-            {
-                throw new ArgumentException($"{beforeType.FullName} not in system {parentSystem} {parentSystem.type.FullName}");
-            }
+                throw new ArgumentException(
+                    $"{beforeType.FullName} not in system {parentSystem} {parentSystem.type.FullName}");
 
             var dest = new PlayerLoopSystem[source.Length + 2];
             for (var i = 0; i < dest.Length; i++)
-            {
                 if (i == insertIndex)
-                {
                     dest[i] = newSystem;
-                }
                 else if (i == dest.Length - 1)
-                {
                     dest[i] = newPostSystem;
-                }
                 else if (i < insertIndex)
-                {
                     dest[i] = source[i];
-                }
                 else
-                {
                     dest[i] = source[i - 1];
-                }
-            }
 
             parentSystem.subSystemList = dest;
         }

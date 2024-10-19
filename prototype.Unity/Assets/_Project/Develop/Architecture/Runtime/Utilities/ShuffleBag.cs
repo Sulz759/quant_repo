@@ -5,12 +5,12 @@ namespace _Project.Develop.Architecture.Runtime.Utilities
 {
     public class ShuffleBag<T>
     {
-        private Dictionary<T, int> itemCounts = new Dictionary<T, int>();
-        private Dictionary<T, int> cooldowns = new Dictionary<T, int>();
-        private Dictionary<T, int> lastIteration = new Dictionary<T, int>();
-        private List<T> items = new List<T>();
-        private int currentIteration = 0;
-        private Random random = new Random();
+        private readonly Dictionary<T, int> cooldowns = new();
+        private int currentIteration;
+        private readonly Dictionary<T, int> itemCounts = new();
+        private readonly List<T> items = new();
+        private readonly Dictionary<T, int> lastIteration = new();
+        private readonly Random random = new();
 
         public void Add(T item, int count, int cooldown)
         {
@@ -25,10 +25,7 @@ namespace _Project.Develop.Architecture.Runtime.Utilities
                 lastIteration.Add(item, -cooldown);
             }
 
-            for (int i = 0; i < count; i++)
-            {
-                items.Add(item);
-            }
+            for (var i = 0; i < count; i++) items.Add(item);
         }
 
         public T GetNext()
@@ -45,15 +42,12 @@ namespace _Project.Develop.Architecture.Runtime.Utilities
                 return items[1];
             }
 
-            if (items.Count == 0)
-            {
-                Refill();
-            }
+            if (items.Count == 0) Refill();
 
             T item;
             do
             {
-                int index = random.Next(items.Count);
+                var index = random.Next(items.Count);
                 item = items[index];
                 //items.RemoveAt(index);
             } while (currentIteration - lastIteration[item] < cooldowns[item]);
@@ -69,12 +63,8 @@ namespace _Project.Develop.Architecture.Runtime.Utilities
             items.Clear();
 
             foreach (var pair in itemCounts)
-            {
-                for (int i = 0; i < pair.Value; i++)
-                {
+                for (var i = 0; i < pair.Value; i++)
                     items.Add(pair.Key);
-                }
-            }
         }
 
         public void Reset()
@@ -90,26 +80,18 @@ namespace _Project.Develop.Architecture.Runtime.Utilities
         {
             if (itemCounts.ContainsKey(item))
             {
-                int oldCount = itemCounts[item];
+                var oldCount = itemCounts[item];
                 itemCounts[item] = newCount;
                 cooldowns[item] = newCooldown;
 
                 // Обновляем количество элементов в items
-                int countDiff = newCount - oldCount;
+                var countDiff = newCount - oldCount;
                 if (countDiff > 0)
-                {
-                    for (int i = 0; i < countDiff; i++)
-                    {
+                    for (var i = 0; i < countDiff; i++)
                         items.Add(item);
-                    }
-                }
                 else if (countDiff < 0)
-                {
-                    for (int i = 0; i < -countDiff; i++)
-                    {
+                    for (var i = 0; i < -countDiff; i++)
                         items.Remove(item);
-                    }
-                }
             }
             else
             {

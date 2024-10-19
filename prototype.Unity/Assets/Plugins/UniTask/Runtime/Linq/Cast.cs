@@ -1,12 +1,11 @@
-﻿using Cysharp.Threading.Tasks.Internal;
-using System;
-using System.Threading;
+﻿using System.Threading;
+using Cysharp.Threading.Tasks.Internal;
 
 namespace Cysharp.Threading.Tasks.Linq
 {
     public static partial class UniTaskAsyncEnumerable
     {
-        public static IUniTaskAsyncEnumerable<TResult> Cast<TResult>(this IUniTaskAsyncEnumerable<Object> source)
+        public static IUniTaskAsyncEnumerable<TResult> Cast<TResult>(this IUniTaskAsyncEnumerable<object> source)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
 
@@ -16,7 +15,7 @@ namespace Cysharp.Threading.Tasks.Linq
 
     internal sealed class Cast<TResult> : IUniTaskAsyncEnumerable<TResult>
     {
-        readonly IUniTaskAsyncEnumerable<object> source;
+        private readonly IUniTaskAsyncEnumerable<object> source;
 
         public Cast(IUniTaskAsyncEnumerable<object> source)
         {
@@ -28,10 +27,9 @@ namespace Cysharp.Threading.Tasks.Linq
             return new _Cast(source, cancellationToken);
         }
 
-        class _Cast : AsyncEnumeratorBase<object, TResult>
+        private class _Cast : AsyncEnumeratorBase<object, TResult>
         {
             public _Cast(IUniTaskAsyncEnumerable<object> source, CancellationToken cancellationToken)
-
                 : base(source, cancellationToken)
             {
             }

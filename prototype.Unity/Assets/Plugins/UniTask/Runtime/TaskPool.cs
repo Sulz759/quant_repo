@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -14,7 +13,7 @@ namespace Cysharp.Threading.Tasks
         internal static int MaxPoolSize;
 
         // avoid to use ConcurrentDictionary for safety of WebGL build.
-        static Dictionary<Type, Func<int>> sizes = new Dictionary<Type, Func<int>>();
+        private static readonly Dictionary<Type, Func<int>> sizes = new();
 
         static TaskPool()
         {
@@ -22,15 +21,15 @@ namespace Cysharp.Threading.Tasks
             {
                 var value = Environment.GetEnvironmentVariable("UNITASK_MAX_POOLSIZE");
                 if (value != null)
-                {
                     if (int.TryParse(value, out var size))
                     {
                         MaxPoolSize = size;
                         return;
                     }
-                }
             }
-            catch { }
+            catch
+            {
+            }
 
             MaxPoolSize = int.MaxValue;
         }
@@ -44,10 +43,7 @@ namespace Cysharp.Threading.Tasks
         {
             lock (sizes)
             {
-                foreach (var item in sizes)
-                {
-                    yield return (item.Key, item.Value());
-                }
+                foreach (var item in sizes) yield return (item.Key, item.Value());
             }
         }
 
@@ -70,11 +66,10 @@ namespace Cysharp.Threading.Tasks
     public struct TaskPool<T>
         where T : class, ITaskPoolNode<T>
     {
-        int gate;
-        int size;
-        T root;
+        private int gate;
+        private T root;
 
-        public int Size => size;
+        public int Size { get; private set; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryPop(out T result)
@@ -87,7 +82,7 @@ namespace Cysharp.Threading.Tasks
                     ref var nextNode = ref v.NextNode;
                     root = nextNode;
                     nextNode = null;
-                    size--;
+                    Size--;
                     result = v;
                     Volatile.Write(ref gate, 0);
                     return true;
@@ -95,6 +90,7 @@ namespace Cysharp.Threading.Tasks
 
                 Volatile.Write(ref gate, 0);
             }
+
             result = default;
             return false;
         }
@@ -104,19 +100,18 @@ namespace Cysharp.Threading.Tasks
         {
             if (Interlocked.CompareExchange(ref gate, 1, 0) == 0)
             {
-                if (size < TaskPool.MaxPoolSize)
+                if (Size < TaskPool.MaxPoolSize)
                 {
                     item.NextNode = root;
                     root = item;
-                    size++;
+                    Size++;
                     Volatile.Write(ref gate, 0);
                     return true;
                 }
-                else
-                {
-                    Volatile.Write(ref gate, 0);
-                }
+
+                Volatile.Write(ref gate, 0);
             }
+
             return false;
         }
     }

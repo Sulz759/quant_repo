@@ -4,13 +4,13 @@
 using System;
 using System.Threading;
 using Unity.Jobs;
-using UnityEngine;
 
 namespace Cysharp.Threading.Tasks
 {
     public static partial class UnityAsyncExtensions
     {
-        public static async UniTask WaitAsync(this JobHandle jobHandle, PlayerLoopTiming waitTiming, CancellationToken cancellationToken = default)
+        public static async UniTask WaitAsync(this JobHandle jobHandle, PlayerLoopTiming waitTiming,
+            CancellationToken cancellationToken = default)
         {
             await UniTask.Yield(waitTiming);
             jobHandle.Complete();
@@ -43,24 +43,21 @@ namespace Cysharp.Threading.Tasks
             return new UniTask(handler, token);
         }
 
-        sealed class JobHandlePromise : IUniTaskSource, IPlayerLoopItem
+        private sealed class JobHandlePromise : IUniTaskSource, IPlayerLoopItem
         {
-            JobHandle jobHandle;
+            private UniTaskCompletionSourceCore<AsyncUnit> core;
+            private JobHandle jobHandle;
 
-            UniTaskCompletionSourceCore<AsyncUnit> core;
-
-            // Cancellation is not supported.
-            public static JobHandlePromise Create(JobHandle jobHandle, out short token)
+            public bool MoveNext()
             {
-                // not use pool.
-                var result = new JobHandlePromise();
+                if (jobHandle.IsCompleted | PlayerLoopHelper.IsEditorApplicationQuitting)
+                {
+                    jobHandle.Complete();
+                    core.TrySetResult(AsyncUnit.Default);
+                    return false;
+                }
 
-                result.jobHandle = jobHandle;
-
-                TaskTracker.TrackActiveTask(result, 3);
-
-                token = result.core.Version;
-                return result;
+                return true;
             }
 
             public void GetResult(short token)
@@ -84,16 +81,18 @@ namespace Cysharp.Threading.Tasks
                 core.OnCompleted(continuation, state, token);
             }
 
-            public bool MoveNext()
+            // Cancellation is not supported.
+            public static JobHandlePromise Create(JobHandle jobHandle, out short token)
             {
-                if (jobHandle.IsCompleted | PlayerLoopHelper.IsEditorApplicationQuitting)
-                {
-                    jobHandle.Complete();
-                    core.TrySetResult(AsyncUnit.Default);
-                    return false;
-                }
+                // not use pool.
+                var result = new JobHandlePromise();
 
-                return true;
+                result.jobHandle = jobHandle;
+
+                TaskTracker.TrackActiveTask(result, 3);
+
+                token = result.core.Version;
+                return result;
             }
         }
     }

@@ -1,14 +1,15 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using UnityEngine;
 
 namespace VContainer.Unity
 {
-    sealed class ExistingComponentProvider : IInstanceProvider
+    internal sealed class ExistingComponentProvider : IInstanceProvider
     {
-        readonly object instance;
-        readonly IInjector injector;
-        readonly IReadOnlyList<IInjectParameter> customParameters;
-        readonly bool dontDestroyOnLoad;
+        private readonly IReadOnlyList<IInjectParameter> customParameters;
+        private readonly bool dontDestroyOnLoad;
+        private readonly IInjector injector;
+        private readonly object instance;
 
         public ExistingComponentProvider(
             object instance,
@@ -28,16 +29,13 @@ namespace VContainer.Unity
             injector.Inject(instance, resolver, customParameters);
             if (dontDestroyOnLoad)
             {
-                if (instance is UnityEngine.Object component)
-                {
-                    UnityEngine.Object.DontDestroyOnLoad(component);
-                }
+                if (instance is Object component)
+                    Object.DontDestroyOnLoad(component);
                 else
-                {
                     throw new VContainerException(instance.GetType(),
                         $"Cannot apply `DontDestroyOnLoad`. {instance.GetType().Name} is not a UnityEngine.Object");
-                }
             }
+
             return instance;
         }
     }

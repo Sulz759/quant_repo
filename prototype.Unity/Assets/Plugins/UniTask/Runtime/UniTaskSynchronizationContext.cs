@@ -1,24 +1,25 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Threading;
+using UnityEngine;
 
 namespace Cysharp.Threading.Tasks
 {
     public class UniTaskSynchronizationContext : SynchronizationContext
     {
-        const int MaxArrayLength = 0X7FEFFFFF;
-        const int InitialSize = 16;
+        private const int MaxArrayLength = 0X7FEFFFFF;
+        private const int InitialSize = 16;
 
-        static SpinLock gate = new SpinLock(false);
-        static bool dequing = false;
+        private static SpinLock gate = new(false);
+        private static bool dequing;
 
-        static int actionListCount = 0;
-        static Callback[] actionList = new Callback[InitialSize];
+        private static int actionListCount;
+        private static Callback[] actionList = new Callback[InitialSize];
 
-        static int waitingListCount = 0;
-        static Callback[] waitingList = new Callback[InitialSize];
+        private static int waitingListCount;
+        private static Callback[] waitingList = new Callback[InitialSize];
 
-        static int opCount;
+        private static int opCount;
 
         public override void Send(SendOrPostCallback d, object state)
         {
@@ -27,7 +28,7 @@ namespace Cysharp.Threading.Tasks
 
         public override void Post(SendOrPostCallback d, object state)
         {
-            bool lockTaken = false;
+            var lockTaken = false;
             try
             {
                 gate.Enter(ref lockTaken);
@@ -44,6 +45,7 @@ namespace Cysharp.Threading.Tasks
                         Array.Copy(waitingList, newArray, waitingListCount);
                         waitingList = newArray;
                     }
+
                     waitingList[waitingListCount] = new Callback(d, state);
                     waitingListCount++;
                 }
@@ -59,6 +61,7 @@ namespace Cysharp.Threading.Tasks
                         Array.Copy(actionList, newArray, actionListCount);
                         actionList = newArray;
                     }
+
                     actionList[actionListCount] = new Callback(d, state);
                     actionListCount++;
                 }
@@ -88,7 +91,7 @@ namespace Cysharp.Threading.Tasks
         internal static void Run()
         {
             {
-                bool lockTaken = false;
+                var lockTaken = false;
                 try
                 {
                     gate.Enter(ref lockTaken);
@@ -101,7 +104,7 @@ namespace Cysharp.Threading.Tasks
                 }
             }
 
-            for (int i = 0; i < actionListCount; i++)
+            for (var i = 0; i < actionListCount; i++)
             {
                 var action = actionList[i];
                 actionList[i] = default;
@@ -109,7 +112,7 @@ namespace Cysharp.Threading.Tasks
             }
 
             {
-                bool lockTaken = false;
+                var lockTaken = false;
                 try
                 {
                     gate.Enter(ref lockTaken);
@@ -131,10 +134,10 @@ namespace Cysharp.Threading.Tasks
         }
 
         [StructLayout(LayoutKind.Auto)]
-        readonly struct Callback
+        private readonly struct Callback
         {
-            readonly SendOrPostCallback callback;
-            readonly object state;
+            private readonly SendOrPostCallback callback;
+            private readonly object state;
 
             public Callback(SendOrPostCallback callback, object state)
             {
@@ -150,7 +153,7 @@ namespace Cysharp.Threading.Tasks
                 }
                 catch (Exception ex)
                 {
-                    UnityEngine.Debug.LogException(ex);
+                    Debug.LogException(ex);
                 }
             }
         }

@@ -9,13 +9,13 @@ namespace Cysharp.Threading.Tasks.Internal
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowArgumentNullException<T>(T value, string paramName)
-          where T : class
+            where T : class
         {
             if (value == null) ThrowArgumentNullExceptionCore(paramName);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        static void ThrowArgumentNullExceptionCore(string paramName)
+        private static void ThrowArgumentNullExceptionCore(string paramName)
         {
             throw new ArgumentNullException(paramName);
         }
@@ -58,13 +58,13 @@ namespace Cysharp.Threading.Tasks.Internal
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowWhenContinuationIsAlreadyRegistered<T>(T continuationField)
-          where T : class
+            where T : class
         {
             if (continuationField != null) ThrowInvalidOperationExceptionCore("continuation is already registered.");
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        static void ThrowInvalidOperationExceptionCore(string message)
+        private static void ThrowInvalidOperationExceptionCore(string message)
         {
             throw new InvalidOperationException(message);
         }
@@ -76,4 +76,3 @@ namespace Cysharp.Threading.Tasks.Internal
         }
     }
 }
-

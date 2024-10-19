@@ -5,12 +5,13 @@
 #define SUPPORT_VALUETASK
 #endif
 
-using Cysharp.Threading.Tasks.CompilerServices;
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+using Cysharp.Threading.Tasks.CompilerServices;
 
 namespace Cysharp.Threading.Tasks
 {
@@ -20,21 +21,21 @@ namespace Cysharp.Threading.Tasks
 
         [DebuggerHidden]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static void Continuation(object state)
+        private static void Continuation(object state)
         {
             ((Action)state).Invoke();
         }
     }
 
     /// <summary>
-    /// Lightweight unity specified task-like object.
+    ///     Lightweight unity specified task-like object.
     /// </summary>
     [AsyncMethodBuilder(typeof(AsyncUniTaskMethodBuilder))]
     [StructLayout(LayoutKind.Auto)]
     public readonly partial struct UniTask
     {
-        readonly IUniTaskSource source;
-        readonly short token;
+        private readonly IUniTaskSource source;
+        private readonly short token;
 
         [DebuggerHidden]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -63,7 +64,7 @@ namespace Cysharp.Threading.Tasks
         }
 
         /// <summary>
-        /// returns (bool IsCanceled) instead of throws OperationCanceledException.
+        ///     returns (bool IsCanceled) instead of throws OperationCanceledException.
         /// </summary>
         public UniTask<bool> SuppressCancellationThrow()
         {
@@ -75,17 +76,14 @@ namespace Cysharp.Threading.Tasks
 
 #if SUPPORT_VALUETASK
 
-        public static implicit operator System.Threading.Tasks.ValueTask(in UniTask self)
+        public static implicit operator ValueTask(in UniTask self)
         {
-            if (self.source == null)
-            {
-                return default;
-            }
+            if (self.source == null) return default;
 
 #if (UNITASK_NETCORE && NETSTANDARD2_0)
             return self.AsValueTask();
 #else
-            return new System.Threading.Tasks.ValueTask(self.source, self.token);
+            return new ValueTask(self.source, self.token);
 #endif
         }
 
@@ -98,41 +96,37 @@ namespace Cysharp.Threading.Tasks
         }
 
         /// <summary>
-        /// Memoizing inner IValueTaskSource. The result UniTask can await multiple.
+        ///     Memoizing inner IValueTaskSource. The result UniTask can await multiple.
         /// </summary>
         public UniTask Preserve()
         {
             if (source == null)
-            {
                 return this;
-            }
-            else
-            {
-                return new UniTask(new MemoizeSource(source), token);
-            }
+            return new UniTask(new MemoizeSource(source), token);
         }
 
         public UniTask<AsyncUnit> AsAsyncUnitUniTask()
         {
-            if (this.source == null) return CompletedTasks.AsyncUnit;
+            if (source == null) return CompletedTasks.AsyncUnit;
 
-            var status = this.source.GetStatus(this.token);
+            var status = source.GetStatus(token);
             if (status.IsCompletedSuccessfully())
             {
-                this.source.GetResult(this.token);
+                source.GetResult(token);
                 return CompletedTasks.AsyncUnit;
             }
-            else if (this.source is IUniTaskSource<AsyncUnit> asyncUnitSource)
+
+            if (source is IUniTaskSource<AsyncUnit> asyncUnitSource)
             {
-                return new UniTask<AsyncUnit>(asyncUnitSource, this.token);
+                return new UniTask<AsyncUnit>(asyncUnitSource, token);
             }
 
-            return new UniTask<AsyncUnit>(new AsyncUnitSource(this.source), this.token);
+            return new UniTask<AsyncUnit>(new AsyncUnitSource(source), token);
         }
 
-        sealed class AsyncUnitSource : IUniTaskSource<AsyncUnit>
+        private sealed class AsyncUnitSource : IUniTaskSource<AsyncUnit>
         {
-            readonly IUniTaskSource source;
+            private readonly IUniTaskSource source;
 
             public AsyncUnitSource(IUniTaskSource source)
             {
@@ -166,9 +160,9 @@ namespace Cysharp.Threading.Tasks
             }
         }
 
-        sealed class IsCanceledSource : IUniTaskSource<bool>
+        private sealed class IsCanceledSource : IUniTaskSource<bool>
         {
-            readonly IUniTaskSource source;
+            private readonly IUniTaskSource source;
 
             public IsCanceledSource(IUniTaskSource source)
             {
@@ -177,10 +171,7 @@ namespace Cysharp.Threading.Tasks
 
             public bool GetResult(short token)
             {
-                if (source.GetStatus(token) == UniTaskStatus.Canceled)
-                {
-                    return true;
-                }
+                if (source.GetStatus(token) == UniTaskStatus.Canceled) return true;
 
                 source.GetResult(token);
                 return false;
@@ -207,11 +198,11 @@ namespace Cysharp.Threading.Tasks
             }
         }
 
-        sealed class MemoizeSource : IUniTaskSource
+        private sealed class MemoizeSource : IUniTaskSource
         {
-            IUniTaskSource source;
-            ExceptionDispatchInfo exception;
-            UniTaskStatus status;
+            private ExceptionDispatchInfo exception;
+            private IUniTaskSource source;
+            private UniTaskStatus status;
 
             public MemoizeSource(IUniTaskSource source)
             {
@@ -222,10 +213,7 @@ namespace Cysharp.Threading.Tasks
             {
                 if (source == null)
                 {
-                    if (exception != null)
-                    {
-                        exception.Throw();
-                    }
+                    if (exception != null) exception.Throw();
                 }
                 else
                 {
@@ -238,13 +226,9 @@ namespace Cysharp.Threading.Tasks
                     {
                         exception = ExceptionDispatchInfo.Capture(ex);
                         if (ex is OperationCanceledException)
-                        {
                             status = UniTaskStatus.Canceled;
-                        }
                         else
-                        {
                             status = UniTaskStatus.Faulted;
-                        }
                         throw;
                     }
                     finally
@@ -256,10 +240,7 @@ namespace Cysharp.Threading.Tasks
 
             public UniTaskStatus GetStatus(short token)
             {
-                if (source == null)
-                {
-                    return status;
-                }
+                if (source == null) return status;
 
                 return source.GetStatus(token);
             }
@@ -267,21 +248,14 @@ namespace Cysharp.Threading.Tasks
             public void OnCompleted(Action<object> continuation, object state, short token)
             {
                 if (source == null)
-                {
                     continuation(state);
-                }
                 else
-                {
                     source.OnCompleted(continuation, state, token);
-                }
             }
 
             public UniTaskStatus UnsafeGetStatus()
             {
-                if (source == null)
-                {
-                    return status;
-                }
+                if (source == null) return status;
 
                 return source.UnsafeGetStatus();
             }
@@ -289,7 +263,7 @@ namespace Cysharp.Threading.Tasks
 
         public readonly struct Awaiter : ICriticalNotifyCompletion
         {
-            readonly UniTask task;
+            private readonly UniTask task;
 
             [DebuggerHidden]
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -302,10 +276,7 @@ namespace Cysharp.Threading.Tasks
             {
                 [DebuggerHidden]
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get
-                {
-                    return task.Status.IsCompleted();
-                }
+                get => task.Status.IsCompleted();
             }
 
             [DebuggerHidden]
@@ -321,13 +292,9 @@ namespace Cysharp.Threading.Tasks
             public void OnCompleted(Action continuation)
             {
                 if (task.source == null)
-                {
                     continuation();
-                }
                 else
-                {
                     task.source.OnCompleted(AwaiterActions.InvokeContinuationDelegate, continuation, task.token);
-                }
             }
 
             [DebuggerHidden]
@@ -335,51 +302,43 @@ namespace Cysharp.Threading.Tasks
             public void UnsafeOnCompleted(Action continuation)
             {
                 if (task.source == null)
-                {
                     continuation();
-                }
                 else
-                {
                     task.source.OnCompleted(AwaiterActions.InvokeContinuationDelegate, continuation, task.token);
-                }
             }
 
             /// <summary>
-            /// If register manually continuation, you can use it instead of for compiler OnCompleted methods.
+            ///     If register manually continuation, you can use it instead of for compiler OnCompleted methods.
             /// </summary>
             [DebuggerHidden]
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void SourceOnCompleted(Action<object> continuation, object state)
             {
                 if (task.source == null)
-                {
                     continuation(state);
-                }
                 else
-                {
                     task.source.OnCompleted(continuation, state, task.token);
-                }
             }
         }
     }
 
     /// <summary>
-    /// Lightweight unity specified task-like object.
+    ///     Lightweight unity specified task-like object.
     /// </summary>
     [AsyncMethodBuilder(typeof(AsyncUniTaskMethodBuilder<>))]
     [StructLayout(LayoutKind.Auto)]
     public readonly struct UniTask<T>
     {
-        readonly IUniTaskSource<T> source;
-        readonly T result;
-        readonly short token;
+        private readonly IUniTaskSource<T> source;
+        private readonly T result;
+        private readonly short token;
 
         [DebuggerHidden]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public UniTask(T result)
         {
-            this.source = default;
-            this.token = default;
+            source = default;
+            token = default;
             this.result = result;
         }
 
@@ -389,17 +348,14 @@ namespace Cysharp.Threading.Tasks
         {
             this.source = source;
             this.token = token;
-            this.result = default;
+            result = default;
         }
 
         public UniTaskStatus Status
         {
             [DebuggerHidden]
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                return (source == null) ? UniTaskStatus.Succeeded : source.GetStatus(token);
-            }
+            get => source == null ? UniTaskStatus.Succeeded : source.GetStatus(token);
         }
 
         [DebuggerHidden]
@@ -410,33 +366,28 @@ namespace Cysharp.Threading.Tasks
         }
 
         /// <summary>
-        /// Memoizing inner IValueTaskSource. The result UniTask can await multiple.
+        ///     Memoizing inner IValueTaskSource. The result UniTask can await multiple.
         /// </summary>
         public UniTask<T> Preserve()
         {
             if (source == null)
-            {
                 return this;
-            }
-            else
-            {
-                return new UniTask<T>(new MemoizeSource(source), token);
-            }
+            return new UniTask<T>(new MemoizeSource(source), token);
         }
 
         public UniTask AsUniTask()
         {
-            if (this.source == null) return UniTask.CompletedTask;
+            if (source == null) return UniTask.CompletedTask;
 
-            var status = this.source.GetStatus(this.token);
+            var status = source.GetStatus(token);
             if (status.IsCompletedSuccessfully())
             {
-                this.source.GetResult(this.token);
+                source.GetResult(token);
                 return UniTask.CompletedTask;
             }
 
             // Converting UniTask<T> -> UniTask is zero overhead.
-            return new UniTask(this.source, this.token);
+            return new UniTask(source, token);
         }
 
         public static implicit operator UniTask(UniTask<T> self)
@@ -446,44 +397,39 @@ namespace Cysharp.Threading.Tasks
 
 #if SUPPORT_VALUETASK
 
-        public static implicit operator System.Threading.Tasks.ValueTask<T>(in UniTask<T> self)
+        public static implicit operator ValueTask<T>(in UniTask<T> self)
         {
-            if (self.source == null)
-            {
-                return new System.Threading.Tasks.ValueTask<T>(self.result);
-            }
+            if (self.source == null) return new ValueTask<T>(self.result);
 
 #if (UNITASK_NETCORE && NETSTANDARD2_0)
             return self.AsValueTask();
 #else
-            return new System.Threading.Tasks.ValueTask<T>(self.source, self.token);
+            return new ValueTask<T>(self.source, self.token);
 #endif
         }
 
 #endif
 
         /// <summary>
-        /// returns (bool IsCanceled, T Result) instead of throws OperationCanceledException.
+        ///     returns (bool IsCanceled, T Result) instead of throws OperationCanceledException.
         /// </summary>
         public UniTask<(bool IsCanceled, T Result)> SuppressCancellationThrow()
         {
-            if (source == null)
-            {
-                return new UniTask<(bool IsCanceled, T Result)>((false, result));
-            }
+            if (source == null) return new UniTask<(bool IsCanceled, T Result)>((false, result));
 
             return new UniTask<(bool, T)>(new IsCanceledSource(source), token);
         }
 
         public override string ToString()
         {
-            return (this.source == null) ? result?.ToString()
-                 : "(" + this.source.UnsafeGetStatus() + ")";
+            return source == null
+                ? result?.ToString()
+                : "(" + source.UnsafeGetStatus() + ")";
         }
 
-        sealed class IsCanceledSource : IUniTaskSource<(bool, T)>
+        private sealed class IsCanceledSource : IUniTaskSource<(bool, T)>
         {
-            readonly IUniTaskSource<T> source;
+            private readonly IUniTaskSource<T> source;
 
             [DebuggerHidden]
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -496,10 +442,7 @@ namespace Cysharp.Threading.Tasks
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public (bool, T) GetResult(short token)
             {
-                if (source.GetStatus(token) == UniTaskStatus.Canceled)
-                {
-                    return (true, default);
-                }
+                if (source.GetStatus(token) == UniTaskStatus.Canceled) return (true, default);
 
                 var result = source.GetResult(token);
                 return (false, result);
@@ -534,12 +477,12 @@ namespace Cysharp.Threading.Tasks
             }
         }
 
-        sealed class MemoizeSource : IUniTaskSource<T>
+        private sealed class MemoizeSource : IUniTaskSource<T>
         {
-            IUniTaskSource<T> source;
-            T result;
-            ExceptionDispatchInfo exception;
-            UniTaskStatus status;
+            private ExceptionDispatchInfo exception;
+            private T result;
+            private IUniTaskSource<T> source;
+            private UniTaskStatus status;
 
             public MemoizeSource(IUniTaskSource<T> source)
             {
@@ -550,37 +493,28 @@ namespace Cysharp.Threading.Tasks
             {
                 if (source == null)
                 {
-                    if (exception != null)
-                    {
-                        exception.Throw();
-                    }
+                    if (exception != null) exception.Throw();
                     return result;
                 }
-                else
+
+                try
                 {
-                    try
-                    {
-                        result = source.GetResult(token);
-                        status = UniTaskStatus.Succeeded;
-                        return result;
-                    }
-                    catch (Exception ex)
-                    {
-                        exception = ExceptionDispatchInfo.Capture(ex);
-                        if (ex is OperationCanceledException)
-                        {
-                            status = UniTaskStatus.Canceled;
-                        }
-                        else
-                        {
-                            status = UniTaskStatus.Faulted;
-                        }
-                        throw;
-                    }
-                    finally
-                    {
-                        source = null;
-                    }
+                    result = source.GetResult(token);
+                    status = UniTaskStatus.Succeeded;
+                    return result;
+                }
+                catch (Exception ex)
+                {
+                    exception = ExceptionDispatchInfo.Capture(ex);
+                    if (ex is OperationCanceledException)
+                        status = UniTaskStatus.Canceled;
+                    else
+                        status = UniTaskStatus.Faulted;
+                    throw;
+                }
+                finally
+                {
+                    source = null;
                 }
             }
 
@@ -591,10 +525,7 @@ namespace Cysharp.Threading.Tasks
 
             public UniTaskStatus GetStatus(short token)
             {
-                if (source == null)
-                {
-                    return status;
-                }
+                if (source == null) return status;
 
                 return source.GetStatus(token);
             }
@@ -602,21 +533,14 @@ namespace Cysharp.Threading.Tasks
             public void OnCompleted(Action<object> continuation, object state, short token)
             {
                 if (source == null)
-                {
                     continuation(state);
-                }
                 else
-                {
                     source.OnCompleted(continuation, state, token);
-                }
             }
 
             public UniTaskStatus UnsafeGetStatus()
             {
-                if (source == null)
-                {
-                    return status;
-                }
+                if (source == null) return status;
 
                 return source.UnsafeGetStatus();
             }
@@ -624,7 +548,7 @@ namespace Cysharp.Threading.Tasks
 
         public readonly struct Awaiter : ICriticalNotifyCompletion
         {
-            readonly UniTask<T> task;
+            private readonly UniTask<T> task;
 
             [DebuggerHidden]
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -637,10 +561,7 @@ namespace Cysharp.Threading.Tasks
             {
                 [DebuggerHidden]
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get
-                {
-                    return task.Status.IsCompleted();
-                }
+                get => task.Status.IsCompleted();
             }
 
             [DebuggerHidden]
@@ -649,13 +570,8 @@ namespace Cysharp.Threading.Tasks
             {
                 var s = task.source;
                 if (s == null)
-                {
                     return task.result;
-                }
-                else
-                {
-                    return s.GetResult(task.token);
-                }
+                return s.GetResult(task.token);
             }
 
             [DebuggerHidden]
@@ -664,13 +580,9 @@ namespace Cysharp.Threading.Tasks
             {
                 var s = task.source;
                 if (s == null)
-                {
                     continuation();
-                }
                 else
-                {
                     s.OnCompleted(AwaiterActions.InvokeContinuationDelegate, continuation, task.token);
-                }
             }
 
             [DebuggerHidden]
@@ -679,17 +591,13 @@ namespace Cysharp.Threading.Tasks
             {
                 var s = task.source;
                 if (s == null)
-                {
                     continuation();
-                }
                 else
-                {
                     s.OnCompleted(AwaiterActions.InvokeContinuationDelegate, continuation, task.token);
-                }
             }
 
             /// <summary>
-            /// If register manually continuation, you can use it instead of for compiler OnCompleted methods.
+            ///     If register manually continuation, you can use it instead of for compiler OnCompleted methods.
             /// </summary>
             [DebuggerHidden]
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -697,15 +605,10 @@ namespace Cysharp.Threading.Tasks
             {
                 var s = task.source;
                 if (s == null)
-                {
                     continuation(state);
-                }
                 else
-                {
                     s.OnCompleted(continuation, state, task.token);
-                }
             }
         }
     }
 }
-

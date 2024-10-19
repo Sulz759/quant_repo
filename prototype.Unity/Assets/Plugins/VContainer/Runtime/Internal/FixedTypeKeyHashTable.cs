@@ -5,36 +5,22 @@ using System.Runtime.CompilerServices;
 namespace VContainer.Internal
 {
     // http://neue.cc/2017/07/11_555.html
-    sealed class FixedTypeKeyHashtable<TValue>
+    internal sealed class FixedTypeKeyHashtable<TValue>
     {
-        readonly struct HashEntry
-        {
-            public readonly Type Type;
-            public readonly TValue Value;
+        private readonly int indexFor;
 
-            public HashEntry(Type key, TValue value)
-            {
-                Type = key;
-                Value = value;
-            }
-        }
-
-        readonly HashEntry[][] table;
-        readonly int indexFor;
+        private readonly HashEntry[][] table;
 
         public FixedTypeKeyHashtable(KeyValuePair<Type, TValue>[] values, float loadFactor = 0.75f)
         {
-            var initialCapacity = (int)((float)values.Length / loadFactor);
+            var initialCapacity = (int)(values.Length / loadFactor);
 
             // make power of 2(and use mask)
             // see: Hashing https://en.wikipedia.org/wiki/Hash_table
             var capacity = 1;
-            while (capacity < initialCapacity)
-            {
-                capacity <<= 1;
-            }
+            while (capacity < initialCapacity) capacity <<= 1;
 
-            table = new HashEntry[(int)capacity][];
+            table = new HashEntry[capacity][];
             indexFor = table.Length - 1;
 
             foreach (var item in values)
@@ -65,18 +51,11 @@ namespace VContainer.Internal
 
             if (buckets == null) goto ERROR;
 
-            if (buckets[0].Type == type)
-            {
-                return buckets[0].Value;
-            }
+            if (buckets[0].Type == type) return buckets[0].Value;
 
-            for (int i = 1; i < buckets.Length; i++)
-            {
+            for (var i = 1; i < buckets.Length; i++)
                 if (buckets[i].Type == type)
-                {
                     return buckets[i].Value;
-                }
-            }
 
             ERROR:
             throw new KeyNotFoundException("Type was not dound, Type: " + type.FullName);
@@ -95,18 +74,28 @@ namespace VContainer.Internal
                 return true;
             }
 
-            for (int i = 1; i < buckets.Length; i++)
-            {
+            for (var i = 1; i < buckets.Length; i++)
                 if (buckets[i].Type == type)
                 {
                     value = buckets[i].Value;
                     return true;
                 }
-            }
 
             END:
             value = default;
             return false;
         }
-   }
+
+        private readonly struct HashEntry
+        {
+            public readonly Type Type;
+            public readonly TValue Value;
+
+            public HashEntry(Type key, TValue value)
+            {
+                Type = key;
+                Value = value;
+            }
+        }
+    }
 }

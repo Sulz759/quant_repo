@@ -4,9 +4,9 @@ using System.Runtime.CompilerServices;
 
 namespace VContainer.Internal
 {
-    sealed class CompositeDisposable : IDisposable
+    internal sealed class CompositeDisposable : IDisposable
     {
-        readonly Stack<IDisposable> disposables = new Stack<IDisposable>();
+        private readonly Stack<IDisposable> disposables = new();
 
         public void Dispose()
         {
@@ -19,6 +19,7 @@ namespace VContainer.Internal
                         ? disposables.Pop()
                         : null;
                 }
+
                 disposable?.Dispose();
             } while (disposable != null);
         }

@@ -1,21 +1,19 @@
-﻿using Cysharp.Threading.Tasks.Internal;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using Cysharp.Threading.Tasks.Internal;
 
 namespace Cysharp.Threading.Tasks.Linq
 {
     public static partial class UniTaskAsyncEnumerable
     {
-        public static IUniTaskAsyncEnumerable<TSource> TakeLast<TSource>(this IUniTaskAsyncEnumerable<TSource> source, Int32 count)
+        public static IUniTaskAsyncEnumerable<TSource> TakeLast<TSource>(this IUniTaskAsyncEnumerable<TSource> source,
+            int count)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
 
             // non take.
-            if (count <= 0)
-            {
-                return Empty<TSource>();
-            }
+            if (count <= 0) return Empty<TSource>();
 
             return new TakeLast<TSource>(source, count);
         }
@@ -23,8 +21,8 @@ namespace Cysharp.Threading.Tasks.Linq
 
     internal sealed class TakeLast<TSource> : IUniTaskAsyncEnumerable<TSource>
     {
-        readonly IUniTaskAsyncEnumerable<TSource> source;
-        readonly int count;
+        private readonly int count;
+        private readonly IUniTaskAsyncEnumerable<TSource> source;
 
         public TakeLast(IUniTaskAsyncEnumerable<TSource> source, int count)
         {
@@ -37,20 +35,20 @@ namespace Cysharp.Threading.Tasks.Linq
             return new _TakeLast(source, count, cancellationToken);
         }
 
-        sealed class _TakeLast : MoveNextSource, IUniTaskAsyncEnumerator<TSource>
+        private sealed class _TakeLast : MoveNextSource, IUniTaskAsyncEnumerator<TSource>
         {
-            static readonly Action<object> MoveNextCoreDelegate = MoveNextCore;
+            private static readonly Action<object> MoveNextCoreDelegate = MoveNextCore;
+            private readonly int count;
 
-            readonly IUniTaskAsyncEnumerable<TSource> source;
-            readonly int count;
-            CancellationToken cancellationToken;
+            private readonly IUniTaskAsyncEnumerable<TSource> source;
+            private UniTask<bool>.Awaiter awaiter;
+            private readonly CancellationToken cancellationToken;
+            private bool continueNext;
 
-            IUniTaskAsyncEnumerator<TSource> enumerator;
-            UniTask<bool>.Awaiter awaiter;
-            Queue<TSource> queue;
+            private IUniTaskAsyncEnumerator<TSource> enumerator;
 
-            bool iterateCompleted;
-            bool continueNext;
+            private bool iterateCompleted;
+            private Queue<TSource> queue;
 
             public _TakeLast(IUniTaskAsyncEnumerable<TSource> source, int count, CancellationToken cancellationToken)
             {
@@ -77,7 +75,14 @@ namespace Cysharp.Threading.Tasks.Linq
                 return new UniTask<bool>(this, completionSource.Version);
             }
 
-            void SourceMoveNext()
+            public UniTask DisposeAsync()
+            {
+                TaskTracker.RemoveTracking(this);
+                if (enumerator != null) return enumerator.DisposeAsync();
+                return default;
+            }
+
+            private void SourceMoveNext()
             {
                 if (iterateCompleted)
                 {
@@ -120,7 +125,7 @@ namespace Cysharp.Threading.Tasks.Linq
             }
 
 
-            static void MoveNextCore(object state)
+            private static void MoveNextCore(object state)
             {
                 var self = (_TakeLast)state;
 
@@ -132,20 +137,14 @@ namespace Cysharp.Threading.Tasks.Linq
                         {
                             self.queue.Enqueue(self.enumerator.Current);
 
-                            if (!self.continueNext)
-                            {
-                                self.SourceMoveNext();
-                            }
+                            if (!self.continueNext) self.SourceMoveNext();
                         }
                         else
                         {
                             self.queue.Dequeue();
                             self.queue.Enqueue(self.enumerator.Current);
 
-                            if (!self.continueNext)
-                            {
-                                self.SourceMoveNext();
-                            }
+                            if (!self.continueNext) self.SourceMoveNext();
                         }
                     }
                     else
@@ -159,16 +158,6 @@ namespace Cysharp.Threading.Tasks.Linq
                 {
                     self.continueNext = false;
                 }
-            }
-
-            public UniTask DisposeAsync()
-            {
-                TaskTracker.RemoveTracking(this);
-                if (enumerator != null)
-                {
-                    return enumerator.DisposeAsync();
-                }
-                return default;
             }
         }
     }

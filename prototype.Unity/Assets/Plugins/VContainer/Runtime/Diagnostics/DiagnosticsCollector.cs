@@ -8,16 +8,16 @@ namespace VContainer.Diagnostics
 {
     public sealed class DiagnosticsCollector
     {
-        public string ScopeName { get; }
+        private readonly List<DiagnosticsInfo> diagnosticsInfos = new();
 
-        readonly List<DiagnosticsInfo> diagnosticsInfos = new List<DiagnosticsInfo>();
-        readonly ThreadLocal<Stack<DiagnosticsInfo>> resolveCallStack
-            = new ThreadLocal<Stack<DiagnosticsInfo>>(() => new Stack<DiagnosticsInfo>());
+        private readonly ThreadLocal<Stack<DiagnosticsInfo>> resolveCallStack = new(() => new Stack<DiagnosticsInfo>());
 
         public DiagnosticsCollector(string scopeName)
         {
             ScopeName = scopeName;
         }
+
+        public string ScopeName { get; }
 
         public IReadOnlyList<DiagnosticsInfo> GetDiagnosticsInfos()
         {
@@ -45,13 +45,11 @@ namespace VContainer.Diagnostics
             lock (diagnosticsInfos)
             {
                 foreach (var x in diagnosticsInfos)
-                {
                     if (x.RegisterInfo.RegistrationBuilder == registrationBuilder)
                     {
                         x.ResolveInfo = new ResolveInfo(registration);
                         return;
                     }
-                }
             }
         }
 
@@ -77,13 +75,11 @@ namespace VContainer.Diagnostics
 
                 SetResolveTime(current, watch.ElapsedMilliseconds);
 
-                if (!current.ResolveInfo.Instances.Contains(instance))
-                {
-                    current.ResolveInfo.Instances.Add(instance);
-                }
+                if (!current.ResolveInfo.Instances.Contains(instance)) current.ResolveInfo.Instances.Add(instance);
 
                 return instance;
             }
+
             return resolving(registration);
         }
 
@@ -110,6 +106,8 @@ namespace VContainer.Diagnostics
         }
 
         public void NotifyContainerBuilt(IObjectResolver container)
-            => DiagnositcsContext.NotifyContainerBuilt(container);
+        {
+            DiagnositcsContext.NotifyContainerBuilt(container);
+        }
     }
 }

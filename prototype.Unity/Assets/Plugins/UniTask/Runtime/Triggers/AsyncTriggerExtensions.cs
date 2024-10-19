@@ -1,8 +1,8 @@
 ﻿#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 using System.Threading;
-using UnityEngine;
 using Cysharp.Threading.Tasks.Triggers;
+using UnityEngine;
 
 namespace Cysharp.Threading.Tasks
 {
@@ -28,10 +28,7 @@ namespace Cysharp.Threading.Tasks
         public static CancellationToken GetCancellationTokenOnDestroy(this Component component)
         {
 #if UNITY_2022_2_OR_NEWER
-            if (component is MonoBehaviour mb)
-            {
-                return mb.destroyCancellationToken;
-            }
+            if (component is MonoBehaviour mb) return mb.destroyCancellationToken;
 #endif
 
             return component.GetAsyncDestroyTrigger().CancellationToken;
@@ -45,14 +42,11 @@ namespace Cysharp.Threading.Tasks.Triggers
     {
         // Util.
 
-        static T GetOrAddComponent<T>(GameObject gameObject)
+        private static T GetOrAddComponent<T>(GameObject gameObject)
             where T : Component
         {
 #if UNITY_2019_2_OR_NEWER
-            if (!gameObject.TryGetComponent<T>(out var component))
-            {
-                component = gameObject.AddComponent<T>();
-            }
+            if (!gameObject.TryGetComponent<T>(out var component)) component = gameObject.AddComponent<T>();
 #else
             var component = gameObject.GetComponent<T>();
             if (component == null)
@@ -99,4 +93,3 @@ namespace Cysharp.Threading.Tasks.Triggers
         }
     }
 }
-

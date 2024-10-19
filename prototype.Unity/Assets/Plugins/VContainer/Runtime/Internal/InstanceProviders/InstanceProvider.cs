@@ -3,10 +3,10 @@ using System.Runtime.CompilerServices;
 
 namespace VContainer.Internal
 {
-    sealed class InstanceProvider : IInstanceProvider
+    internal sealed class InstanceProvider : IInstanceProvider
     {
-        readonly IInjector injector;
-        readonly IReadOnlyList<IInjectParameter> customParameters;
+        private readonly IReadOnlyList<IInjectParameter> customParameters;
+        private readonly IInjector injector;
 
         public InstanceProvider(
             IInjector injector,
@@ -18,6 +18,8 @@ namespace VContainer.Internal
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object SpawnInstance(IObjectResolver resolver)
-            => injector.CreateInstance(resolver, customParameters);
+        {
+            return injector.CreateInstance(resolver, customParameters);
+        }
     }
 }

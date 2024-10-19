@@ -7,14 +7,14 @@ using Unity.Collections.LowLevel.Unsafe;
 
 namespace VContainer.Internal
 {
-    class FreeList<T> where T : class
+    internal class FreeList<T> where T : class
     {
         public bool IsDisposed => lastIndex == -2;
         public int Length => lastIndex + 1;
 
-        readonly object gate = new object();
-        T[] values;
-        int lastIndex = -1;
+        private readonly object gate = new();
+        private T[] values;
+        private int lastIndex = -1;
 
         public FreeList(int initialCapacity)
         {
@@ -24,10 +24,7 @@ namespace VContainer.Internal
 #if NETSTANDARD2_1
         public ReadOnlySpan<T> AsSpan()
         {
-            if (lastIndex < 0)
-            {
-                return ReadOnlySpan<T>.Empty;
-            }
+            if (lastIndex < 0) return ReadOnlySpan<T>.Empty;
             return values.AsSpan(0, lastIndex + 1);
         }
 #endif
@@ -53,10 +50,7 @@ namespace VContainer.Internal
                 }
 
                 values[index] = item;
-                if (lastIndex < index)
-                {
-                    lastIndex = index;
-                }
+                if (lastIndex < index) lastIndex = index;
             }
         }
 
@@ -70,10 +64,7 @@ namespace VContainer.Internal
                     if (v == null) throw new KeyNotFoundException($"key index {index} is not found.");
 
                     v = null;
-                    if (index == lastIndex)
-                    {
-                        lastIndex = FindLastNonNullIndex(values, index);
-                    }
+                    if (index == lastIndex) lastIndex = FindLastNonNullIndex(values, index);
                 }
             }
         }
@@ -86,13 +77,11 @@ namespace VContainer.Internal
 
                 var index = -1;
                 for (var i = 0; i < values.Length; i++)
-                {
                     if (values[i] == value)
                     {
                         index = i;
                         break;
                     }
-                }
 
                 if (index != -1)
                 {
@@ -124,16 +113,13 @@ namespace VContainer.Internal
             }
         }
 
-        void CheckDispose()
+        private void CheckDispose()
         {
-            if (IsDisposed)
-            {
-                throw new ObjectDisposedException(GetType().FullName);
-            }
+            if (IsDisposed) throw new ObjectDisposedException(GetType().FullName);
         }
 
 #if UNITY_2021_3_OR_NEWER
-        static unsafe int FindNullIndex(T[] target)
+        private static unsafe int FindNullIndex(T[] target)
         {
             ref var head = ref UnsafeUtility.As<T, IntPtr>(ref MemoryMarshal.GetReference(target.AsSpan()));
             fixed (void* p = &head)
@@ -152,7 +138,7 @@ namespace VContainer.Internal
             }
         }
 
-        static unsafe int FindLastNonNullIndex(T[] target, int lastIndex)
+        private static unsafe int FindLastNonNullIndex(T[] target, int lastIndex)
         {
             ref var head = ref UnsafeUtility.As<T, IntPtr>(ref MemoryMarshal.GetReference(target.AsSpan()));
             fixed (void* p = &head)
@@ -160,9 +146,8 @@ namespace VContainer.Internal
                 var span = new ReadOnlySpan<IntPtr>(p, lastIndex); // without lastIndexed value.
 
                 for (var i = span.Length - 1; i >= 0; i--)
-                {
-                    if (span[i] != IntPtr.Zero) return i;
-                }
+                    if (span[i] != IntPtr.Zero)
+                        return i;
 
                 return -1;
             }

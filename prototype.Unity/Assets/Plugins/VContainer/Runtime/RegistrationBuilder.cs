@@ -30,16 +30,24 @@ namespace VContainer
         }
 
         public RegistrationBuilder As<TInterface>()
-            => As(typeof(TInterface));
+        {
+            return As(typeof(TInterface));
+        }
 
         public RegistrationBuilder As<TInterface1, TInterface2>()
-            => As(typeof(TInterface1), typeof(TInterface2));
+        {
+            return As(typeof(TInterface1), typeof(TInterface2));
+        }
 
         public RegistrationBuilder As<TInterface1, TInterface2, TInterface3>()
-            => As(typeof(TInterface1), typeof(TInterface2), typeof(TInterface3));
+        {
+            return As(typeof(TInterface1), typeof(TInterface2), typeof(TInterface3));
+        }
 
         public RegistrationBuilder As<TInterface1, TInterface2, TInterface3, TInterface4>()
-            => As(typeof(TInterface1), typeof(TInterface2), typeof(TInterface3), typeof(TInterface4));
+        {
+            return As(typeof(TInterface1), typeof(TInterface2), typeof(TInterface3), typeof(TInterface4));
+        }
 
         public RegistrationBuilder AsSelf()
         {
@@ -77,10 +85,7 @@ namespace VContainer
 
         public RegistrationBuilder As(params Type[] interfaceTypes)
         {
-            foreach (var interfaceType in interfaceTypes)
-            {
-                AddInterfaceType(interfaceType);
-            }
+            foreach (var interfaceType in interfaceTypes) AddInterfaceType(interfaceType);
             return this;
         }
 
@@ -90,7 +95,7 @@ namespace VContainer
             Parameters.Add(new NamedParameter(name, value));
             return this;
         }
-        
+
         public RegistrationBuilder WithParameter(string name, Func<IObjectResolver, object> value)
         {
             Parameters = Parameters ?? new List<IInjectParameter>();
@@ -104,7 +109,7 @@ namespace VContainer
             Parameters.Add(new TypedParameter(type, value));
             return this;
         }
-        
+
         public RegistrationBuilder WithParameter(Type type, Func<IObjectResolver, object> value)
         {
             Parameters = Parameters ?? new List<IInjectParameter>();
@@ -116,12 +121,12 @@ namespace VContainer
         {
             return WithParameter(typeof(TParam), value);
         }
-        
+
         public RegistrationBuilder WithParameter<TParam>(Func<IObjectResolver, TParam> value)
         {
             return WithParameter(typeof(TParam), resolver => value(resolver));
         }
-        
+
         public RegistrationBuilder WithParameter<TParam>(Func<TParam> value)
         {
             return WithParameter(typeof(TParam), _ => value());
@@ -130,12 +135,11 @@ namespace VContainer
         protected virtual void AddInterfaceType(Type interfaceType)
         {
             if (!interfaceType.IsAssignableFrom(ImplementationType))
-            {
-                throw new VContainerException(interfaceType, $"{ImplementationType} is not assignable from {interfaceType}");
-            }
+                throw new VContainerException(interfaceType,
+                    $"{ImplementationType} is not assignable from {interfaceType}");
             InterfaceTypes = InterfaceTypes ?? new List<Type>();
             if (!InterfaceTypes.Contains(interfaceType))
                 InterfaceTypes.Add(interfaceType);
         }
-   }
+    }
 }

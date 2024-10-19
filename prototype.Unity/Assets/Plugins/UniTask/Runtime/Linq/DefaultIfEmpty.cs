@@ -1,19 +1,21 @@
-﻿using Cysharp.Threading.Tasks.Internal;
-using System;
+﻿using System;
 using System.Threading;
+using Cysharp.Threading.Tasks.Internal;
 
 namespace Cysharp.Threading.Tasks.Linq
 {
     public static partial class UniTaskAsyncEnumerable
     {
-        public static IUniTaskAsyncEnumerable<TSource> DefaultIfEmpty<TSource>(this IUniTaskAsyncEnumerable<TSource> source)
+        public static IUniTaskAsyncEnumerable<TSource> DefaultIfEmpty<TSource>(
+            this IUniTaskAsyncEnumerable<TSource> source)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
 
             return new DefaultIfEmpty<TSource>(source, default);
         }
 
-        public static IUniTaskAsyncEnumerable<TSource> DefaultIfEmpty<TSource>(this IUniTaskAsyncEnumerable<TSource> source, TSource defaultValue)
+        public static IUniTaskAsyncEnumerable<TSource> DefaultIfEmpty<TSource>(
+            this IUniTaskAsyncEnumerable<TSource> source, TSource defaultValue)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
 
@@ -23,8 +25,8 @@ namespace Cysharp.Threading.Tasks.Linq
 
     internal sealed class DefaultIfEmpty<TSource> : IUniTaskAsyncEnumerable<TSource>
     {
-        readonly IUniTaskAsyncEnumerable<TSource> source;
-        readonly TSource defaultValue;
+        private readonly TSource defaultValue;
+        private readonly IUniTaskAsyncEnumerable<TSource> source;
 
         public DefaultIfEmpty(IUniTaskAsyncEnumerable<TSource> source, TSource defaultValue)
         {
@@ -37,32 +39,26 @@ namespace Cysharp.Threading.Tasks.Linq
             return new _DefaultIfEmpty(source, defaultValue, cancellationToken);
         }
 
-        sealed class _DefaultIfEmpty : MoveNextSource, IUniTaskAsyncEnumerator<TSource>
+        private sealed class _DefaultIfEmpty : MoveNextSource, IUniTaskAsyncEnumerator<TSource>
         {
-            enum IteratingState : byte
-            {
-                Empty,
-                Iterating,
-                Completed
-            }
+            private static readonly Action<object> MoveNextCoreDelegate = MoveNextCore;
+            private readonly TSource defaultValue;
 
-            static readonly Action<object> MoveNextCoreDelegate = MoveNextCore;
+            private readonly IUniTaskAsyncEnumerable<TSource> source;
+            private UniTask<bool>.Awaiter awaiter;
+            private readonly CancellationToken cancellationToken;
+            private IUniTaskAsyncEnumerator<TSource> enumerator;
 
-            readonly IUniTaskAsyncEnumerable<TSource> source;
-            readonly TSource defaultValue;
-            CancellationToken cancellationToken;
+            private IteratingState iteratingState;
 
-            IteratingState iteratingState;
-            IUniTaskAsyncEnumerator<TSource> enumerator;
-            UniTask<bool>.Awaiter awaiter;
-
-            public _DefaultIfEmpty(IUniTaskAsyncEnumerable<TSource> source, TSource defaultValue, CancellationToken cancellationToken)
+            public _DefaultIfEmpty(IUniTaskAsyncEnumerable<TSource> source, TSource defaultValue,
+                CancellationToken cancellationToken)
             {
                 this.source = source;
                 this.defaultValue = defaultValue;
                 this.cancellationToken = cancellationToken;
 
-                this.iteratingState = IteratingState.Empty;
+                iteratingState = IteratingState.Empty;
                 TaskTracker.TrackActiveTask(this, 3);
             }
 
@@ -74,31 +70,28 @@ namespace Cysharp.Threading.Tasks.Linq
                 cancellationToken.ThrowIfCancellationRequested();
                 completionSource.Reset();
 
-                if (iteratingState == IteratingState.Completed)
-                {
-                    return CompletedTasks.False;
-                }
+                if (iteratingState == IteratingState.Completed) return CompletedTasks.False;
 
-                if (enumerator == null)
-                {
-                    enumerator = source.GetAsyncEnumerator(cancellationToken);
-                }
+                if (enumerator == null) enumerator = source.GetAsyncEnumerator(cancellationToken);
 
                 awaiter = enumerator.MoveNextAsync().GetAwaiter();
 
                 if (awaiter.IsCompleted)
-                {
                     MoveNextCore(this);
-                }
                 else
-                {
                     awaiter.SourceOnCompleted(MoveNextCoreDelegate, this);
-                }
 
                 return new UniTask<bool>(this, completionSource.Version);
             }
 
-            static void MoveNextCore(object state)
+            public UniTask DisposeAsync()
+            {
+                TaskTracker.RemoveTracking(this);
+                if (enumerator != null) return enumerator.DisposeAsync();
+                return default;
+            }
+
+            private static void MoveNextCore(object state)
             {
                 var self = (_DefaultIfEmpty)state;
 
@@ -127,16 +120,12 @@ namespace Cysharp.Threading.Tasks.Linq
                 }
             }
 
-            public UniTask DisposeAsync()
+            private enum IteratingState : byte
             {
-                TaskTracker.RemoveTracking(this);
-                if (enumerator != null)
-                {
-                    return enumerator.DisposeAsync();
-                }
-                return default;
+                Empty,
+                Iterating,
+                Completed
             }
         }
     }
-
 }

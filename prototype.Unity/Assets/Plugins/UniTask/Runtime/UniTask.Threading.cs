@@ -13,7 +13,7 @@ namespace Cysharp.Threading.Tasks
 #if UNITY_2018_3_OR_NEWER
 
         /// <summary>
-        /// If running on mainthread, do nothing. Otherwise, same as UniTask.Yield(PlayerLoopTiming.Update).
+        ///     If running on mainthread, do nothing. Otherwise, same as UniTask.Yield(PlayerLoopTiming.Update).
         /// </summary>
         public static SwitchToMainThreadAwaitable SwitchToMainThread(CancellationToken cancellationToken = default)
         {
@@ -21,15 +21,16 @@ namespace Cysharp.Threading.Tasks
         }
 
         /// <summary>
-        /// If running on mainthread, do nothing. Otherwise, same as UniTask.Yield(timing).
+        ///     If running on mainthread, do nothing. Otherwise, same as UniTask.Yield(timing).
         /// </summary>
-        public static SwitchToMainThreadAwaitable SwitchToMainThread(PlayerLoopTiming timing, CancellationToken cancellationToken = default)
+        public static SwitchToMainThreadAwaitable SwitchToMainThread(PlayerLoopTiming timing,
+            CancellationToken cancellationToken = default)
         {
             return new SwitchToMainThreadAwaitable(timing, cancellationToken);
         }
 
         /// <summary>
-        /// Return to mainthread(same as await SwitchToMainThread) after using scope is closed.
+        ///     Return to mainthread(same as await SwitchToMainThread) after using scope is closed.
         /// </summary>
         public static ReturnToMainThread ReturnToMainThread(CancellationToken cancellationToken = default)
         {
@@ -37,15 +38,16 @@ namespace Cysharp.Threading.Tasks
         }
 
         /// <summary>
-        /// Return to mainthread(same as await SwitchToMainThread) after using scope is closed.
+        ///     Return to mainthread(same as await SwitchToMainThread) after using scope is closed.
         /// </summary>
-        public static ReturnToMainThread ReturnToMainThread(PlayerLoopTiming timing, CancellationToken cancellationToken = default)
+        public static ReturnToMainThread ReturnToMainThread(PlayerLoopTiming timing,
+            CancellationToken cancellationToken = default)
         {
             return new ReturnToMainThread(timing, cancellationToken);
         }
 
         /// <summary>
-        /// Queue the action to PlayerLoop.
+        ///     Queue the action to PlayerLoop.
         /// </summary>
         public static void Post(Action action, PlayerLoopTiming timing = PlayerLoopTiming.Update)
         {
@@ -60,27 +62,31 @@ namespace Cysharp.Threading.Tasks
         }
 
         /// <summary>
-        /// Note: use SwitchToThreadPool is recommended.
+        ///     Note: use SwitchToThreadPool is recommended.
         /// </summary>
         public static SwitchToTaskPoolAwaitable SwitchToTaskPool()
         {
             return new SwitchToTaskPoolAwaitable();
         }
 
-        public static SwitchToSynchronizationContextAwaitable SwitchToSynchronizationContext(SynchronizationContext synchronizationContext, CancellationToken cancellationToken = default)
+        public static SwitchToSynchronizationContextAwaitable SwitchToSynchronizationContext(
+            SynchronizationContext synchronizationContext, CancellationToken cancellationToken = default)
         {
             Error.ThrowArgumentNullException(synchronizationContext, nameof(synchronizationContext));
             return new SwitchToSynchronizationContextAwaitable(synchronizationContext, cancellationToken);
         }
 
-        public static ReturnToSynchronizationContext ReturnToSynchronizationContext(SynchronizationContext synchronizationContext, CancellationToken cancellationToken = default)
+        public static ReturnToSynchronizationContext ReturnToSynchronizationContext(
+            SynchronizationContext synchronizationContext, CancellationToken cancellationToken = default)
         {
             return new ReturnToSynchronizationContext(synchronizationContext, false, cancellationToken);
         }
 
-        public static ReturnToSynchronizationContext ReturnToCurrentSynchronizationContext(bool dontPostWhenSameContext = true, CancellationToken cancellationToken = default)
+        public static ReturnToSynchronizationContext ReturnToCurrentSynchronizationContext(
+            bool dontPostWhenSameContext = true, CancellationToken cancellationToken = default)
         {
-            return new ReturnToSynchronizationContext(SynchronizationContext.Current, dontPostWhenSameContext, cancellationToken);
+            return new ReturnToSynchronizationContext(SynchronizationContext.Current, dontPostWhenSameContext,
+                cancellationToken);
         }
     }
 
@@ -88,8 +94,8 @@ namespace Cysharp.Threading.Tasks
 
     public struct SwitchToMainThreadAwaitable
     {
-        readonly PlayerLoopTiming playerLoopTiming;
-        readonly CancellationToken cancellationToken;
+        private readonly PlayerLoopTiming playerLoopTiming;
+        private readonly CancellationToken cancellationToken;
 
         public SwitchToMainThreadAwaitable(PlayerLoopTiming playerLoopTiming, CancellationToken cancellationToken)
         {
@@ -97,12 +103,15 @@ namespace Cysharp.Threading.Tasks
             this.cancellationToken = cancellationToken;
         }
 
-        public Awaiter GetAwaiter() => new Awaiter(playerLoopTiming, cancellationToken);
+        public Awaiter GetAwaiter()
+        {
+            return new Awaiter(playerLoopTiming, cancellationToken);
+        }
 
         public struct Awaiter : ICriticalNotifyCompletion
         {
-            readonly PlayerLoopTiming playerLoopTiming;
-            readonly CancellationToken cancellationToken;
+            private readonly PlayerLoopTiming playerLoopTiming;
+            private readonly CancellationToken cancellationToken;
 
             public Awaiter(PlayerLoopTiming playerLoopTiming, CancellationToken cancellationToken)
             {
@@ -114,19 +123,17 @@ namespace Cysharp.Threading.Tasks
             {
                 get
                 {
-                    var currentThreadId = System.Threading.Thread.CurrentThread.ManagedThreadId;
+                    var currentThreadId = Thread.CurrentThread.ManagedThreadId;
                     if (PlayerLoopHelper.MainThreadId == currentThreadId)
-                    {
                         return true; // run immediate.
-                    }
-                    else
-                    {
-                        return false; // register continuation.
-                    }
+                    return false; // register continuation.
                 }
             }
 
-            public void GetResult() { cancellationToken.ThrowIfCancellationRequested(); }
+            public void GetResult()
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+            }
 
             public void OnCompleted(Action continuation)
             {
@@ -142,8 +149,8 @@ namespace Cysharp.Threading.Tasks
 
     public struct ReturnToMainThread
     {
-        readonly PlayerLoopTiming playerLoopTiming;
-        readonly CancellationToken cancellationToken;
+        private readonly PlayerLoopTiming playerLoopTiming;
+        private readonly CancellationToken cancellationToken;
 
         public ReturnToMainThread(PlayerLoopTiming playerLoopTiming, CancellationToken cancellationToken)
         {
@@ -158,8 +165,8 @@ namespace Cysharp.Threading.Tasks
 
         public readonly struct Awaiter : ICriticalNotifyCompletion
         {
-            readonly PlayerLoopTiming timing;
-            readonly CancellationToken cancellationToken;
+            private readonly PlayerLoopTiming timing;
+            private readonly CancellationToken cancellationToken;
 
             public Awaiter(PlayerLoopTiming timing, CancellationToken cancellationToken)
             {
@@ -167,11 +174,17 @@ namespace Cysharp.Threading.Tasks
                 this.cancellationToken = cancellationToken;
             }
 
-            public Awaiter GetAwaiter() => this;
+            public Awaiter GetAwaiter()
+            {
+                return this;
+            }
 
-            public bool IsCompleted => PlayerLoopHelper.MainThreadId == System.Threading.Thread.CurrentThread.ManagedThreadId;
+            public bool IsCompleted => PlayerLoopHelper.MainThreadId == Thread.CurrentThread.ManagedThreadId;
 
-            public void GetResult() { cancellationToken.ThrowIfCancellationRequested(); }
+            public void GetResult()
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+            }
 
             public void OnCompleted(Action continuation)
             {
@@ -189,14 +202,20 @@ namespace Cysharp.Threading.Tasks
 
     public struct SwitchToThreadPoolAwaitable
     {
-        public Awaiter GetAwaiter() => new Awaiter();
+        public Awaiter GetAwaiter()
+        {
+            return new Awaiter();
+        }
 
         public struct Awaiter : ICriticalNotifyCompletion
         {
-            static readonly WaitCallback switchToCallback = Callback;
+            private static readonly WaitCallback switchToCallback = Callback;
 
             public bool IsCompleted => false;
-            public void GetResult() { }
+
+            public void GetResult()
+            {
+            }
 
             public void OnCompleted(Action continuation)
             {
@@ -212,7 +231,7 @@ namespace Cysharp.Threading.Tasks
 #endif
             }
 
-            static void Callback(object state)
+            private static void Callback(object state)
             {
                 var continuation = (Action)state;
                 continuation();
@@ -220,7 +239,6 @@ namespace Cysharp.Threading.Tasks
         }
 
 #if NETCOREAPP3_1
-
         sealed class ThreadPoolWorkItem : IThreadPoolWorkItem, ITaskPoolNode<ThreadPoolWorkItem>
         {
             static TaskPool<ThreadPoolWorkItem> pool;
@@ -264,26 +282,34 @@ namespace Cysharp.Threading.Tasks
 
     public struct SwitchToTaskPoolAwaitable
     {
-        public Awaiter GetAwaiter() => new Awaiter();
+        public Awaiter GetAwaiter()
+        {
+            return new Awaiter();
+        }
 
         public struct Awaiter : ICriticalNotifyCompletion
         {
-            static readonly Action<object> switchToCallback = Callback;
+            private static readonly Action<object> switchToCallback = Callback;
 
             public bool IsCompleted => false;
-            public void GetResult() { }
+
+            public void GetResult()
+            {
+            }
 
             public void OnCompleted(Action continuation)
             {
-                Task.Factory.StartNew(switchToCallback, continuation, CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
+                Task.Factory.StartNew(switchToCallback, continuation, CancellationToken.None,
+                    TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
             }
 
             public void UnsafeOnCompleted(Action continuation)
             {
-                Task.Factory.StartNew(switchToCallback, continuation, CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
+                Task.Factory.StartNew(switchToCallback, continuation, CancellationToken.None,
+                    TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
             }
 
-            static void Callback(object state)
+            private static void Callback(object state)
             {
                 var continuation = (Action)state;
                 continuation();
@@ -293,22 +319,26 @@ namespace Cysharp.Threading.Tasks
 
     public struct SwitchToSynchronizationContextAwaitable
     {
-        readonly SynchronizationContext synchronizationContext;
-        readonly CancellationToken cancellationToken;
+        private readonly SynchronizationContext synchronizationContext;
+        private readonly CancellationToken cancellationToken;
 
-        public SwitchToSynchronizationContextAwaitable(SynchronizationContext synchronizationContext, CancellationToken cancellationToken)
+        public SwitchToSynchronizationContextAwaitable(SynchronizationContext synchronizationContext,
+            CancellationToken cancellationToken)
         {
             this.synchronizationContext = synchronizationContext;
             this.cancellationToken = cancellationToken;
         }
 
-        public Awaiter GetAwaiter() => new Awaiter(synchronizationContext, cancellationToken);
+        public Awaiter GetAwaiter()
+        {
+            return new Awaiter(synchronizationContext, cancellationToken);
+        }
 
         public struct Awaiter : ICriticalNotifyCompletion
         {
-            static readonly SendOrPostCallback switchToCallback = Callback;
-            readonly SynchronizationContext synchronizationContext;
-            readonly CancellationToken cancellationToken;
+            private static readonly SendOrPostCallback switchToCallback = Callback;
+            private readonly SynchronizationContext synchronizationContext;
+            private readonly CancellationToken cancellationToken;
 
             public Awaiter(SynchronizationContext synchronizationContext, CancellationToken cancellationToken)
             {
@@ -317,7 +347,11 @@ namespace Cysharp.Threading.Tasks
             }
 
             public bool IsCompleted => false;
-            public void GetResult() { cancellationToken.ThrowIfCancellationRequested(); }
+
+            public void GetResult()
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+            }
 
             public void OnCompleted(Action continuation)
             {
@@ -329,7 +363,7 @@ namespace Cysharp.Threading.Tasks
                 synchronizationContext.Post(switchToCallback, continuation);
             }
 
-            static void Callback(object state)
+            private static void Callback(object state)
             {
                 var continuation = (Action)state;
                 continuation();
@@ -339,11 +373,12 @@ namespace Cysharp.Threading.Tasks
 
     public struct ReturnToSynchronizationContext
     {
-        readonly SynchronizationContext syncContext;
-        readonly bool dontPostWhenSameContext;
-        readonly CancellationToken cancellationToken;
+        private readonly SynchronizationContext syncContext;
+        private readonly bool dontPostWhenSameContext;
+        private readonly CancellationToken cancellationToken;
 
-        public ReturnToSynchronizationContext(SynchronizationContext syncContext, bool dontPostWhenSameContext, CancellationToken cancellationToken)
+        public ReturnToSynchronizationContext(SynchronizationContext syncContext, bool dontPostWhenSameContext,
+            CancellationToken cancellationToken)
         {
             this.syncContext = syncContext;
             this.dontPostWhenSameContext = dontPostWhenSameContext;
@@ -357,20 +392,24 @@ namespace Cysharp.Threading.Tasks
 
         public struct Awaiter : ICriticalNotifyCompletion
         {
-            static readonly SendOrPostCallback switchToCallback = Callback;
+            private static readonly SendOrPostCallback switchToCallback = Callback;
 
-            readonly SynchronizationContext synchronizationContext;
-            readonly bool dontPostWhenSameContext;
-            readonly CancellationToken cancellationToken;
+            private readonly SynchronizationContext synchronizationContext;
+            private readonly bool dontPostWhenSameContext;
+            private readonly CancellationToken cancellationToken;
 
-            public Awaiter(SynchronizationContext synchronizationContext, bool dontPostWhenSameContext, CancellationToken cancellationToken)
+            public Awaiter(SynchronizationContext synchronizationContext, bool dontPostWhenSameContext,
+                CancellationToken cancellationToken)
             {
                 this.synchronizationContext = synchronizationContext;
                 this.dontPostWhenSameContext = dontPostWhenSameContext;
                 this.cancellationToken = cancellationToken;
             }
 
-            public Awaiter GetAwaiter() => this;
+            public Awaiter GetAwaiter()
+            {
+                return this;
+            }
 
             public bool IsCompleted
             {
@@ -380,17 +419,15 @@ namespace Cysharp.Threading.Tasks
 
                     var current = SynchronizationContext.Current;
                     if (current == synchronizationContext)
-                    {
                         return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
 
-            public void GetResult() { cancellationToken.ThrowIfCancellationRequested(); }
+            public void GetResult()
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+            }
 
             public void OnCompleted(Action continuation)
             {
@@ -402,7 +439,7 @@ namespace Cysharp.Threading.Tasks
                 synchronizationContext.Post(switchToCallback, continuation);
             }
 
-            static void Callback(object state)
+            private static void Callback(object state)
             {
                 var continuation = (Action)state;
                 continuation();

@@ -3,9 +3,9 @@ using System.Runtime.CompilerServices;
 
 namespace VContainer.Internal
 {
-    sealed class FuncInstanceProvider : IInstanceProvider
+    internal sealed class FuncInstanceProvider : IInstanceProvider
     {
-        readonly Func<IObjectResolver, object> implementationProvider;
+        private readonly Func<IObjectResolver, object> implementationProvider;
 
         public FuncInstanceProvider(Func<IObjectResolver, object> implementationProvider)
         {
@@ -13,6 +13,9 @@ namespace VContainer.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public object SpawnInstance(IObjectResolver resolver) => implementationProvider(resolver);
+        public object SpawnInstance(IObjectResolver resolver)
+        {
+            return implementationProvider(resolver);
+        }
     }
 }

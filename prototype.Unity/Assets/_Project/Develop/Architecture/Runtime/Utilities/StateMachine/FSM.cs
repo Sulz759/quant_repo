@@ -5,55 +5,47 @@ using UnityEngine;
 
 namespace _Project.Develop.Architecture.Runtime.Utilities.StateMachine
 {
-	public class FSM
-	{
-		public FSMState StateCurrent {get;private set;}
+    public class FSM
+    {
+        private readonly Dictionary<Type, FSMState> _states = new();
 
-		private Dictionary<Type, FSMState> _states = new Dictionary<Type, FSMState>();
+        private Coroutine _transition;
+        public FSMState StateCurrent { get; private set; }
 
-		public bool isTransitioning { get; private set; }
+        public bool isTransitioning { get; private set; }
 
-		private Coroutine _transition;
+        public void AddState(FSMState state)
+        {
+            _states.Add(state.GetType(), state);
+        }
 
-		public void AddState(FSMState state) 
-		{
-			_states.Add(state.GetType(), state);
-		}
+        public void SetState<T>() where T : FSMState
+        {
+            var type = typeof(T);
 
-		public void SetState<T>() where T : FSMState
-		{
-			var type = typeof(T);
+            if (StateCurrent != null && StateCurrent.GetType() == type) return;
 
-			if (StateCurrent != null && StateCurrent.GetType() == type) 
-			{
-				return;
-			}
+            if (_states.TryGetValue(type, out var newState)) Coroutines.StartRoutine(TransitionState(newState));
+        }
 
-			if (_states.TryGetValue(type, out var newState))
-			{
-				Coroutines.StartRoutine(TransitionState(newState));
-			}
-		}
-		
-		private IEnumerator TransitionState(FSMState state)
-		{
-			isTransitioning = true;
-			yield return StateCurrent switch
-			{
-				null => null, 
-				_ => Coroutines.StartRoutine(StateCurrent?.Exit())
-			};
+        private IEnumerator TransitionState(FSMState state)
+        {
+            isTransitioning = true;
+            yield return StateCurrent switch
+            {
+                null => null,
+                _ => Coroutines.StartRoutine(StateCurrent?.Exit())
+            };
 
-			StateCurrent = state;
-			StateCurrent.Enter();
-			
-			isTransitioning = false;
-		}
+            StateCurrent = state;
+            StateCurrent.Enter();
 
-		public void Update() 
-		{ 
-			StateCurrent?.Update();
-		}
-	}
+            isTransitioning = false;
+        }
 
+        public void Update()
+        {
+            StateCurrent?.Update();
+        }
+    }
 }

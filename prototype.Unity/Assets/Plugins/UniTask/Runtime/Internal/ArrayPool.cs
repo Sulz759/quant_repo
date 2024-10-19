@@ -10,21 +10,21 @@ namespace Cysharp.Threading.Tasks.Internal
     internal sealed class ArrayPool<T>
     {
         // Same size as System.Buffers.DefaultArrayPool<T>
-        const int DefaultMaxNumberOfArraysPerBucket = 50;
+        private const int DefaultMaxNumberOfArraysPerBucket = 50;
 
-        static readonly T[] EmptyArray = new T[0];
+        private static readonly T[] EmptyArray = new T[0];
 
-        public static readonly ArrayPool<T> Shared = new ArrayPool<T>();
+        public static readonly ArrayPool<T> Shared = new();
 
-        readonly MinimumQueue<T[]>[] buckets;
-        readonly SpinLock[] locks;
+        private readonly MinimumQueue<T[]>[] buckets;
+        private readonly SpinLock[] locks;
 
-        ArrayPool()
+        private ArrayPool()
         {
             // see: GetQueueIndex
             buckets = new MinimumQueue<T[]>[18];
             locks = new SpinLock[18];
-            for (int i = 0; i < buckets.Length; i++)
+            for (var i = 0; i < buckets.Length; i++)
             {
                 buckets[i] = new MinimumQueue<T[]>(4);
                 locks[i] = new SpinLock(false);
@@ -34,13 +34,8 @@ namespace Cysharp.Threading.Tasks.Internal
         public T[] Rent(int minimumLength)
         {
             if (minimumLength < 0)
-            {
                 throw new ArgumentOutOfRangeException("minimumLength");
-            }
-            else if (minimumLength == 0)
-            {
-                return EmptyArray;
-            }
+            if (minimumLength == 0) return EmptyArray;
 
             var size = CalculateSize(minimumLength);
             var index = GetQueueIndex(size);
@@ -52,10 +47,7 @@ namespace Cysharp.Threading.Tasks.Internal
                 {
                     locks[index].Enter(ref lockTaken);
 
-                    if (q.Count != 0)
-                    {
-                        return q.Dequeue();
-                    }
+                    if (q.Count != 0) return q.Dequeue();
                 }
                 finally
                 {
@@ -68,18 +60,12 @@ namespace Cysharp.Threading.Tasks.Internal
 
         public void Return(T[] array, bool clearArray = false)
         {
-            if (array == null || array.Length == 0)
-            {
-                return;
-            }
+            if (array == null || array.Length == 0) return;
 
             var index = GetQueueIndex(array.Length);
             if (index != -1)
             {
-                if (clearArray)
-                {
-                    Array.Clear(array, 0, array.Length);
-                }
+                if (clearArray) Array.Clear(array, 0, array.Length);
 
                 var q = buckets[index];
                 var lockTaken = false;
@@ -88,10 +74,7 @@ namespace Cysharp.Threading.Tasks.Internal
                 {
                     locks[index].Enter(ref lockTaken);
 
-                    if (q.Count > DefaultMaxNumberOfArraysPerBucket)
-                    {
-                        return;
-                    }
+                    if (q.Count > DefaultMaxNumberOfArraysPerBucket) return;
 
                     q.Enqueue(array);
                 }
@@ -102,7 +85,7 @@ namespace Cysharp.Threading.Tasks.Internal
             }
         }
 
-        static int CalculateSize(int size)
+        private static int CalculateSize(int size)
         {
             size--;
             size |= size >> 1;
@@ -112,15 +95,12 @@ namespace Cysharp.Threading.Tasks.Internal
             size |= size >> 16;
             size += 1;
 
-            if (size < 8)
-            {
-                size = 8;
-            }
+            if (size < 8) size = 8;
 
             return size;
         }
 
-        static int GetQueueIndex(int size)
+        private static int GetQueueIndex(int size)
         {
             switch (size)
             {

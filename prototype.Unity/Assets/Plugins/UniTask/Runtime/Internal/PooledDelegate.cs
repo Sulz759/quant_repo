@@ -5,38 +5,36 @@ namespace Cysharp.Threading.Tasks.Internal
 {
     internal sealed class PooledDelegate<T> : ITaskPoolNode<PooledDelegate<T>>
     {
-        static TaskPool<PooledDelegate<T>> pool;
+        private static TaskPool<PooledDelegate<T>> pool;
 
-        PooledDelegate<T> nextNode;
-        public ref PooledDelegate<T> NextNode => ref nextNode;
+        private readonly Action<T> runDelegate;
+        private Action continuation;
+
+        private PooledDelegate<T> nextNode;
 
         static PooledDelegate()
         {
             TaskPool.RegisterSizeGetter(typeof(PooledDelegate<T>), () => pool.Size);
         }
 
-        readonly Action<T> runDelegate;
-        Action continuation;
-
-        PooledDelegate()
+        private PooledDelegate()
         {
             runDelegate = Run;
         }
 
+        public ref PooledDelegate<T> NextNode => ref nextNode;
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Action<T> Create(Action continuation)
         {
-            if (!pool.TryPop(out var item))
-            {
-                item = new PooledDelegate<T>();
-            }
+            if (!pool.TryPop(out var item)) item = new PooledDelegate<T>();
 
             item.continuation = continuation;
             return item.runDelegate;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void Run(T _)
+        private void Run(T _)
         {
             var call = continuation;
             continuation = null;

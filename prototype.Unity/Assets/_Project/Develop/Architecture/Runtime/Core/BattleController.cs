@@ -5,28 +5,29 @@ using Cysharp.Threading.Tasks;
 
 namespace _Project.Develop.Architecture.Runtime.Core
 {
-    public class BattleController: ILoadUnit
+    public class BattleController : ILoadUnit
     {
-        public TrainView Bot { get; private set; }
-        public TrainView Player { get; private set; }
+        private readonly TrainFactory _trainFactory;
 
         private TrainView _bot;
-        
-        private readonly TrainFactory _trainFactory;
-        
+
         public BattleController(TrainFactory trainFactory)
         {
             _trainFactory = trainFactory;
         }
+
+        public TrainView Bot { get; private set; }
+        public TrainView Player { get; private set; }
+
         public UniTask Load()
         {
             Player = _trainFactory.CreateTrain();
             Bot = _trainFactory.CreateBot();
-            
+
             Player.gameObject.SetActive(false);
             Bot.gameObject.SetActive(false);
-            
-            Log.Battle.D($"Battle is loading");
+
+            Log.Battle.D("Battle is loading");
 
             return UniTask.CompletedTask;
         }
@@ -35,11 +36,11 @@ namespace _Project.Develop.Architecture.Runtime.Core
         {
             Player.gameObject.SetActive(true);
             Bot.gameObject.SetActive(true);
-            
-            Log.Battle.D($"Start battle");
+
+            Log.Battle.D("Start battle");
         }
     }
-    
+
     // TODO: Move to config file
     public readonly struct LevelConfiguration
     {

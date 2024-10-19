@@ -7,17 +7,17 @@ using Resources = UnityEngine.Resources;
 
 namespace _Project.Develop.Architecture.Runtime.Meta.Nodes
 {
-    public class NodeFactory: ILoadUnit
+    public class NodeFactory : ILoadUnit
     {
         private readonly MetaConfiguration _configs;
-        private NodeView _nodePrefab;
         private BiomeView _biomePrefab;
+        private NodeView _nodePrefab;
 
         public NodeFactory(MetaConfiguration configs)
         {
             _configs = configs;
         }
-        
+
         public UniTask Load()
         {
             _nodePrefab = Resources.Load<NodeView>(RuntimeConstants.Prefabs.Checkpoint);
@@ -27,25 +27,27 @@ namespace _Project.Develop.Architecture.Runtime.Meta.Nodes
 
         public BiomeView CreateBiome()
         {
-            return Object.Instantiate(_biomePrefab);;
+            return Object.Instantiate(_biomePrefab);
+            ;
         }
 
         public List<NodeView> CreateNodes()
         {
             var nodes = new List<NodeView>();
-            
-            ShuffleBag<NodeType> generator = new ShuffleBag<NodeType>();
 
-            generator.Add(Node.Types[0], 1,1);
-            generator.Add(Node.Types[1], 1,3);
-            generator.Add(Node.Types[2], 1,5);
-            generator.Add(Node.Types[3], 1,5);
-            generator.Add(Node.Types[4], 1,5);
+            var generator = new ShuffleBag<NodeType>();
+
+            generator.Add(Node.Types[0], 1, 1);
+            generator.Add(Node.Types[1], 1, 3);
+            generator.Add(Node.Types[2], 1, 5);
+            generator.Add(Node.Types[3], 1, 5);
+            generator.Add(Node.Types[4], 1, 5);
 
             foreach (var config in _configs.Container.nodes)
             {
                 var position = new Vector3(config.pos.X, config.pos.Y, config.pos.Z);
-                var node = Object.Instantiate(_nodePrefab,new Vector3(config.pos.X, config.pos.Y, config.pos.Z), Quaternion.identity);
+                var node = Object.Instantiate(_nodePrefab, new Vector3(config.pos.X, config.pos.Y, config.pos.Z),
+                    Quaternion.identity);
 
                 var nodeType = generator.GetNext();
 

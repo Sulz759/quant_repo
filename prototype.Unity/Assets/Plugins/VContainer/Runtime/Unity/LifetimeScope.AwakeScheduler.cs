@@ -19,30 +19,30 @@ namespace VContainer.Unity
 
     partial class LifetimeScope
     {
-        static readonly List<LifetimeScope> WaitingList = new List<LifetimeScope>();
+        private static readonly List<LifetimeScope> WaitingList = new();
 
 #if UNITY_2019_3_OR_NEWER
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
 #else
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 #endif
-        static void SubscribeSceneEvents()
+        private static void SubscribeSceneEvents()
         {
             SceneManager.sceneLoaded -= OnSceneLoaded;
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
-        static void EnqueueAwake(LifetimeScope lifetimeScope)
+        private static void EnqueueAwake(LifetimeScope lifetimeScope)
         {
             WaitingList.Add(lifetimeScope);
         }
 
-        static void CancelAwake(LifetimeScope lifetimeScope)
+        private static void CancelAwake(LifetimeScope lifetimeScope)
         {
             WaitingList.Remove(lifetimeScope);
         }
 
-        static void AwakeWaitingChildren(LifetimeScope awakenParent)
+        private static void AwakeWaitingChildren(LifetimeScope awakenParent)
         {
             if (WaitingList.Count <= 0) return;
 
@@ -59,14 +59,11 @@ namespace VContainer.Unity
                     }
                 }
 
-                foreach (var waitingScope in buffer)
-                {
-                    waitingScope.Awake();
-                }
+                foreach (var waitingScope in buffer) waitingScope.Awake();
             }
         }
 
-        static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             if (WaitingList.Count <= 0)
                 return;
@@ -83,10 +80,7 @@ namespace VContainer.Unity
                     }
                 }
 
-                foreach (var waitingScope in buffer)
-                {
-                    waitingScope.Awake(); // Re-throw if parent not found
-                }
+                foreach (var waitingScope in buffer) waitingScope.Awake(); // Re-throw if parent not found
             }
         }
     }

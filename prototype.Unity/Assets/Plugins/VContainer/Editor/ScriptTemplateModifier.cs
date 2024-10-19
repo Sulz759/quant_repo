@@ -2,21 +2,15 @@
 using UnityEditor;
 using UnityEngine;
 using VContainer.Unity;
-
 #if UNITY_2020_2_OR_NEWER
 using UnityEditor.Compilation;
 #endif
 
 namespace VContainer.Editor
 {
-    public sealed class ScriptTemplateProcessor : UnityEditor.AssetModificationProcessor
+    public sealed class ScriptTemplateProcessor : AssetModificationProcessor
     {
-#if UNITY_2020_2_OR_NEWER
-        const string RootNamespaceBeginTag = "#ROOTNAMESPACEBEGIN#";
-        const string RootNamespaceEndTag = "#ROOTNAMESPACEEND#";
-#endif
-
-        const string MonoInstallerTemplate =
+        private const string MonoInstallerTemplate =
             "using VContainer;\n" +
             "using VContainer.Unity;\n" +
             "\n" +
@@ -36,29 +30,17 @@ namespace VContainer.Editor
 
         public static void OnWillCreateAsset(string metaPath)
         {
-            if (VContainerSettings.Instance != null && VContainerSettings.Instance.DisableScriptModifier)
-            {
-                return;
-            }
+            if (VContainerSettings.Instance != null && VContainerSettings.Instance.DisableScriptModifier) return;
 
             var suffixIndex = metaPath.LastIndexOf(".meta");
-            if (suffixIndex < 0)
-            {
-                return;
-            }
+            if (suffixIndex < 0) return;
 
             var scriptPath = metaPath.Substring(0, suffixIndex);
             var basename = Path.GetFileNameWithoutExtension(scriptPath);
             var extname = Path.GetExtension(scriptPath);
-            if (extname != ".cs")
-            {
-                return;
-            }
+            if (extname != ".cs") return;
 
-            if (!scriptPath.EndsWith("LifetimeScope.cs"))
-            {
-                return;
-            }
+            if (!scriptPath.EndsWith("LifetimeScope.cs")) return;
 
             var content = MonoInstallerTemplate.Replace("#SCRIPTNAME#", basename);
 
@@ -69,10 +51,7 @@ namespace VContainer.Editor
             }
 #endif
 
-            if (scriptPath.StartsWith("Assets/"))
-            {
-                scriptPath = scriptPath.Substring("Assets/".Length);
-            }
+            if (scriptPath.StartsWith("Assets/")) scriptPath = scriptPath.Substring("Assets/".Length);
 
             var fullPath = Path.Combine(Application.dataPath, scriptPath);
             File.WriteAllText(fullPath, content);
@@ -81,16 +60,14 @@ namespace VContainer.Editor
 
 #if UNITY_2020_2_OR_NEWER
         // https://github.com/Unity-Technologies/UnityCsReference/blob/2020.2/Editor/Mono/ProjectWindow/ProjectWindowUtil.cs#L495-L550
-        static string RemoveOrInsertNamespaceSimple(string content, string rootNamespace)
+        private static string RemoveOrInsertNamespaceSimple(string content, string rootNamespace)
         {
             const char eol = '\n';
 
             if (string.IsNullOrWhiteSpace(rootNamespace))
-            {
                 return content
                     .Replace(RootNamespaceBeginTag + eol, "")
                     .Replace(RootNamespaceEndTag + eol, "");
-            }
 
             var lines = content.Split(eol);
 
@@ -99,15 +76,16 @@ namespace VContainer.Editor
 
             lines[startAt] = $"namespace {rootNamespace}\n{{";
             {
-                for (var i = startAt + 1; i < endAt; ++i)
-                {
-                    lines[i] = $"    {lines[i]}";
-                }
+                for (var i = startAt + 1; i < endAt; ++i) lines[i] = $"    {lines[i]}";
             }
             lines[endAt] = "}";
 
             return string.Join(eol.ToString(), lines);
         }
+#endif
+#if UNITY_2020_2_OR_NEWER
+        private const string RootNamespaceBeginTag = "#ROOTNAMESPACEBEGIN#";
+        private const string RootNamespaceEndTag = "#ROOTNAMESPACEEND#";
 #endif
     }
 }

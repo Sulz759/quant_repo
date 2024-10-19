@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
 
 namespace _Project.Develop.Architecture.Runtime.Utilities.Logging
 {
@@ -11,11 +10,13 @@ namespace _Project.Develop.Architecture.Runtime.Utilities.Logging
 
         public TagLog(string tag)
         {
-            if (string.IsNullOrEmpty(tag)) {
+            if (string.IsNullOrEmpty(tag))
+            {
                 _tag = string.Empty;
                 _partTag = "[";
             }
-            else {
+            else
+            {
                 _tag = '[' + tag + "] ";
                 _partTag = '[' + tag + ':';
             }
@@ -29,7 +30,7 @@ namespace _Project.Develop.Architecture.Runtime.Utilities.Logging
         {
             Debug.unityLogger.Log(LogType.Log, _tag, msg);
         }
-        
+
 #if COMPANYNAME_PROD
         [System.Diagnostics.Conditional("DUMMY_UNUSED_DEFINE")]
 #endif
@@ -87,6 +88,9 @@ namespace _Project.Develop.Architecture.Runtime.Utilities.Logging
             throw new Exception(GetFullTag(additionalTag) + msg);
         }
 
-        private string GetFullTag(string additionalTag) => _partTag + additionalTag + "] ";
+        private string GetFullTag(string additionalTag)
+        {
+            return _partTag + additionalTag + "] ";
+        }
     }
 }

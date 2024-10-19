@@ -9,25 +9,27 @@ namespace VContainer.Editor.Diagnostics
 {
     public sealed class VContainerDiagnosticsWindow : EditorWindow
     {
-        static VContainerDiagnosticsWindow window;
+        private static VContainerDiagnosticsWindow window;
 
-        static readonly GUIContent FlattenHeadContent = EditorGUIUtility.TrTextContent("Flatten", "Flatten dependencies");
-        static readonly GUIContent ReloadHeadContent = EditorGUIUtility.TrTextContent("Reload", "Reload View");
+        private static readonly GUIContent FlattenHeadContent =
+            EditorGUIUtility.TrTextContent("Flatten", "Flatten dependencies");
+
+        private static readonly GUIContent ReloadHeadContent = EditorGUIUtility.TrTextContent("Reload", "Reload View");
 
         internal static bool EnableAutoReload;
         internal static bool EnableCaptureStackTrace;
+        private Vector2 detailsScrollPosition;
+        private object horizontalSplitterState;
+        private Vector2 instanceScrollPosition;
+        private VContainerInstanceTreeView instanceTreeView;
+        private SearchField searchField;
+        private Vector2 tableScrollPosition;
 
-        [MenuItem("Window/VContainer Diagnostics")]
-        public static void OpenWindow()
-        {
-            if (window != null)
-            {
-                window.Close();
-            }
-            GetWindow<VContainerDiagnosticsWindow>("VContainer Diagnostics").Show();
-        }
+        private VContainerDiagnosticsInfoTreeView treeView;
 
-        GUIStyle TableListStyle
+        private object verticalSplitterState;
+
+        private GUIStyle TableListStyle
         {
             get
             {
@@ -38,7 +40,7 @@ namespace VContainer.Editor.Diagnostics
             }
         }
 
-        GUIStyle DetailsStyle
+        private GUIStyle DetailsStyle
         {
             get
             {
@@ -50,32 +52,10 @@ namespace VContainer.Editor.Diagnostics
             }
         }
 
-        VContainerDiagnosticsInfoTreeView treeView;
-        VContainerInstanceTreeView instanceTreeView;
-        SearchField searchField;
-
-        object verticalSplitterState;
-        object horizontalSplitterState;
-        Vector2 tableScrollPosition;
-        Vector2 detailsScrollPosition;
-        Vector2 instanceScrollPosition;
-
-        public void Reload(IObjectResolver resolver)
-        {
-            treeView.ReloadAndSort();
-            Repaint();
-        }
-
-        void OnPlayModeStateChange(PlayModeStateChange state)
-        {
-            treeView.ReloadAndSort();
-            Repaint();
-        }
-
-        void OnEnable()
+        private void OnEnable()
         {
             window = this; // set singleton.
-            verticalSplitterState = SplitterGUILayout.CreateSplitterState(new [] { 75f, 25f }, new [] { 32, 32 }, null);
+            verticalSplitterState = SplitterGUILayout.CreateSplitterState(new[] { 75f, 25f }, new[] { 32, 32 }, null);
             horizontalSplitterState = SplitterGUILayout.CreateSplitterState(new[] { 75, 25f }, new[] { 32, 32 }, null);
             treeView = new VContainerDiagnosticsInfoTreeView();
             instanceTreeView = new VContainerInstanceTreeView();
@@ -85,13 +65,13 @@ namespace VContainer.Editor.Diagnostics
             EditorApplication.playModeStateChanged += OnPlayModeStateChange;
         }
 
-        void OnDisable()
+        private void OnDisable()
         {
             DiagnositcsContext.OnContainerBuilt -= Reload;
             EditorApplication.playModeStateChanged -= OnPlayModeStateChange;
         }
 
-        void OnGUI()
+        private void OnGUI()
         {
             RenderHeadPanel();
 
@@ -109,7 +89,26 @@ namespace VContainer.Editor.Diagnostics
             SplitterGUILayout.EndVerticalSplit();
         }
 
-        void RenderHeadPanel()
+        [MenuItem("Window/VContainer Diagnostics")]
+        public static void OpenWindow()
+        {
+            if (window != null) window.Close();
+            GetWindow<VContainerDiagnosticsWindow>("VContainer Diagnostics").Show();
+        }
+
+        public void Reload(IObjectResolver resolver)
+        {
+            treeView.ReloadAndSort();
+            Repaint();
+        }
+
+        private void OnPlayModeStateChange(PlayModeStateChange state)
+        {
+            treeView.ReloadAndSort();
+            Repaint();
+        }
+
+        private void RenderHeadPanel()
         {
             using (new EditorGUILayout.VerticalScope())
             using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
@@ -134,14 +133,14 @@ namespace VContainer.Editor.Diagnostics
             }
         }
 
-        void RenderBuildPanel()
+        private void RenderBuildPanel()
         {
             using (new EditorGUILayout.VerticalScope(TableListStyle))
             using (var scrollViewScope = new EditorGUILayout.ScrollViewScope(tableScrollPosition,
-                // true,
-                // true,
-                GUILayout.ExpandWidth(true),
-                GUILayout.MaxWidth(2000f)))
+                       // true,
+                       // true,
+                       GUILayout.ExpandWidth(true),
+                       GUILayout.MaxWidth(2000f)))
             {
                 tableScrollPosition = scrollViewScope.scrollPosition;
 
@@ -152,12 +151,9 @@ namespace VContainer.Editor.Diagnostics
             }
         }
 
-        void RenderInstancePanel()
+        private void RenderInstancePanel()
         {
-            if (!VContainerSettings.DiagnosticsEnabled)
-            {
-                return;
-            }
+            if (!VContainerSettings.DiagnosticsEnabled) return;
 
             var selectedItem = treeView.GetSelectedItem();
             if (selectedItem?.DiagnosticsInfo.ResolveInfo is ResolveInfo resolveInfo)
@@ -167,7 +163,8 @@ namespace VContainer.Editor.Diagnostics
                     instanceTreeView.CurrentDiagnosticsInfo = selectedItem.DiagnosticsInfo;
                     instanceTreeView.Reload();
 
-                    using (var scrollViewScope = new EditorGUILayout.ScrollViewScope(instanceScrollPosition, GUILayout.ExpandHeight(true)))
+                    using (var scrollViewScope =
+                           new EditorGUILayout.ScrollViewScope(instanceScrollPosition, GUILayout.ExpandHeight(true)))
                     {
                         instanceScrollPosition = scrollViewScope.scrollPosition;
                         var controlRect = EditorGUILayout.GetControlRect(
@@ -183,24 +180,24 @@ namespace VContainer.Editor.Diagnostics
             }
         }
 
-        void RenderStackTracePanel()
+        private void RenderStackTracePanel()
         {
             var message = "";
             if (VContainerSettings.DiagnosticsEnabled)
             {
                 var selectedItem = treeView.GetSelectedItem();
                 if (selectedItem?.DiagnosticsInfo?.RegisterInfo is RegisterInfo registerInfo)
-                {
-                    message = $"<a href=\"{registerInfo.GetScriptAssetPath()}\" line=\"{registerInfo.GetFileLineNumber()}\">Register at {registerInfo.GetHeadline()}</a>" +
-                              Environment.NewLine +
-                              Environment.NewLine +
-                              selectedItem.DiagnosticsInfo.RegisterInfo.StackTrace;
-                }
+                    message =
+                        $"<a href=\"{registerInfo.GetScriptAssetPath()}\" line=\"{registerInfo.GetFileLineNumber()}\">Register at {registerInfo.GetHeadline()}</a>" +
+                        Environment.NewLine +
+                        Environment.NewLine +
+                        selectedItem.DiagnosticsInfo.RegisterInfo.StackTrace;
             }
             else
             {
                 message = "VContainer Diagnostics collector is disabled. To enable, please check VContainerSettings.";
             }
+
             using (var scrollViewScope = new EditorGUILayout.ScrollViewScope(detailsScrollPosition))
             {
                 detailsScrollPosition = scrollViewScope.scrollPosition;
@@ -212,5 +209,5 @@ namespace VContainer.Editor.Diagnostics
                     GUILayout.MinHeight(vector.y));
             }
         }
-   }
+    }
 }

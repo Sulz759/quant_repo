@@ -7,14 +7,14 @@ namespace _Project.Develop.Architecture.Runtime.Bootstrap
 {
     public class BootstrapFlow : IStartable
     {
-        private readonly LoadingService _loadingService;
-        private readonly SceneManager _sceneManager;
         private readonly ConfigContainer _configContainer;
+        private readonly LoadingService _loadingService;
         private readonly MetaConfiguration _metaConfiguration;
+        private readonly SceneManager _sceneManager;
 
 
-        public BootstrapFlow(LoadingService loadingService, 
-            SceneManager sceneManager, 
+        public BootstrapFlow(LoadingService loadingService,
+            SceneManager sceneManager,
             ConfigContainer configContainer,
             MetaConfiguration metaConfiguration)
         {
@@ -23,7 +23,7 @@ namespace _Project.Develop.Architecture.Runtime.Bootstrap
             _configContainer = configContainer;
             _metaConfiguration = metaConfiguration;
         }
-        
+
         public async void Start()
         {
             var fooLoadingUnit = new FooLoadingUnit();

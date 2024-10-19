@@ -2,15 +2,15 @@ using System;
 
 namespace VContainer.Internal
 {
-    sealed class CappedArrayPool<T>
+    internal sealed class CappedArrayPool<T>
     {
         internal const int InitialBucketSize = 4;
 
-        public static readonly CappedArrayPool<T> Shared8Limit = new CappedArrayPool<T>(8);
+        public static readonly CappedArrayPool<T> Shared8Limit = new(8);
 
-        readonly T[][][] buckets;
-        readonly object syncRoot = new object();
-        readonly int[] tails;
+        private readonly T[][][] buckets;
+        private readonly object syncRoot = new();
+        private readonly int[] tails;
 
         internal CappedArrayPool(int maxLength)
         {
@@ -20,10 +20,7 @@ namespace VContainer.Internal
             {
                 var arrayLength = i + 1;
                 buckets[i] = new T[InitialBucketSize][];
-                for (var j = 0; j < InitialBucketSize; j++)
-                {
-                    buckets[i][j] = new T[arrayLength];
-                }
+                for (var j = 0; j < InitialBucketSize; j++) buckets[i][j] = new T[arrayLength];
                 tails[i] = 0;
             }
         }
@@ -48,10 +45,7 @@ namespace VContainer.Internal
                     buckets[i] = bucket;
                 }
 
-                if (bucket[tail] == null)
-                {
-                    bucket[tail] = new T[length];
-                }
+                if (bucket[tail] == null) bucket[tail] = new T[length];
 
                 var result = bucket[tail];
                 tails[i] += 1;

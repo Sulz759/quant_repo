@@ -1,8 +1,6 @@
-﻿using _Project.Develop.Architecture.Runtime.Bootstrap.Units;
-using _Project.Develop.Architecture.Runtime.Meta.Nodes;
+﻿using _Project.Develop.Architecture.Runtime.Meta.Nodes;
 using _Project.Develop.Architecture.Runtime.Utilities;
 using _Project.Develop.Architecture.Runtime.Utilities.Logging;
-using Cysharp.Threading.Tasks;
 using VContainer.Unity;
 
 namespace _Project.Develop.Architecture.Runtime.Meta
@@ -10,8 +8,8 @@ namespace _Project.Develop.Architecture.Runtime.Meta
     public class MetaFlow : IStartable
     {
         private readonly LoadingService _loadingService;
-        private readonly NodeFactory _nodeFactory;
         private readonly MetaController _metaController;
+        private readonly NodeFactory _nodeFactory;
         private readonly SceneManager _sceneManager;
 
         public MetaFlow(LoadingService loadingService,

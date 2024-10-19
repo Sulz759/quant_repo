@@ -6,20 +6,18 @@ namespace VContainer.Unity
     [Serializable]
     public struct ParentReference : ISerializationCallbackReceiver
     {
-        [SerializeField]
-        public string TypeName;
+        [SerializeField] public string TypeName;
 
-        [NonSerialized]
-        public LifetimeScope Object;
+        [NonSerialized] public LifetimeScope Object;
 
-        public Type Type { get; private set; }
-
-        ParentReference(Type type)
+        private ParentReference(Type type)
         {
             Type = type;
             TypeName = type.FullName;
             Object = null;
         }
+
+        public Type Type { get; private set; }
 
         void ISerializationCallbackReceiver.OnBeforeSerialize()
         {
@@ -29,14 +27,12 @@ namespace VContainer.Unity
         void ISerializationCallbackReceiver.OnAfterDeserialize()
         {
             if (!string.IsNullOrEmpty(TypeName))
-            {
                 foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
                 {
                     Type = assembly.GetType(TypeName);
                     if (Type != null)
                         break;
                 }
-            }
         }
 
         public static ParentReference Create<T>() where T : LifetimeScope

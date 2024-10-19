@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace _Project.Architecture
 {
-    public class Bootstrap: MonoBehaviour
+    public class Bootstrap : MonoBehaviour
     {
         private void Awake()
         {

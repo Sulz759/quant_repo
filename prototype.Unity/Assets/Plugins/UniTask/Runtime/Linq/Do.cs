@@ -1,39 +1,41 @@
-﻿using Cysharp.Threading.Tasks;
-using Cysharp.Threading.Tasks.Internal;
-using Cysharp.Threading.Tasks.Linq;
-using System;
+﻿using System;
 using System.Threading;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks.Internal;
 
 namespace Cysharp.Threading.Tasks.Linq
 {
     public static partial class UniTaskAsyncEnumerable
     {
-        public static IUniTaskAsyncEnumerable<TSource> Do<TSource>(this IUniTaskAsyncEnumerable<TSource> source, Action<TSource> onNext)
+        public static IUniTaskAsyncEnumerable<TSource> Do<TSource>(this IUniTaskAsyncEnumerable<TSource> source,
+            Action<TSource> onNext)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             return source.Do(onNext, null, null);
         }
 
-        public static IUniTaskAsyncEnumerable<TSource> Do<TSource>(this IUniTaskAsyncEnumerable<TSource> source, Action<TSource> onNext, Action<Exception> onError)
+        public static IUniTaskAsyncEnumerable<TSource> Do<TSource>(this IUniTaskAsyncEnumerable<TSource> source,
+            Action<TSource> onNext, Action<Exception> onError)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             return source.Do(onNext, onError, null);
         }
 
-        public static IUniTaskAsyncEnumerable<TSource> Do<TSource>(this IUniTaskAsyncEnumerable<TSource> source, Action<TSource> onNext, Action onCompleted)
+        public static IUniTaskAsyncEnumerable<TSource> Do<TSource>(this IUniTaskAsyncEnumerable<TSource> source,
+            Action<TSource> onNext, Action onCompleted)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             return source.Do(onNext, null, onCompleted);
         }
 
-        public static IUniTaskAsyncEnumerable<TSource> Do<TSource>(this IUniTaskAsyncEnumerable<TSource> source, Action<TSource> onNext, Action<Exception> onError, Action onCompleted)
+        public static IUniTaskAsyncEnumerable<TSource> Do<TSource>(this IUniTaskAsyncEnumerable<TSource> source,
+            Action<TSource> onNext, Action<Exception> onError, Action onCompleted)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             return new Do<TSource>(source, onNext, onError, onCompleted);
         }
 
-        public static IUniTaskAsyncEnumerable<TSource> Do<TSource>(this IUniTaskAsyncEnumerable<TSource> source, IObserver<TSource> observer)
+        public static IUniTaskAsyncEnumerable<TSource> Do<TSource>(this IUniTaskAsyncEnumerable<TSource> source,
+            IObserver<TSource> observer)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             Error.ThrowArgumentNullException(observer, nameof(observer));
@@ -86,12 +88,13 @@ namespace Cysharp.Threading.Tasks.Linq
 
     internal sealed class Do<TSource> : IUniTaskAsyncEnumerable<TSource>
     {
-        readonly IUniTaskAsyncEnumerable<TSource> source;
-        readonly Action<TSource> onNext;
-        readonly Action<Exception> onError;
-        readonly Action onCompleted;
+        private readonly Action onCompleted;
+        private readonly Action<Exception> onError;
+        private readonly Action<TSource> onNext;
+        private readonly IUniTaskAsyncEnumerable<TSource> source;
 
-        public Do(IUniTaskAsyncEnumerable<TSource> source, Action<TSource> onNext, Action<Exception> onError, Action onCompleted)
+        public Do(IUniTaskAsyncEnumerable<TSource> source, Action<TSource> onNext, Action<Exception> onError,
+            Action onCompleted)
         {
             this.source = source;
             this.onNext = onNext;
@@ -104,20 +107,21 @@ namespace Cysharp.Threading.Tasks.Linq
             return new _Do(source, onNext, onError, onCompleted, cancellationToken);
         }
 
-        sealed class _Do : MoveNextSource, IUniTaskAsyncEnumerator<TSource>
+        private sealed class _Do : MoveNextSource, IUniTaskAsyncEnumerator<TSource>
         {
-            static readonly Action<object> MoveNextCoreDelegate = MoveNextCore;
+            private static readonly Action<object> MoveNextCoreDelegate = MoveNextCore;
+            private readonly Action onCompleted;
+            private readonly Action<Exception> onError;
+            private readonly Action<TSource> onNext;
 
-            readonly IUniTaskAsyncEnumerable<TSource> source;
-            readonly Action<TSource> onNext;
-            readonly Action<Exception> onError;
-            readonly Action onCompleted;
-            CancellationToken cancellationToken;
+            private readonly IUniTaskAsyncEnumerable<TSource> source;
+            private UniTask<bool>.Awaiter awaiter;
+            private readonly CancellationToken cancellationToken;
 
-            IUniTaskAsyncEnumerator<TSource> enumerator;
-            UniTask<bool>.Awaiter awaiter;
+            private IUniTaskAsyncEnumerator<TSource> enumerator;
 
-            public _Do(IUniTaskAsyncEnumerable<TSource> source, Action<TSource> onNext, Action<Exception> onError, Action onCompleted, CancellationToken cancellationToken)
+            public _Do(IUniTaskAsyncEnumerable<TSource> source, Action<TSource> onNext, Action<Exception> onError,
+                Action onCompleted, CancellationToken cancellationToken)
             {
                 this.source = source;
                 this.onNext = onNext;
@@ -135,13 +139,10 @@ namespace Cysharp.Threading.Tasks.Linq
                 cancellationToken.ThrowIfCancellationRequested();
                 completionSource.Reset();
 
-                bool isCompleted = false;
+                var isCompleted = false;
                 try
                 {
-                    if (enumerator == null)
-                    {
-                        enumerator = source.GetAsyncEnumerator(cancellationToken);
-                    }
+                    if (enumerator == null) enumerator = source.GetAsyncEnumerator(cancellationToken);
 
                     awaiter = enumerator.MoveNextAsync().GetAwaiter();
                     isCompleted = awaiter.IsCompleted;
@@ -153,21 +154,23 @@ namespace Cysharp.Threading.Tasks.Linq
                 }
 
                 if (isCompleted)
-                {
                     MoveNextCore(this);
-                }
                 else
-                {
                     awaiter.SourceOnCompleted(MoveNextCoreDelegate, this);
-                }
 
                 return new UniTask<bool>(this, completionSource.Version);
             }
 
-            void CallTrySetExceptionAfterNotification(Exception ex)
+            public UniTask DisposeAsync()
+            {
+                TaskTracker.RemoveTracking(this);
+                if (enumerator != null) return enumerator.DisposeAsync();
+                return default;
+            }
+
+            private void CallTrySetExceptionAfterNotification(Exception ex)
             {
                 if (onError != null)
-                {
                     try
                     {
                         onError(ex);
@@ -177,12 +180,11 @@ namespace Cysharp.Threading.Tasks.Linq
                         completionSource.TrySetException(ex2);
                         return;
                     }
-                }
 
                 completionSource.TrySetException(ex);
             }
 
-            bool TryGetResultWithNotification<T>(UniTask<T>.Awaiter awaiter, out T result)
+            private bool TryGetResultWithNotification<T>(UniTask<T>.Awaiter awaiter, out T result)
             {
                 try
                 {
@@ -198,7 +200,7 @@ namespace Cysharp.Threading.Tasks.Linq
             }
 
 
-            static void MoveNextCore(object state)
+            private static void MoveNextCore(object state)
             {
                 var self = (_Do)state;
 
@@ -209,7 +211,6 @@ namespace Cysharp.Threading.Tasks.Linq
                         var v = self.enumerator.Current;
 
                         if (self.onNext != null)
-                        {
                             try
                             {
                                 self.onNext(v);
@@ -218,7 +219,6 @@ namespace Cysharp.Threading.Tasks.Linq
                             {
                                 self.CallTrySetExceptionAfterNotification(ex);
                             }
-                        }
 
                         self.Current = v;
                         self.completionSource.TrySetResult(true);
@@ -226,7 +226,6 @@ namespace Cysharp.Threading.Tasks.Linq
                     else
                     {
                         if (self.onCompleted != null)
-                        {
                             try
                             {
                                 self.onCompleted();
@@ -236,23 +235,11 @@ namespace Cysharp.Threading.Tasks.Linq
                                 self.CallTrySetExceptionAfterNotification(ex);
                                 return;
                             }
-                        }
 
                         self.completionSource.TrySetResult(false);
                     }
                 }
             }
-
-            public UniTask DisposeAsync()
-            {
-                TaskTracker.RemoveTracking(this);
-                if (enumerator != null)
-                {
-                    return enumerator.DisposeAsync();
-                }
-                return default;
-            }
         }
     }
-
 }

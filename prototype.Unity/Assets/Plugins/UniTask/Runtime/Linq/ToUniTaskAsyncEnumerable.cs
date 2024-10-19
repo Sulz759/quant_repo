@@ -1,16 +1,15 @@
-﻿using Cysharp.Threading.Tasks.Internal;
-using System;
-using System.Collections.Concurrent;
+﻿using System;
 using System.Collections.Generic;
-using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks.Internal;
 
 namespace Cysharp.Threading.Tasks.Linq
 {
     public static partial class UniTaskAsyncEnumerable
     {
-        public static IUniTaskAsyncEnumerable<TSource> ToUniTaskAsyncEnumerable<TSource>(this IEnumerable<TSource> source)
+        public static IUniTaskAsyncEnumerable<TSource> ToUniTaskAsyncEnumerable<TSource>(
+            this IEnumerable<TSource> source)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
 
@@ -29,7 +28,8 @@ namespace Cysharp.Threading.Tasks.Linq
             return new ToUniTaskAsyncEnumerableUniTask<TSource>(source);
         }
 
-        public static IUniTaskAsyncEnumerable<TSource> ToUniTaskAsyncEnumerable<TSource>(this IObservable<TSource> source)
+        public static IUniTaskAsyncEnumerable<TSource> ToUniTaskAsyncEnumerable<TSource>(
+            this IObservable<TSource> source)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
 
@@ -39,7 +39,7 @@ namespace Cysharp.Threading.Tasks.Linq
 
     internal class ToUniTaskAsyncEnumerable<T> : IUniTaskAsyncEnumerable<T>
     {
-        readonly IEnumerable<T> source;
+        private readonly IEnumerable<T> source;
 
         public ToUniTaskAsyncEnumerable(IEnumerable<T> source)
         {
@@ -51,12 +51,12 @@ namespace Cysharp.Threading.Tasks.Linq
             return new _ToUniTaskAsyncEnumerable(source, cancellationToken);
         }
 
-        class _ToUniTaskAsyncEnumerable : IUniTaskAsyncEnumerator<T>
+        private class _ToUniTaskAsyncEnumerable : IUniTaskAsyncEnumerator<T>
         {
-            readonly IEnumerable<T> source;
-            CancellationToken cancellationToken;
+            private readonly IEnumerable<T> source;
+            private readonly CancellationToken cancellationToken;
 
-            IEnumerator<T> enumerator;
+            private IEnumerator<T> enumerator;
 
             public _ToUniTaskAsyncEnumerable(IEnumerable<T> source, CancellationToken cancellationToken)
             {
@@ -70,15 +70,9 @@ namespace Cysharp.Threading.Tasks.Linq
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (enumerator == null)
-                {
-                    enumerator = source.GetEnumerator();
-                }
+                if (enumerator == null) enumerator = source.GetEnumerator();
 
-                if (enumerator.MoveNext())
-                {
-                    return CompletedTasks.True;
-                }
+                if (enumerator.MoveNext()) return CompletedTasks.True;
 
                 return CompletedTasks.False;
             }
@@ -93,7 +87,7 @@ namespace Cysharp.Threading.Tasks.Linq
 
     internal class ToUniTaskAsyncEnumerableTask<T> : IUniTaskAsyncEnumerable<T>
     {
-        readonly Task<T> source;
+        private readonly Task<T> source;
 
         public ToUniTaskAsyncEnumerableTask(Task<T> source)
         {
@@ -105,35 +99,30 @@ namespace Cysharp.Threading.Tasks.Linq
             return new _ToUniTaskAsyncEnumerableTask(source, cancellationToken);
         }
 
-        class _ToUniTaskAsyncEnumerableTask : IUniTaskAsyncEnumerator<T>
+        private class _ToUniTaskAsyncEnumerableTask : IUniTaskAsyncEnumerator<T>
         {
-            readonly Task<T> source;
-            CancellationToken cancellationToken;
-
-            T current;
-            bool called;
+            private readonly Task<T> source;
+            private bool called;
+            private readonly CancellationToken cancellationToken;
 
             public _ToUniTaskAsyncEnumerableTask(Task<T> source, CancellationToken cancellationToken)
             {
                 this.source = source;
                 this.cancellationToken = cancellationToken;
 
-                this.called = false;
+                called = false;
             }
 
-            public T Current => current;
+            public T Current { get; private set; }
 
             public async UniTask<bool> MoveNextAsync()
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (called)
-                {
-                    return false;
-                }
+                if (called) return false;
                 called = true;
 
-                current = await source;
+                Current = await source;
                 return true;
             }
 
@@ -146,7 +135,7 @@ namespace Cysharp.Threading.Tasks.Linq
 
     internal class ToUniTaskAsyncEnumerableUniTask<T> : IUniTaskAsyncEnumerable<T>
     {
-        readonly UniTask<T> source;
+        private readonly UniTask<T> source;
 
         public ToUniTaskAsyncEnumerableUniTask(UniTask<T> source)
         {
@@ -158,35 +147,30 @@ namespace Cysharp.Threading.Tasks.Linq
             return new _ToUniTaskAsyncEnumerableUniTask(source, cancellationToken);
         }
 
-        class _ToUniTaskAsyncEnumerableUniTask : IUniTaskAsyncEnumerator<T>
+        private class _ToUniTaskAsyncEnumerableUniTask : IUniTaskAsyncEnumerator<T>
         {
-            readonly UniTask<T> source;
-            CancellationToken cancellationToken;
-
-            T current;
-            bool called;
+            private readonly UniTask<T> source;
+            private bool called;
+            private readonly CancellationToken cancellationToken;
 
             public _ToUniTaskAsyncEnumerableUniTask(UniTask<T> source, CancellationToken cancellationToken)
             {
                 this.source = source;
                 this.cancellationToken = cancellationToken;
 
-                this.called = false;
+                called = false;
             }
 
-            public T Current => current;
+            public T Current { get; private set; }
 
             public async UniTask<bool> MoveNextAsync()
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (called)
-                {
-                    return false;
-                }
+                if (called) return false;
                 called = true;
 
-                current = await source;
+                Current = await source;
                 return true;
             }
 
@@ -199,7 +183,7 @@ namespace Cysharp.Threading.Tasks.Linq
 
     internal class ToUniTaskAsyncEnumerableObservable<T> : IUniTaskAsyncEnumerable<T>
     {
-        readonly IObservable<T> source;
+        private readonly IObservable<T> source;
 
         public ToUniTaskAsyncEnumerableObservable(IObservable<T> source)
         {
@@ -211,101 +195,31 @@ namespace Cysharp.Threading.Tasks.Linq
             return new _ToUniTaskAsyncEnumerableObservable(source, cancellationToken);
         }
 
-        class _ToUniTaskAsyncEnumerableObservable : MoveNextSource, IUniTaskAsyncEnumerator<T>, IObserver<T>
+        private class _ToUniTaskAsyncEnumerableObservable : MoveNextSource, IUniTaskAsyncEnumerator<T>, IObserver<T>
         {
-            static readonly Action<object> OnCanceledDelegate = OnCanceled;
+            private static readonly Action<object> OnCanceledDelegate = OnCanceled;
+            private readonly Queue<T> queuedResult;
 
-            readonly IObservable<T> source;
-            CancellationToken cancellationToken;
+            private readonly IObservable<T> source;
+            private readonly CancellationToken cancellationToken;
+            private readonly CancellationTokenRegistration cancellationTokenRegistration;
+            private T current;
+            private Exception error;
+            private bool subscribeCompleted;
+            private IDisposable subscription;
 
 
-            bool useCachedCurrent;
-            T current;
-            bool subscribeCompleted;
-            readonly Queue<T> queuedResult;
-            Exception error;
-            IDisposable subscription;
-            CancellationTokenRegistration cancellationTokenRegistration;
+            private bool useCachedCurrent;
 
             public _ToUniTaskAsyncEnumerableObservable(IObservable<T> source, CancellationToken cancellationToken)
             {
                 this.source = source;
                 this.cancellationToken = cancellationToken;
-                this.queuedResult = new Queue<T>();
+                queuedResult = new Queue<T>();
 
                 if (cancellationToken.CanBeCanceled)
-                {
-                    cancellationTokenRegistration = cancellationToken.RegisterWithoutCaptureExecutionContext(OnCanceledDelegate, this);
-                }
-            }
-
-            public T Current
-            {
-                get
-                {
-                    if (useCachedCurrent)
-                    {
-                        return current;
-                    }
-
-                    lock (queuedResult)
-                    {
-                        if (queuedResult.Count != 0)
-                        {
-                            current = queuedResult.Dequeue();
-                            useCachedCurrent = true;
-                            return current;
-                        }
-                        else
-                        {
-                            return default; // undefined.
-                        }
-                    }
-                }
-            }
-
-            public UniTask<bool> MoveNextAsync()
-            {
-                lock (queuedResult)
-                {
-                    useCachedCurrent = false;
-
-                    if (cancellationToken.IsCancellationRequested)
-                    {
-                        return UniTask.FromCanceled<bool>(cancellationToken);
-                    }
-
-                    if (subscription == null)
-                    {
-                        subscription = source.Subscribe(this);
-                    }
-
-                    if (error != null)
-                    {
-                        return UniTask.FromException<bool>(error);
-                    }
-
-                    if (queuedResult.Count != 0)
-                    {
-                        return CompletedTasks.True;
-                    }
-
-                    if (subscribeCompleted)
-                    {
-                        return CompletedTasks.False;
-                    }
-
-                    completionSource.Reset();
-                    return new UniTask<bool>(this, completionSource.Version);
-                }
-            }
-
-            public UniTask DisposeAsync()
-            {
-                subscription.Dispose();
-                cancellationTokenRegistration.Dispose();
-                completionSource.Reset();
-                return default;
+                    cancellationTokenRegistration =
+                        cancellationToken.RegisterWithoutCaptureExecutionContext(OnCanceledDelegate, this);
             }
 
             public void OnCompleted()
@@ -335,7 +249,56 @@ namespace Cysharp.Threading.Tasks.Linq
                 }
             }
 
-            static void OnCanceled(object state)
+            public T Current
+            {
+                get
+                {
+                    if (useCachedCurrent) return current;
+
+                    lock (queuedResult)
+                    {
+                        if (queuedResult.Count != 0)
+                        {
+                            current = queuedResult.Dequeue();
+                            useCachedCurrent = true;
+                            return current;
+                        }
+
+                        return default; // undefined.
+                    }
+                }
+            }
+
+            public UniTask<bool> MoveNextAsync()
+            {
+                lock (queuedResult)
+                {
+                    useCachedCurrent = false;
+
+                    if (cancellationToken.IsCancellationRequested) return UniTask.FromCanceled<bool>(cancellationToken);
+
+                    if (subscription == null) subscription = source.Subscribe(this);
+
+                    if (error != null) return UniTask.FromException<bool>(error);
+
+                    if (queuedResult.Count != 0) return CompletedTasks.True;
+
+                    if (subscribeCompleted) return CompletedTasks.False;
+
+                    completionSource.Reset();
+                    return new UniTask<bool>(this, completionSource.Version);
+                }
+            }
+
+            public UniTask DisposeAsync()
+            {
+                subscription.Dispose();
+                cancellationTokenRegistration.Dispose();
+                completionSource.Reset();
+                return default;
+            }
+
+            private static void OnCanceled(object state)
             {
                 var self = (_ToUniTaskAsyncEnumerableObservable)state;
                 lock (self.queuedResult)
@@ -346,770 +309,3 @@ namespace Cysharp.Threading.Tasks.Linq
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

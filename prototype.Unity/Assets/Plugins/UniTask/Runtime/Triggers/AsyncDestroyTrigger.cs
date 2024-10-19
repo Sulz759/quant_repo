@@ -21,9 +21,9 @@ namespace Cysharp.Threading.Tasks.Triggers
     [DisallowMultipleComponent]
     public sealed class AsyncDestroyTrigger : MonoBehaviour
     {
-        bool awakeCalled = false;
-        bool called = false;
-        CancellationTokenSource cancellationTokenSource;
+        private bool awakeCalled;
+        private bool called;
+        private CancellationTokenSource cancellationTokenSource;
 
         public CancellationToken CancellationToken
         {
@@ -32,21 +32,19 @@ namespace Cysharp.Threading.Tasks.Triggers
                 if (cancellationTokenSource == null)
                 {
                     cancellationTokenSource = new CancellationTokenSource();
-                    if (!awakeCalled)
-                    {
-                        PlayerLoopHelper.AddAction(PlayerLoopTiming.Update, new AwakeMonitor(this));
-                    }
+                    if (!awakeCalled) PlayerLoopHelper.AddAction(PlayerLoopTiming.Update, new AwakeMonitor(this));
                 }
+
                 return cancellationTokenSource.Token;
             }
         }
 
-        void Awake()
+        private void Awake()
         {
             awakeCalled = true;
         }
 
-        void OnDestroy()
+        private void OnDestroy()
         {
             called = true;
 
@@ -70,9 +68,9 @@ namespace Cysharp.Threading.Tasks.Triggers
             return tcs.Task;
         }
 
-        class AwakeMonitor : IPlayerLoopItem
+        private class AwakeMonitor : IPlayerLoopItem
         {
-            readonly AsyncDestroyTrigger trigger;
+            private readonly AsyncDestroyTrigger trigger;
 
             public AwakeMonitor(AsyncDestroyTrigger trigger)
             {
@@ -87,9 +85,9 @@ namespace Cysharp.Threading.Tasks.Triggers
                     trigger.OnDestroy();
                     return false;
                 }
+
                 return true;
             }
         }
     }
 }
-

@@ -30,6 +30,9 @@ namespace VContainer
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public object SpawnInstance(IObjectResolver resolver) => Provider.SpawnInstance(resolver);
+        public object SpawnInstance(IObjectResolver resolver)
+        {
+            return Provider.SpawnInstance(resolver);
+        }
     }
 }

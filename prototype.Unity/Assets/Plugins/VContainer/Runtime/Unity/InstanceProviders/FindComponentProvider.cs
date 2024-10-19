@@ -6,12 +6,12 @@ using VContainer.Internal;
 
 namespace VContainer.Unity
 {
-    sealed class FindComponentProvider : IInstanceProvider
+    internal sealed class FindComponentProvider : IInstanceProvider
     {
-        readonly Type componentType;
-        readonly IReadOnlyList<IInjectParameter> customParameters;
-        ComponentDestination destination;
-        Scene scene;
+        private readonly Type componentType;
+        private readonly IReadOnlyList<IInjectParameter> customParameters;
+        private ComponentDestination destination;
+        private Scene scene;
 
         public FindComponentProvider(
             Type componentType,
@@ -34,9 +34,8 @@ namespace VContainer.Unity
             {
                 component = parent.GetComponentInChildren(componentType, true);
                 if (component == null)
-                {
-                    throw new VContainerException(componentType, $"{componentType} is not in the parent {parent.name} : {this}");
-                }
+                    throw new VContainerException(componentType,
+                        $"{componentType} is not in the parent {parent.name} : {this}");
             }
             else if (scene.IsValid())
             {
@@ -49,10 +48,10 @@ namespace VContainer.Unity
                         if (component != null) break;
                     }
                 }
+
                 if (component == null)
-                {
-                    throw new VContainerException(componentType, $"{componentType} is not in this scene {scene.path} : {this}");
-                }
+                    throw new VContainerException(componentType,
+                        $"{componentType} is not in this scene {scene.path} : {this}");
             }
             else
             {

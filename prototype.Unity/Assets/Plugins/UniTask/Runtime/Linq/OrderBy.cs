@@ -1,8 +1,7 @@
-﻿using Cysharp.Threading.Tasks;
-using Cysharp.Threading.Tasks.Internal;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using Cysharp.Threading.Tasks.Internal;
 
 namespace Cysharp.Threading.Tasks.Linq
 {
@@ -10,7 +9,8 @@ namespace Cysharp.Threading.Tasks.Linq
     {
         #region OrderBy_OrderByDescending
 
-        public static IUniTaskOrderedAsyncEnumerable<TSource> OrderBy<TSource, TKey>(this IUniTaskAsyncEnumerable<TSource> source, Func<TSource, TKey> keySelector)
+        public static IUniTaskOrderedAsyncEnumerable<TSource> OrderBy<TSource, TKey>(
+            this IUniTaskAsyncEnumerable<TSource> source, Func<TSource, TKey> keySelector)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             Error.ThrowArgumentNullException(keySelector, nameof(keySelector));
@@ -18,7 +18,8 @@ namespace Cysharp.Threading.Tasks.Linq
             return new OrderedAsyncEnumerable<TSource, TKey>(source, keySelector, Comparer<TKey>.Default, false, null);
         }
 
-        public static IUniTaskOrderedAsyncEnumerable<TSource> OrderBy<TSource, TKey>(this IUniTaskAsyncEnumerable<TSource> source, Func<TSource, TKey> keySelector, IComparer<TKey> comparer)
+        public static IUniTaskOrderedAsyncEnumerable<TSource> OrderBy<TSource, TKey>(
+            this IUniTaskAsyncEnumerable<TSource> source, Func<TSource, TKey> keySelector, IComparer<TKey> comparer)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             Error.ThrowArgumentNullException(keySelector, nameof(keySelector));
@@ -27,15 +28,19 @@ namespace Cysharp.Threading.Tasks.Linq
             return new OrderedAsyncEnumerable<TSource, TKey>(source, keySelector, comparer, false, null);
         }
 
-        public static IUniTaskOrderedAsyncEnumerable<TSource> OrderByAwait<TSource, TKey>(this IUniTaskAsyncEnumerable<TSource> source, Func<TSource, UniTask<TKey>> keySelector)
+        public static IUniTaskOrderedAsyncEnumerable<TSource> OrderByAwait<TSource, TKey>(
+            this IUniTaskAsyncEnumerable<TSource> source, Func<TSource, UniTask<TKey>> keySelector)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             Error.ThrowArgumentNullException(keySelector, nameof(keySelector));
 
-            return new OrderedAsyncEnumerableAwait<TSource, TKey>(source, keySelector, Comparer<TKey>.Default, false, null);
+            return new OrderedAsyncEnumerableAwait<TSource, TKey>(source, keySelector, Comparer<TKey>.Default, false,
+                null);
         }
 
-        public static IUniTaskOrderedAsyncEnumerable<TSource> OrderByAwait<TSource, TKey>(this IUniTaskAsyncEnumerable<TSource> source, Func<TSource, UniTask<TKey>> keySelector, IComparer<TKey> comparer)
+        public static IUniTaskOrderedAsyncEnumerable<TSource> OrderByAwait<TSource, TKey>(
+            this IUniTaskAsyncEnumerable<TSource> source, Func<TSource, UniTask<TKey>> keySelector,
+            IComparer<TKey> comparer)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             Error.ThrowArgumentNullException(keySelector, nameof(keySelector));
@@ -44,24 +49,30 @@ namespace Cysharp.Threading.Tasks.Linq
             return new OrderedAsyncEnumerableAwait<TSource, TKey>(source, keySelector, comparer, false, null);
         }
 
-        public static IUniTaskOrderedAsyncEnumerable<TSource> OrderByAwaitWithCancellation<TSource, TKey>(this IUniTaskAsyncEnumerable<TSource> source, Func<TSource, CancellationToken, UniTask<TKey>> keySelector)
+        public static IUniTaskOrderedAsyncEnumerable<TSource> OrderByAwaitWithCancellation<TSource, TKey>(
+            this IUniTaskAsyncEnumerable<TSource> source, Func<TSource, CancellationToken, UniTask<TKey>> keySelector)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             Error.ThrowArgumentNullException(keySelector, nameof(keySelector));
 
-            return new OrderedAsyncEnumerableAwaitWithCancellation<TSource, TKey>(source, keySelector, Comparer<TKey>.Default, false, null);
+            return new OrderedAsyncEnumerableAwaitWithCancellation<TSource, TKey>(source, keySelector,
+                Comparer<TKey>.Default, false, null);
         }
 
-        public static IUniTaskOrderedAsyncEnumerable<TSource> OrderByAwaitWithCancellation<TSource, TKey>(this IUniTaskAsyncEnumerable<TSource> source, Func<TSource, CancellationToken, UniTask<TKey>> keySelector, IComparer<TKey> comparer)
+        public static IUniTaskOrderedAsyncEnumerable<TSource> OrderByAwaitWithCancellation<TSource, TKey>(
+            this IUniTaskAsyncEnumerable<TSource> source, Func<TSource, CancellationToken, UniTask<TKey>> keySelector,
+            IComparer<TKey> comparer)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             Error.ThrowArgumentNullException(keySelector, nameof(keySelector));
             Error.ThrowArgumentNullException(comparer, nameof(comparer));
 
-            return new OrderedAsyncEnumerableAwaitWithCancellation<TSource, TKey>(source, keySelector, comparer, false, null);
+            return new OrderedAsyncEnumerableAwaitWithCancellation<TSource, TKey>(source, keySelector, comparer, false,
+                null);
         }
 
-        public static IUniTaskOrderedAsyncEnumerable<TSource> OrderByDescending<TSource, TKey>(this IUniTaskAsyncEnumerable<TSource> source, Func<TSource, TKey> keySelector)
+        public static IUniTaskOrderedAsyncEnumerable<TSource> OrderByDescending<TSource, TKey>(
+            this IUniTaskAsyncEnumerable<TSource> source, Func<TSource, TKey> keySelector)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             Error.ThrowArgumentNullException(keySelector, nameof(keySelector));
@@ -69,7 +80,8 @@ namespace Cysharp.Threading.Tasks.Linq
             return new OrderedAsyncEnumerable<TSource, TKey>(source, keySelector, Comparer<TKey>.Default, true, null);
         }
 
-        public static IUniTaskOrderedAsyncEnumerable<TSource> OrderByDescending<TSource, TKey>(this IUniTaskAsyncEnumerable<TSource> source, Func<TSource, TKey> keySelector, IComparer<TKey> comparer)
+        public static IUniTaskOrderedAsyncEnumerable<TSource> OrderByDescending<TSource, TKey>(
+            this IUniTaskAsyncEnumerable<TSource> source, Func<TSource, TKey> keySelector, IComparer<TKey> comparer)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             Error.ThrowArgumentNullException(keySelector, nameof(keySelector));
@@ -78,15 +90,19 @@ namespace Cysharp.Threading.Tasks.Linq
             return new OrderedAsyncEnumerable<TSource, TKey>(source, keySelector, comparer, true, null);
         }
 
-        public static IUniTaskOrderedAsyncEnumerable<TSource> OrderByDescendingAwait<TSource, TKey>(this IUniTaskAsyncEnumerable<TSource> source, Func<TSource, UniTask<TKey>> keySelector)
+        public static IUniTaskOrderedAsyncEnumerable<TSource> OrderByDescendingAwait<TSource, TKey>(
+            this IUniTaskAsyncEnumerable<TSource> source, Func<TSource, UniTask<TKey>> keySelector)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             Error.ThrowArgumentNullException(keySelector, nameof(keySelector));
 
-            return new OrderedAsyncEnumerableAwait<TSource, TKey>(source, keySelector, Comparer<TKey>.Default, true, null);
+            return new OrderedAsyncEnumerableAwait<TSource, TKey>(source, keySelector, Comparer<TKey>.Default, true,
+                null);
         }
 
-        public static IUniTaskOrderedAsyncEnumerable<TSource> OrderByDescendingAwait<TSource, TKey>(this IUniTaskAsyncEnumerable<TSource> source, Func<TSource, UniTask<TKey>> keySelector, IComparer<TKey> comparer)
+        public static IUniTaskOrderedAsyncEnumerable<TSource> OrderByDescendingAwait<TSource, TKey>(
+            this IUniTaskAsyncEnumerable<TSource> source, Func<TSource, UniTask<TKey>> keySelector,
+            IComparer<TKey> comparer)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             Error.ThrowArgumentNullException(keySelector, nameof(keySelector));
@@ -95,28 +111,34 @@ namespace Cysharp.Threading.Tasks.Linq
             return new OrderedAsyncEnumerableAwait<TSource, TKey>(source, keySelector, comparer, true, null);
         }
 
-        public static IUniTaskOrderedAsyncEnumerable<TSource> OrderByDescendingAwaitWithCancellation<TSource, TKey>(this IUniTaskAsyncEnumerable<TSource> source, Func<TSource, CancellationToken, UniTask<TKey>> keySelector)
+        public static IUniTaskOrderedAsyncEnumerable<TSource> OrderByDescendingAwaitWithCancellation<TSource, TKey>(
+            this IUniTaskAsyncEnumerable<TSource> source, Func<TSource, CancellationToken, UniTask<TKey>> keySelector)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             Error.ThrowArgumentNullException(keySelector, nameof(keySelector));
 
-            return new OrderedAsyncEnumerableAwaitWithCancellation<TSource, TKey>(source, keySelector, Comparer<TKey>.Default, true, null);
+            return new OrderedAsyncEnumerableAwaitWithCancellation<TSource, TKey>(source, keySelector,
+                Comparer<TKey>.Default, true, null);
         }
 
-        public static IUniTaskOrderedAsyncEnumerable<TSource> OrderByDescendingAwaitWithCancellation<TSource, TKey>(this IUniTaskAsyncEnumerable<TSource> source, Func<TSource, CancellationToken, UniTask<TKey>> keySelector, IComparer<TKey> comparer)
+        public static IUniTaskOrderedAsyncEnumerable<TSource> OrderByDescendingAwaitWithCancellation<TSource, TKey>(
+            this IUniTaskAsyncEnumerable<TSource> source, Func<TSource, CancellationToken, UniTask<TKey>> keySelector,
+            IComparer<TKey> comparer)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             Error.ThrowArgumentNullException(keySelector, nameof(keySelector));
             Error.ThrowArgumentNullException(comparer, nameof(comparer));
 
-            return new OrderedAsyncEnumerableAwaitWithCancellation<TSource, TKey>(source, keySelector, comparer, true, null);
+            return new OrderedAsyncEnumerableAwaitWithCancellation<TSource, TKey>(source, keySelector, comparer, true,
+                null);
         }
 
         #endregion
 
         #region ThenBy_ThenByDescending
 
-        public static IUniTaskOrderedAsyncEnumerable<TSource> ThenBy<TSource, TKey>(this IUniTaskOrderedAsyncEnumerable<TSource> source, Func<TSource, TKey> keySelector)
+        public static IUniTaskOrderedAsyncEnumerable<TSource> ThenBy<TSource, TKey>(
+            this IUniTaskOrderedAsyncEnumerable<TSource> source, Func<TSource, TKey> keySelector)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             Error.ThrowArgumentNullException(keySelector, nameof(keySelector));
@@ -124,7 +146,9 @@ namespace Cysharp.Threading.Tasks.Linq
             return source.CreateOrderedEnumerable(keySelector, Comparer<TKey>.Default, false);
         }
 
-        public static IUniTaskOrderedAsyncEnumerable<TSource> ThenBy<TSource, TKey>(this IUniTaskOrderedAsyncEnumerable<TSource> source, Func<TSource, TKey> keySelector, IComparer<TKey> comparer)
+        public static IUniTaskOrderedAsyncEnumerable<TSource> ThenBy<TSource, TKey>(
+            this IUniTaskOrderedAsyncEnumerable<TSource> source, Func<TSource, TKey> keySelector,
+            IComparer<TKey> comparer)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             Error.ThrowArgumentNullException(keySelector, nameof(keySelector));
@@ -133,7 +157,8 @@ namespace Cysharp.Threading.Tasks.Linq
             return source.CreateOrderedEnumerable(keySelector, comparer, false);
         }
 
-        public static IUniTaskOrderedAsyncEnumerable<TSource> ThenByAwait<TSource, TKey>(this IUniTaskOrderedAsyncEnumerable<TSource> source, Func<TSource, UniTask<TKey>> keySelector)
+        public static IUniTaskOrderedAsyncEnumerable<TSource> ThenByAwait<TSource, TKey>(
+            this IUniTaskOrderedAsyncEnumerable<TSource> source, Func<TSource, UniTask<TKey>> keySelector)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             Error.ThrowArgumentNullException(keySelector, nameof(keySelector));
@@ -141,7 +166,9 @@ namespace Cysharp.Threading.Tasks.Linq
             return source.CreateOrderedEnumerable(keySelector, Comparer<TKey>.Default, false);
         }
 
-        public static IUniTaskOrderedAsyncEnumerable<TSource> ThenByAwait<TSource, TKey>(this IUniTaskOrderedAsyncEnumerable<TSource> source, Func<TSource, UniTask<TKey>> keySelector, IComparer<TKey> comparer)
+        public static IUniTaskOrderedAsyncEnumerable<TSource> ThenByAwait<TSource, TKey>(
+            this IUniTaskOrderedAsyncEnumerable<TSource> source, Func<TSource, UniTask<TKey>> keySelector,
+            IComparer<TKey> comparer)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             Error.ThrowArgumentNullException(keySelector, nameof(keySelector));
@@ -150,7 +177,9 @@ namespace Cysharp.Threading.Tasks.Linq
             return source.CreateOrderedEnumerable(keySelector, comparer, false);
         }
 
-        public static IUniTaskOrderedAsyncEnumerable<TSource> ThenByAwaitWithCancellation<TSource, TKey>(this IUniTaskOrderedAsyncEnumerable<TSource> source, Func<TSource, CancellationToken, UniTask<TKey>> keySelector)
+        public static IUniTaskOrderedAsyncEnumerable<TSource> ThenByAwaitWithCancellation<TSource, TKey>(
+            this IUniTaskOrderedAsyncEnumerable<TSource> source,
+            Func<TSource, CancellationToken, UniTask<TKey>> keySelector)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             Error.ThrowArgumentNullException(keySelector, nameof(keySelector));
@@ -158,7 +187,9 @@ namespace Cysharp.Threading.Tasks.Linq
             return source.CreateOrderedEnumerable(keySelector, Comparer<TKey>.Default, false);
         }
 
-        public static IUniTaskOrderedAsyncEnumerable<TSource> ThenByAwaitWithCancellation<TSource, TKey>(this IUniTaskOrderedAsyncEnumerable<TSource> source, Func<TSource, CancellationToken, UniTask<TKey>> keySelector, IComparer<TKey> comparer)
+        public static IUniTaskOrderedAsyncEnumerable<TSource> ThenByAwaitWithCancellation<TSource, TKey>(
+            this IUniTaskOrderedAsyncEnumerable<TSource> source,
+            Func<TSource, CancellationToken, UniTask<TKey>> keySelector, IComparer<TKey> comparer)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             Error.ThrowArgumentNullException(keySelector, nameof(keySelector));
@@ -167,7 +198,8 @@ namespace Cysharp.Threading.Tasks.Linq
             return source.CreateOrderedEnumerable(keySelector, comparer, false);
         }
 
-        public static IUniTaskOrderedAsyncEnumerable<TSource> ThenByDescending<TSource, TKey>(this IUniTaskOrderedAsyncEnumerable<TSource> source, Func<TSource, TKey> keySelector)
+        public static IUniTaskOrderedAsyncEnumerable<TSource> ThenByDescending<TSource, TKey>(
+            this IUniTaskOrderedAsyncEnumerable<TSource> source, Func<TSource, TKey> keySelector)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             Error.ThrowArgumentNullException(keySelector, nameof(keySelector));
@@ -175,7 +207,9 @@ namespace Cysharp.Threading.Tasks.Linq
             return source.CreateOrderedEnumerable(keySelector, Comparer<TKey>.Default, true);
         }
 
-        public static IUniTaskOrderedAsyncEnumerable<TSource> ThenByDescending<TSource, TKey>(this IUniTaskOrderedAsyncEnumerable<TSource> source, Func<TSource, TKey> keySelector, IComparer<TKey> comparer)
+        public static IUniTaskOrderedAsyncEnumerable<TSource> ThenByDescending<TSource, TKey>(
+            this IUniTaskOrderedAsyncEnumerable<TSource> source, Func<TSource, TKey> keySelector,
+            IComparer<TKey> comparer)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             Error.ThrowArgumentNullException(keySelector, nameof(keySelector));
@@ -184,7 +218,8 @@ namespace Cysharp.Threading.Tasks.Linq
             return source.CreateOrderedEnumerable(keySelector, comparer, true);
         }
 
-        public static IUniTaskOrderedAsyncEnumerable<TSource> ThenByDescendingAwait<TSource, TKey>(this IUniTaskOrderedAsyncEnumerable<TSource> source, Func<TSource, UniTask<TKey>> keySelector)
+        public static IUniTaskOrderedAsyncEnumerable<TSource> ThenByDescendingAwait<TSource, TKey>(
+            this IUniTaskOrderedAsyncEnumerable<TSource> source, Func<TSource, UniTask<TKey>> keySelector)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             Error.ThrowArgumentNullException(keySelector, nameof(keySelector));
@@ -192,7 +227,9 @@ namespace Cysharp.Threading.Tasks.Linq
             return source.CreateOrderedEnumerable(keySelector, Comparer<TKey>.Default, true);
         }
 
-        public static IUniTaskOrderedAsyncEnumerable<TSource> ThenByDescendingAwait<TSource, TKey>(this IUniTaskOrderedAsyncEnumerable<TSource> source, Func<TSource, UniTask<TKey>> keySelector, IComparer<TKey> comparer)
+        public static IUniTaskOrderedAsyncEnumerable<TSource> ThenByDescendingAwait<TSource, TKey>(
+            this IUniTaskOrderedAsyncEnumerable<TSource> source, Func<TSource, UniTask<TKey>> keySelector,
+            IComparer<TKey> comparer)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             Error.ThrowArgumentNullException(keySelector, nameof(keySelector));
@@ -201,7 +238,9 @@ namespace Cysharp.Threading.Tasks.Linq
             return source.CreateOrderedEnumerable(keySelector, comparer, true);
         }
 
-        public static IUniTaskOrderedAsyncEnumerable<TSource> ThenByDescendingAwaitWithCancellation<TSource, TKey>(this IUniTaskOrderedAsyncEnumerable<TSource> source, Func<TSource, CancellationToken, UniTask<TKey>> keySelector)
+        public static IUniTaskOrderedAsyncEnumerable<TSource> ThenByDescendingAwaitWithCancellation<TSource, TKey>(
+            this IUniTaskOrderedAsyncEnumerable<TSource> source,
+            Func<TSource, CancellationToken, UniTask<TKey>> keySelector)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             Error.ThrowArgumentNullException(keySelector, nameof(keySelector));
@@ -209,7 +248,9 @@ namespace Cysharp.Threading.Tasks.Linq
             return source.CreateOrderedEnumerable(keySelector, Comparer<TKey>.Default, true);
         }
 
-        public static IUniTaskOrderedAsyncEnumerable<TSource> ThenByDescendingAwaitWithCancellation<TSource, TKey>(this IUniTaskOrderedAsyncEnumerable<TSource> source, Func<TSource, CancellationToken, UniTask<TKey>> keySelector, IComparer<TKey> comparer)
+        public static IUniTaskOrderedAsyncEnumerable<TSource> ThenByDescendingAwaitWithCancellation<TSource, TKey>(
+            this IUniTaskOrderedAsyncEnumerable<TSource> source,
+            Func<TSource, CancellationToken, UniTask<TKey>> keySelector, IComparer<TKey> comparer)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
             Error.ThrowArgumentNullException(keySelector, nameof(keySelector));
@@ -231,19 +272,19 @@ namespace Cysharp.Threading.Tasks.Linq
         {
             await ComputeKeysAsync(elements, count);
 
-            int[] map = new int[count];
-            for (int i = 0; i < count; i++) map[i] = i;
+            var map = new int[count];
+            for (var i = 0; i < count; i++) map[i] = i;
             QuickSort(map, 0, count - 1);
             return map;
         }
 
-        void QuickSort(int[] map, int left, int right)
+        private void QuickSort(int[] map, int left, int right)
         {
             do
             {
-                int i = left;
-                int j = right;
-                int x = map[i + ((j - i) >> 1)];
+                var i = left;
+                var j = right;
+                var x = map[i + ((j - i) >> 1)];
                 do
                 {
                     while (i < map.Length && CompareKeys(x, map[i]) > 0) i++;
@@ -251,13 +292,15 @@ namespace Cysharp.Threading.Tasks.Linq
                     if (i > j) break;
                     if (i < j)
                     {
-                        int temp = map[i];
+                        var temp = map[i];
                         map[i] = map[j];
                         map[j] = temp;
                     }
+
                     i++;
                     j--;
                 } while (i <= j);
+
                 if (j - left <= right - i)
                 {
                     if (left < j) QuickSort(map, left, j);
@@ -274,13 +317,14 @@ namespace Cysharp.Threading.Tasks.Linq
 
     internal class SyncSelectorAsyncEnumerableSorter<TElement, TKey> : AsyncEnumerableSorter<TElement>
     {
-        readonly Func<TElement, TKey> keySelector;
-        readonly IComparer<TKey> comparer;
-        readonly bool descending;
-        readonly AsyncEnumerableSorter<TElement> next;
-        TKey[] keys;
+        private readonly IComparer<TKey> comparer;
+        private readonly bool descending;
+        private readonly Func<TElement, TKey> keySelector;
+        private readonly AsyncEnumerableSorter<TElement> next;
+        private TKey[] keys;
 
-        internal SyncSelectorAsyncEnumerableSorter(Func<TElement, TKey> keySelector, IComparer<TKey> comparer, bool descending, AsyncEnumerableSorter<TElement> next)
+        internal SyncSelectorAsyncEnumerableSorter(Func<TElement, TKey> keySelector, IComparer<TKey> comparer,
+            bool descending, AsyncEnumerableSorter<TElement> next)
         {
             this.keySelector = keySelector;
             this.comparer = comparer;
@@ -291,31 +335,33 @@ namespace Cysharp.Threading.Tasks.Linq
         internal override async UniTask ComputeKeysAsync(TElement[] elements, int count)
         {
             keys = new TKey[count];
-            for (int i = 0; i < count; i++) keys[i] = keySelector(elements[i]);
+            for (var i = 0; i < count; i++) keys[i] = keySelector(elements[i]);
             if (next != null) await next.ComputeKeysAsync(elements, count);
         }
 
         internal override int CompareKeys(int index1, int index2)
         {
-            int c = comparer.Compare(keys[index1], keys[index2]);
+            var c = comparer.Compare(keys[index1], keys[index2]);
             if (c == 0)
             {
                 if (next == null) return index1 - index2;
                 return next.CompareKeys(index1, index2);
             }
+
             return descending ? -c : c;
         }
     }
 
     internal class AsyncSelectorEnumerableSorter<TElement, TKey> : AsyncEnumerableSorter<TElement>
     {
-        readonly Func<TElement, UniTask<TKey>> keySelector;
-        readonly IComparer<TKey> comparer;
-        readonly bool descending;
-        readonly AsyncEnumerableSorter<TElement> next;
-        TKey[] keys;
+        private readonly IComparer<TKey> comparer;
+        private readonly bool descending;
+        private readonly Func<TElement, UniTask<TKey>> keySelector;
+        private readonly AsyncEnumerableSorter<TElement> next;
+        private TKey[] keys;
 
-        internal AsyncSelectorEnumerableSorter(Func<TElement, UniTask<TKey>> keySelector, IComparer<TKey> comparer, bool descending, AsyncEnumerableSorter<TElement> next)
+        internal AsyncSelectorEnumerableSorter(Func<TElement, UniTask<TKey>> keySelector, IComparer<TKey> comparer,
+            bool descending, AsyncEnumerableSorter<TElement> next)
         {
             this.keySelector = keySelector;
             this.comparer = comparer;
@@ -326,32 +372,35 @@ namespace Cysharp.Threading.Tasks.Linq
         internal override async UniTask ComputeKeysAsync(TElement[] elements, int count)
         {
             keys = new TKey[count];
-            for (int i = 0; i < count; i++) keys[i] = await keySelector(elements[i]);
+            for (var i = 0; i < count; i++) keys[i] = await keySelector(elements[i]);
             if (next != null) await next.ComputeKeysAsync(elements, count);
         }
 
         internal override int CompareKeys(int index1, int index2)
         {
-            int c = comparer.Compare(keys[index1], keys[index2]);
+            var c = comparer.Compare(keys[index1], keys[index2]);
             if (c == 0)
             {
                 if (next == null) return index1 - index2;
                 return next.CompareKeys(index1, index2);
             }
+
             return descending ? -c : c;
         }
     }
 
     internal class AsyncSelectorWithCancellationEnumerableSorter<TElement, TKey> : AsyncEnumerableSorter<TElement>
     {
-        readonly Func<TElement, CancellationToken, UniTask<TKey>> keySelector;
-        readonly IComparer<TKey> comparer;
-        readonly bool descending;
-        readonly AsyncEnumerableSorter<TElement> next;
-        CancellationToken cancellationToken;
-        TKey[] keys;
+        private readonly IComparer<TKey> comparer;
+        private readonly bool descending;
+        private readonly Func<TElement, CancellationToken, UniTask<TKey>> keySelector;
+        private readonly AsyncEnumerableSorter<TElement> next;
+        private readonly CancellationToken cancellationToken;
+        private TKey[] keys;
 
-        internal AsyncSelectorWithCancellationEnumerableSorter(Func<TElement, CancellationToken, UniTask<TKey>> keySelector, IComparer<TKey> comparer, bool descending, AsyncEnumerableSorter<TElement> next, CancellationToken cancellationToken)
+        internal AsyncSelectorWithCancellationEnumerableSorter(
+            Func<TElement, CancellationToken, UniTask<TKey>> keySelector, IComparer<TKey> comparer, bool descending,
+            AsyncEnumerableSorter<TElement> next, CancellationToken cancellationToken)
         {
             this.keySelector = keySelector;
             this.comparer = comparer;
@@ -363,18 +412,19 @@ namespace Cysharp.Threading.Tasks.Linq
         internal override async UniTask ComputeKeysAsync(TElement[] elements, int count)
         {
             keys = new TKey[count];
-            for (int i = 0; i < count; i++) keys[i] = await keySelector(elements[i], cancellationToken);
+            for (var i = 0; i < count; i++) keys[i] = await keySelector(elements[i], cancellationToken);
             if (next != null) await next.ComputeKeysAsync(elements, count);
         }
 
         internal override int CompareKeys(int index1, int index2)
         {
-            int c = comparer.Compare(keys[index1], keys[index2]);
+            var c = comparer.Compare(keys[index1], keys[index2]);
             if (c == 0)
             {
                 if (next == null) return index1 - index2;
                 return next.CompareKeys(index1, index2);
             }
+
             return descending ? -c : c;
         }
     }
@@ -388,35 +438,40 @@ namespace Cysharp.Threading.Tasks.Linq
             this.source = source;
         }
 
-        public IUniTaskOrderedAsyncEnumerable<TElement> CreateOrderedEnumerable<TKey>(Func<TElement, TKey> keySelector, IComparer<TKey> comparer, bool descending)
+        public IUniTaskOrderedAsyncEnumerable<TElement> CreateOrderedEnumerable<TKey>(Func<TElement, TKey> keySelector,
+            IComparer<TKey> comparer, bool descending)
         {
             return new OrderedAsyncEnumerable<TElement, TKey>(source, keySelector, comparer, descending, this);
         }
 
-        public IUniTaskOrderedAsyncEnumerable<TElement> CreateOrderedEnumerable<TKey>(Func<TElement, UniTask<TKey>> keySelector, IComparer<TKey> comparer, bool descending)
+        public IUniTaskOrderedAsyncEnumerable<TElement> CreateOrderedEnumerable<TKey>(
+            Func<TElement, UniTask<TKey>> keySelector, IComparer<TKey> comparer, bool descending)
         {
             return new OrderedAsyncEnumerableAwait<TElement, TKey>(source, keySelector, comparer, descending, this);
         }
 
-        public IUniTaskOrderedAsyncEnumerable<TElement> CreateOrderedEnumerable<TKey>(Func<TElement, CancellationToken, UniTask<TKey>> keySelector, IComparer<TKey> comparer, bool descending)
+        public IUniTaskOrderedAsyncEnumerable<TElement> CreateOrderedEnumerable<TKey>(
+            Func<TElement, CancellationToken, UniTask<TKey>> keySelector, IComparer<TKey> comparer, bool descending)
         {
-            return new OrderedAsyncEnumerableAwaitWithCancellation<TElement, TKey>(source, keySelector, comparer, descending, this);
+            return new OrderedAsyncEnumerableAwaitWithCancellation<TElement, TKey>(source, keySelector, comparer,
+                descending, this);
         }
-
-        internal abstract AsyncEnumerableSorter<TElement> GetAsyncEnumerableSorter(AsyncEnumerableSorter<TElement> next, CancellationToken cancellationToken);
 
         public IUniTaskAsyncEnumerator<TElement> GetAsyncEnumerator(CancellationToken cancellationToken = default)
         {
             return new _OrderedAsyncEnumerator(this, cancellationToken);
         }
 
-        class _OrderedAsyncEnumerator : MoveNextSource, IUniTaskAsyncEnumerator<TElement>
+        internal abstract AsyncEnumerableSorter<TElement> GetAsyncEnumerableSorter(AsyncEnumerableSorter<TElement> next,
+            CancellationToken cancellationToken);
+
+        private class _OrderedAsyncEnumerator : MoveNextSource, IUniTaskAsyncEnumerator<TElement>
         {
             protected readonly OrderedAsyncEnumerable<TElement> parent;
-            CancellationToken cancellationToken;
-            TElement[] buffer;
-            int[] map;
-            int index;
+            private TElement[] buffer;
+            private readonly CancellationToken cancellationToken;
+            private int index;
+            private int[] map;
 
             public _OrderedAsyncEnumerator(OrderedAsyncEnumerable<TElement> parent, CancellationToken cancellationToken)
             {
@@ -443,13 +498,17 @@ namespace Cysharp.Threading.Tasks.Linq
                     Current = buffer[map[index++]];
                     return CompletedTasks.True;
                 }
-                else
-                {
-                    return CompletedTasks.False;
-                }
+
+                return CompletedTasks.False;
             }
 
-            async UniTaskVoid CreateSortSource()
+            public UniTask DisposeAsync()
+            {
+                TaskTracker.RemoveTracking(this);
+                return default;
+            }
+
+            private async UniTaskVoid CreateSortSource()
             {
                 try
                 {
@@ -475,23 +534,18 @@ namespace Cysharp.Threading.Tasks.Linq
 
                 completionSource.TrySetResult(true);
             }
-
-            public UniTask DisposeAsync()
-            {
-                TaskTracker.RemoveTracking(this);
-                return default;
-            }
         }
     }
 
     internal class OrderedAsyncEnumerable<TElement, TKey> : OrderedAsyncEnumerable<TElement>
     {
-        readonly Func<TElement, TKey> keySelector;
-        readonly IComparer<TKey> comparer;
-        readonly bool descending;
-        readonly OrderedAsyncEnumerable<TElement> parent;
+        private readonly IComparer<TKey> comparer;
+        private readonly bool descending;
+        private readonly Func<TElement, TKey> keySelector;
+        private readonly OrderedAsyncEnumerable<TElement> parent;
 
-        public OrderedAsyncEnumerable(IUniTaskAsyncEnumerable<TElement> source, Func<TElement, TKey> keySelector, IComparer<TKey> comparer, bool descending, OrderedAsyncEnumerable<TElement> parent)
+        public OrderedAsyncEnumerable(IUniTaskAsyncEnumerable<TElement> source, Func<TElement, TKey> keySelector,
+            IComparer<TKey> comparer, bool descending, OrderedAsyncEnumerable<TElement> parent)
             : base(source)
         {
             this.keySelector = keySelector;
@@ -500,9 +554,11 @@ namespace Cysharp.Threading.Tasks.Linq
             this.parent = parent;
         }
 
-        internal override AsyncEnumerableSorter<TElement> GetAsyncEnumerableSorter(AsyncEnumerableSorter<TElement> next, CancellationToken cancellationToken)
+        internal override AsyncEnumerableSorter<TElement> GetAsyncEnumerableSorter(AsyncEnumerableSorter<TElement> next,
+            CancellationToken cancellationToken)
         {
-            AsyncEnumerableSorter<TElement> sorter = new SyncSelectorAsyncEnumerableSorter<TElement, TKey>(keySelector, comparer, descending, next);
+            AsyncEnumerableSorter<TElement> sorter =
+                new SyncSelectorAsyncEnumerableSorter<TElement, TKey>(keySelector, comparer, descending, next);
             if (parent != null) sorter = parent.GetAsyncEnumerableSorter(sorter, cancellationToken);
             return sorter;
         }
@@ -510,12 +566,14 @@ namespace Cysharp.Threading.Tasks.Linq
 
     internal class OrderedAsyncEnumerableAwait<TElement, TKey> : OrderedAsyncEnumerable<TElement>
     {
-        readonly Func<TElement, UniTask<TKey>> keySelector;
-        readonly IComparer<TKey> comparer;
-        readonly bool descending;
-        readonly OrderedAsyncEnumerable<TElement> parent;
+        private readonly IComparer<TKey> comparer;
+        private readonly bool descending;
+        private readonly Func<TElement, UniTask<TKey>> keySelector;
+        private readonly OrderedAsyncEnumerable<TElement> parent;
 
-        public OrderedAsyncEnumerableAwait(IUniTaskAsyncEnumerable<TElement> source, Func<TElement, UniTask<TKey>> keySelector, IComparer<TKey> comparer, bool descending, OrderedAsyncEnumerable<TElement> parent)
+        public OrderedAsyncEnumerableAwait(IUniTaskAsyncEnumerable<TElement> source,
+            Func<TElement, UniTask<TKey>> keySelector, IComparer<TKey> comparer, bool descending,
+            OrderedAsyncEnumerable<TElement> parent)
             : base(source)
         {
             this.keySelector = keySelector;
@@ -524,9 +582,11 @@ namespace Cysharp.Threading.Tasks.Linq
             this.parent = parent;
         }
 
-        internal override AsyncEnumerableSorter<TElement> GetAsyncEnumerableSorter(AsyncEnumerableSorter<TElement> next, CancellationToken cancellationToken)
+        internal override AsyncEnumerableSorter<TElement> GetAsyncEnumerableSorter(AsyncEnumerableSorter<TElement> next,
+            CancellationToken cancellationToken)
         {
-            AsyncEnumerableSorter<TElement> sorter = new AsyncSelectorEnumerableSorter<TElement, TKey>(keySelector, comparer, descending, next);
+            AsyncEnumerableSorter<TElement> sorter =
+                new AsyncSelectorEnumerableSorter<TElement, TKey>(keySelector, comparer, descending, next);
             if (parent != null) sorter = parent.GetAsyncEnumerableSorter(sorter, cancellationToken);
             return sorter;
         }
@@ -534,12 +594,14 @@ namespace Cysharp.Threading.Tasks.Linq
 
     internal class OrderedAsyncEnumerableAwaitWithCancellation<TElement, TKey> : OrderedAsyncEnumerable<TElement>
     {
-        readonly Func<TElement, CancellationToken, UniTask<TKey>> keySelector;
-        readonly IComparer<TKey> comparer;
-        readonly bool descending;
-        readonly OrderedAsyncEnumerable<TElement> parent;
+        private readonly IComparer<TKey> comparer;
+        private readonly bool descending;
+        private readonly Func<TElement, CancellationToken, UniTask<TKey>> keySelector;
+        private readonly OrderedAsyncEnumerable<TElement> parent;
 
-        public OrderedAsyncEnumerableAwaitWithCancellation(IUniTaskAsyncEnumerable<TElement> source, Func<TElement, CancellationToken, UniTask<TKey>> keySelector, IComparer<TKey> comparer, bool descending, OrderedAsyncEnumerable<TElement> parent)
+        public OrderedAsyncEnumerableAwaitWithCancellation(IUniTaskAsyncEnumerable<TElement> source,
+            Func<TElement, CancellationToken, UniTask<TKey>> keySelector, IComparer<TKey> comparer, bool descending,
+            OrderedAsyncEnumerable<TElement> parent)
             : base(source)
         {
             this.keySelector = keySelector;
@@ -548,9 +610,12 @@ namespace Cysharp.Threading.Tasks.Linq
             this.parent = parent;
         }
 
-        internal override AsyncEnumerableSorter<TElement> GetAsyncEnumerableSorter(AsyncEnumerableSorter<TElement> next, CancellationToken cancellationToken)
+        internal override AsyncEnumerableSorter<TElement> GetAsyncEnumerableSorter(AsyncEnumerableSorter<TElement> next,
+            CancellationToken cancellationToken)
         {
-            AsyncEnumerableSorter<TElement> sorter = new AsyncSelectorWithCancellationEnumerableSorter<TElement, TKey>(keySelector, comparer, descending, next, cancellationToken);
+            AsyncEnumerableSorter<TElement> sorter =
+                new AsyncSelectorWithCancellationEnumerableSorter<TElement, TKey>(keySelector, comparer, descending,
+                    next, cancellationToken);
             if (parent != null) sorter = parent.GetAsyncEnumerableSorter(sorter, cancellationToken);
             return sorter;
         }

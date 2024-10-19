@@ -1,12 +1,12 @@
-﻿using Cysharp.Threading.Tasks.Internal;
-using System;
-using System.Threading;
+﻿using System.Threading;
+using Cysharp.Threading.Tasks.Internal;
 
 namespace Cysharp.Threading.Tasks.Linq
 {
     public static partial class UniTaskAsyncEnumerable
     {
-        public static IUniTaskAsyncEnumerable<TSource> Skip<TSource>(this IUniTaskAsyncEnumerable<TSource> source, Int32 count)
+        public static IUniTaskAsyncEnumerable<TSource> Skip<TSource>(this IUniTaskAsyncEnumerable<TSource> source,
+            int count)
         {
             Error.ThrowArgumentNullException(source, nameof(source));
 
@@ -16,8 +16,8 @@ namespace Cysharp.Threading.Tasks.Linq
 
     internal sealed class Skip<TSource> : IUniTaskAsyncEnumerable<TSource>
     {
-        readonly IUniTaskAsyncEnumerable<TSource> source;
-        readonly int count;
+        private readonly int count;
+        private readonly IUniTaskAsyncEnumerable<TSource> source;
 
         public Skip(IUniTaskAsyncEnumerable<TSource> source, int count)
         {
@@ -30,11 +30,11 @@ namespace Cysharp.Threading.Tasks.Linq
             return new _Skip(source, count, cancellationToken);
         }
 
-        sealed class _Skip : AsyncEnumeratorBase<TSource, TSource>
+        private sealed class _Skip : AsyncEnumeratorBase<TSource, TSource>
         {
-            readonly int count;
+            private readonly int count;
 
-            int index;
+            private int index;
 
             public _Skip(IUniTaskAsyncEnumerable<TSource> source, int count, CancellationToken cancellationToken)
                 : base(source, cancellationToken)
@@ -52,17 +52,13 @@ namespace Cysharp.Threading.Tasks.Linq
                         result = true;
                         return true;
                     }
-                    else
-                    {
-                        result = default;
-                        return false;
-                    }
+
+                    result = default;
+                    return false;
                 }
-                else
-                {
-                    result = false;
-                    return true;
-                }
+
+                result = false;
+                return true;
             }
         }
     }

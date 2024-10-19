@@ -5,7 +5,7 @@ using Cysharp.Threading.Tasks.Internal;
 namespace Cysharp.Threading.Tasks
 {
     /// <summary>
-    /// Lightweight IProgress[T] factory.
+    ///     Lightweight IProgress[T] factory.
     /// </summary>
     public static class Progress
     {
@@ -25,13 +25,12 @@ namespace Cysharp.Threading.Tasks
 #endif
         }
 
-        sealed class NullProgress<T> : IProgress<T>
+        private sealed class NullProgress<T> : IProgress<T>
         {
             public static readonly IProgress<T> Instance = new NullProgress<T>();
 
-            NullProgress()
+            private NullProgress()
             {
-
             }
 
             public void Report(T value)
@@ -39,9 +38,9 @@ namespace Cysharp.Threading.Tasks
             }
         }
 
-        sealed class AnonymousProgress<T> : IProgress<T>
+        private sealed class AnonymousProgress<T> : IProgress<T>
         {
-            readonly Action<T> action;
+            private readonly Action<T> action;
 
             public AnonymousProgress(Action<T> action)
             {
@@ -54,30 +53,25 @@ namespace Cysharp.Threading.Tasks
             }
         }
 
-        sealed class OnlyValueChangedProgress<T> : IProgress<T>
+        private sealed class OnlyValueChangedProgress<T> : IProgress<T>
         {
-            readonly Action<T> action;
-            readonly IEqualityComparer<T> comparer;
-            bool isFirstCall;
-            T latestValue;
+            private readonly Action<T> action;
+            private readonly IEqualityComparer<T> comparer;
+            private bool isFirstCall;
+            private T latestValue;
 
             public OnlyValueChangedProgress(Action<T> action, IEqualityComparer<T> comparer)
             {
                 this.action = action;
                 this.comparer = comparer;
-                this.isFirstCall = true;
+                isFirstCall = true;
             }
 
             public void Report(T value)
             {
                 if (isFirstCall)
-                {
                     isFirstCall = false;
-                }
-                else if (comparer.Equals(value, latestValue))
-                {
-                    return;
-                }
+                else if (comparer.Equals(value, latestValue)) return;
 
                 latestValue = value;
                 action(value);

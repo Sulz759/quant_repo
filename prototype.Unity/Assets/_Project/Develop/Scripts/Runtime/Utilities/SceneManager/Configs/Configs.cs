@@ -3,85 +3,81 @@ using System.Collections.Generic;
 
 namespace _Project.Architecture.Scripts.Runtime.Utilities.SceneManager.Configs
 {
-	public class BootstrapConfig : SceneConfig
-	{
+    public class BootstrapConfig : SceneConfig
+    {
+        public const string SCENE_NAME = "Bootstrap";
 
-		public const string SCENE_NAME = "Bootstrap";
-
-		public override string sceneName => SCENE_NAME;
-
+        public override string sceneName => SCENE_NAME;
 
 
-		public override Dictionary<Type, Repository> CreateAllRepositories()
-		{
-			var repositoriesMap = new Dictionary<Type, Repository>();
-			
-			//this.CreateRepository<BankRepository>(repositoriesMap);
+        public override Dictionary<Type, Repository> CreateAllRepositories()
+        {
+            var repositoriesMap = new Dictionary<Type, Repository>();
 
-			return repositoriesMap;
-		}
+            //this.CreateRepository<BankRepository>(repositoriesMap);
 
-		public override Dictionary<Type, Interactor> CreateAllInteractors()
-		{
-			var interactorsMap = new Dictionary<Type, Interactor>();
-			
-			//this.CreateInteractor<BankInteractor>(interactorsMap);
+            return repositoriesMap;
+        }
 
-			return interactorsMap;
-		}
-	}
-	public class MetaConfig : SceneConfig
-	{
+        public override Dictionary<Type, Interactor> CreateAllInteractors()
+        {
+            var interactorsMap = new Dictionary<Type, Interactor>();
 
-		public const string SCENE_NAME = "Meta";
+            //this.CreateInteractor<BankInteractor>(interactorsMap);
 
-		public override string sceneName => SCENE_NAME;
+            return interactorsMap;
+        }
+    }
 
+    public class MetaConfig : SceneConfig
+    {
+        public const string SCENE_NAME = "Meta";
 
-
-		public override Dictionary<Type, Repository> CreateAllRepositories()
-		{
-			var repositoriesMap = new Dictionary<Type, Repository>();
-			
-			//this.CreateRepository<BankRepository>(repositoriesMap);
-
-			return repositoriesMap;
-		}
-
-		public override Dictionary<Type, Interactor> CreateAllInteractors()
-		{
-			var interactorsMap = new Dictionary<Type, Interactor>();
-			
-			//this.CreateInteractor<BankInteractor>(interactorsMap);
-
-			return interactorsMap;
-		}
-	}
-	public class CoreConfig : SceneConfig
-	{
-
-		public const string SCENE_NAME = "Core";
-
-		public override string sceneName => SCENE_NAME;
+        public override string sceneName => SCENE_NAME;
 
 
+        public override Dictionary<Type, Repository> CreateAllRepositories()
+        {
+            var repositoriesMap = new Dictionary<Type, Repository>();
 
-		public override Dictionary<Type, Repository> CreateAllRepositories()
-		{
-			var repositoriesMap = new Dictionary<Type, Repository>();
-			
-			//this.CreateRepository<BankRepository>(repositoriesMap);
+            //this.CreateRepository<BankRepository>(repositoriesMap);
 
-			return repositoriesMap;
-		}
+            return repositoriesMap;
+        }
 
-		public override Dictionary<Type, Interactor> CreateAllInteractors()
-		{
-			var interactorsMap = new Dictionary<Type, Interactor>();
-			
-			//this.CreateInteractor<BankInteractor>(interactorsMap);
+        public override Dictionary<Type, Interactor> CreateAllInteractors()
+        {
+            var interactorsMap = new Dictionary<Type, Interactor>();
 
-			return interactorsMap;
-		}
-	}
+            //this.CreateInteractor<BankInteractor>(interactorsMap);
+
+            return interactorsMap;
+        }
+    }
+
+    public class CoreConfig : SceneConfig
+    {
+        public const string SCENE_NAME = "Core";
+
+        public override string sceneName => SCENE_NAME;
+
+
+        public override Dictionary<Type, Repository> CreateAllRepositories()
+        {
+            var repositoriesMap = new Dictionary<Type, Repository>();
+
+            //this.CreateRepository<BankRepository>(repositoriesMap);
+
+            return repositoriesMap;
+        }
+
+        public override Dictionary<Type, Interactor> CreateAllInteractors()
+        {
+            var interactorsMap = new Dictionary<Type, Interactor>();
+
+            //this.CreateInteractor<BankInteractor>(interactorsMap);
+
+            return interactorsMap;
+        }
+    }
 }

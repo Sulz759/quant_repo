@@ -1010,6 +1010,7 @@ MonoBehaviour:
     TypeName: _Project.Develop.Architecture.Runtime.Bootstrap.BootstrapScope
   autoRun: 1
   autoInjectGameObjects: []
+  _tachscreen: {fileID: 0}
 --- !u!4 &1057338444
 Transform:
   m_ObjectHideFlags: 0
@@ -1217,6 +1218,8 @@ GameObject:
   - component: {fileID: 1665396403}
   - component: {fileID: 1665396402}
   - component: {fileID: 1665396401}
+  - component: {fileID: 1665396406}
+  - component: {fileID: 1665396405}
   m_Layer: 0
   m_Name: Camera
   m_TagString: Untagged
@@ -1342,6 +1345,38 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 70, y: 0, z: 0}
+--- !u!114 &1665396405
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1665396400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56666c5a40171f54783dd416a44f42bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EventMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_MaxRayIntersections: 0
+--- !u!114 &1665396406
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1665396400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c49b4cc203aa6414fae5c798d1d0e7d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EventMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_MaxRayIntersections: 0
 --- !u!1 &1894370357
 GameObject:
   m_ObjectHideFlags: 0

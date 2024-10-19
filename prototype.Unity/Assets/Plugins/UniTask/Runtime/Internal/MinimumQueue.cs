@@ -8,78 +8,72 @@ namespace Cysharp.Threading.Tasks.Internal
     // optimized version of Standard Queue<T>.
     internal class MinimumQueue<T>
     {
-        const int MinimumGrow = 4;
-        const int GrowFactor = 200;
+        private const int MinimumGrow = 4;
+        private const int GrowFactor = 200;
 
-        T[] array;
-        int head;
-        int tail;
-        int size;
+        private T[] array;
+        private int head;
+        private int tail;
 
         public MinimumQueue(int capacity)
         {
             if (capacity < 0) throw new ArgumentOutOfRangeException("capacity");
             array = new T[capacity];
-            head = tail = size = 0;
+            head = tail = Count = 0;
         }
 
         public int Count
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return size; }
+            get;
+            private set;
         }
 
         public T Peek()
         {
-            if (size == 0) ThrowForEmptyQueue();
+            if (Count == 0) ThrowForEmptyQueue();
             return array[head];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Enqueue(T item)
         {
-            if (size == array.Length)
-            {
-                Grow();
-            }
+            if (Count == array.Length) Grow();
 
             array[tail] = item;
             MoveNext(ref tail);
-            size++;
+            Count++;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T Dequeue()
         {
-            if (size == 0) ThrowForEmptyQueue();
+            if (Count == 0) ThrowForEmptyQueue();
 
-            int head = this.head;
-            T[] array = this.array;
-            T removed = array[head];
-            array[head] = default(T);
+            var head = this.head;
+            var array = this.array;
+            var removed = array[head];
+            array[head] = default;
             MoveNext(ref this.head);
-            size--;
+            Count--;
             return removed;
         }
 
-        void Grow()
+        private void Grow()
         {
-            int newcapacity = (int)((long)array.Length * (long)GrowFactor / 100);
-            if (newcapacity < array.Length + MinimumGrow)
-            {
-                newcapacity = array.Length + MinimumGrow;
-            }
+            var newcapacity = (int)(array.Length * (long)GrowFactor / 100);
+            if (newcapacity < array.Length + MinimumGrow) newcapacity = array.Length + MinimumGrow;
             SetCapacity(newcapacity);
         }
 
-        void SetCapacity(int capacity)
+        private void SetCapacity(int capacity)
         {
-            T[] newarray = new T[capacity];
-            if (size > 0)
+            var newarray = new T[capacity];
+            if (Count > 0)
             {
                 if (head < tail)
                 {
-                    Array.Copy(array, head, newarray, 0, size);
+                    Array.Copy(array, head, newarray, 0, Count);
                 }
                 else
                 {
@@ -90,21 +84,18 @@ namespace Cysharp.Threading.Tasks.Internal
 
             array = newarray;
             head = 0;
-            tail = (size == capacity) ? 0 : size;
+            tail = Count == capacity ? 0 : Count;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void MoveNext(ref int index)
+        private void MoveNext(ref int index)
         {
-            int tmp = index + 1;
-            if (tmp == array.Length)
-            {
-                tmp = 0;
-            }
+            var tmp = index + 1;
+            if (tmp == array.Length) tmp = 0;
             index = tmp;
         }
 
-        void ThrowForEmptyQueue()
+        private void ThrowForEmptyQueue()
         {
             throw new InvalidOperationException("EmptyQueue");
         }

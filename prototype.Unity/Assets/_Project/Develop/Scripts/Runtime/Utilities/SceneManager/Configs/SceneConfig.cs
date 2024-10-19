@@ -5,10 +5,9 @@ namespace _Project.Architecture
 {
     public abstract class SceneConfig
     {
+        public abstract string sceneName { get; }
         public abstract Dictionary<Type, Repository> CreateAllRepositories();
         public abstract Dictionary<Type, Interactor> CreateAllInteractors();
-
-        public abstract string sceneName { get; }
 
         public void CreateInteractor<T>(Dictionary<Type, Interactor> interactorMap) where T : Interactor, new()
         {
@@ -25,6 +24,5 @@ namespace _Project.Architecture
 
             repositoryMap[type] = repository;
         }
-
     }
 }

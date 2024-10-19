@@ -6,7 +6,7 @@ namespace Cysharp.Threading.Tasks.Linq
     {
         public static IUniTaskAsyncEnumerable<T> Empty<T>()
         {
-            return Cysharp.Threading.Tasks.Linq.Empty<T>.Instance;
+            return Linq.Empty<T>.Instance;
         }
     }
 
@@ -14,7 +14,7 @@ namespace Cysharp.Threading.Tasks.Linq
     {
         public static readonly IUniTaskAsyncEnumerable<T> Instance = new Empty<T>();
 
-        Empty()
+        private Empty()
         {
         }
 
@@ -23,11 +23,11 @@ namespace Cysharp.Threading.Tasks.Linq
             return _Empty.Instance;
         }
 
-        class _Empty : IUniTaskAsyncEnumerator<T>
+        private class _Empty : IUniTaskAsyncEnumerator<T>
         {
             public static readonly IUniTaskAsyncEnumerator<T> Instance = new _Empty();
 
-            _Empty()
+            private _Empty()
             {
             }
 

@@ -2,10 +2,10 @@ using System;
 
 namespace VContainer.Internal
 {
-    readonly struct BuilderCallbackDisposable : IDisposable
+    internal readonly struct BuilderCallbackDisposable : IDisposable
     {
-        readonly Action<IObjectResolver> callback;
-        readonly IObjectResolver container;
+        private readonly Action<IObjectResolver> callback;
+        private readonly IObjectResolver container;
 
         public BuilderCallbackDisposable(Action<IObjectResolver> callback, IObjectResolver container)
         {

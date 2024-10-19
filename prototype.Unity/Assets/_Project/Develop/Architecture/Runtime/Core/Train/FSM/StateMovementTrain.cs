@@ -2,8 +2,7 @@
 
 namespace _Project.Develop.Architecture.Runtime.Core.Train.FSM
 {
-    public class StateMovementTrain: FSMState
+    public class StateMovementTrain : FSMState
     {
-        
     }
 }

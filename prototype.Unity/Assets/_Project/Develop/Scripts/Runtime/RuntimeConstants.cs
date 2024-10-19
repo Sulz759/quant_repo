@@ -1,5 +1,4 @@
-﻿
-namespace _Project.Architecture.Scripts.Runtime
+﻿namespace _Project.Architecture.Scripts.Runtime
 {
     public static class RuntimeConstants
     {

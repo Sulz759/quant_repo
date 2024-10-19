@@ -2,11 +2,14 @@ using System.Runtime.CompilerServices;
 
 namespace VContainer.Internal
 {
-    sealed class ContainerInstanceProvider : IInstanceProvider
+    internal sealed class ContainerInstanceProvider : IInstanceProvider
     {
-        public static readonly ContainerInstanceProvider Default = new ContainerInstanceProvider();
+        public static readonly ContainerInstanceProvider Default = new();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public object SpawnInstance(IObjectResolver resolver) => resolver;
+        public object SpawnInstance(IObjectResolver resolver)
+        {
+            return resolver;
+        }
     }
 }

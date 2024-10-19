@@ -1,10 +1,12 @@
-﻿namespace _Project.Develop.Architecture.Runtime.Core.Train
+﻿using _Project.Develop.Architecture.Runtime.Core.Input;
+
+namespace _Project.Develop.Architecture.Runtime.Core.Train
 {
     public class TrainController
     {
-        private InputConfig _inputConfig;
+        private IInput _inputConfig;
 
-        public TrainController(InputConfig config)
+        public TrainController(IInput config)
         {
             _inputConfig = config;
         }

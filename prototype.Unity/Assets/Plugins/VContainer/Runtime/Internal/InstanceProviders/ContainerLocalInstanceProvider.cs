@@ -2,10 +2,10 @@ using System;
 
 namespace VContainer.Internal
 {
-    sealed class ContainerLocalInstanceProvider : IInstanceProvider
+    internal sealed class ContainerLocalInstanceProvider : IInstanceProvider
     {
-        readonly Type wrappedType;
-        readonly Registration valueRegistration;
+        private readonly Registration valueRegistration;
+        private readonly Type wrappedType;
 
         public ContainerLocalInstanceProvider(Type wrappedType, Registration valueRegistration)
         {
@@ -19,17 +19,14 @@ namespace VContainer.Internal
 
             if (resolver is ScopedContainer scope &&
                 valueRegistration.Provider is CollectionInstanceProvider collectionProvider)
-            {
                 using (ListPool<Registration>.Get(out var entirelyRegistrations))
                 {
-                    collectionProvider.CollectFromParentScopes(scope, entirelyRegistrations, localScopeOnly: true);
+                    collectionProvider.CollectFromParentScopes(scope, entirelyRegistrations, true);
                     value = collectionProvider.SpawnInstance(resolver, entirelyRegistrations);
                 }
-            }
             else
-            {
                 value = resolver.Resolve(valueRegistration);
-            }
+
             var parameterValues = CappedArrayPool<object>.Shared8Limit.Rent(1);
             try
             {
@@ -41,5 +38,5 @@ namespace VContainer.Internal
                 CappedArrayPool<object>.Shared8Limit.Return(parameterValues);
             }
         }
-   }
+    }
 }

@@ -10,7 +10,9 @@ namespace VContainer.Editor
     [CustomPropertyDrawer(typeof(ParentReference))]
     public sealed class ParentReferencePropertyDrawer : PropertyDrawer
     {
-        static string[] GetAllTypeNames()
+        private string[] names;
+
+        private static string[] GetAllTypeNames()
         {
             return new List<string> { "None" }
                 .Concat(TypeCache.GetTypesDerivedFrom<LifetimeScope>()
@@ -18,9 +20,10 @@ namespace VContainer.Editor
                 .ToArray();
         }
 
-        static string GetLabel(Type type) => $"{type.Namespace}/{type.Name}";
-
-        string[] names;
+        private static string GetLabel(Type type)
+        {
+            return $"{type.Namespace}/{type.Name}";
+        }
 
         public override void OnGUI(Rect rect, SerializedProperty prop, GUIContent label)
         {
@@ -39,7 +42,7 @@ namespace VContainer.Editor
             using (new EditorGUI.PropertyScope(rect, label, prop))
             {
                 var labelRect = new Rect(rect.x, rect.y, rect.width, 18f);
-                var popupRect = new Rect(rect.x, rect.y + labelRect.height, rect.width , 18f);
+                var popupRect = new Rect(rect.x, rect.y + labelRect.height, rect.width, 18f);
 
                 var index = Array.IndexOf(names, typeNameProp.stringValue);
                 if (index < 0) index = 0;
@@ -48,10 +51,7 @@ namespace VContainer.Editor
                 using (var check = new EditorGUI.ChangeCheckScope())
                 {
                     index = EditorGUI.Popup(popupRect, index, names);
-                    if (check.changed)
-                    {
-                        typeNameProp.stringValue = names[index];
-                    }
+                    if (check.changed) typeNameProp.stringValue = names[index];
                 }
             }
         }

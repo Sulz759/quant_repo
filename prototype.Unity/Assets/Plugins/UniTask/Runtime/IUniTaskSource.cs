@@ -7,6 +7,7 @@
 
 using System;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks.Sources;
 
 namespace Cysharp.Threading.Tasks
 {
@@ -14,10 +15,13 @@ namespace Cysharp.Threading.Tasks
     {
         /// <summary>The operation has not yet completed.</summary>
         Pending = 0,
+
         /// <summary>The operation completed successfully.</summary>
         Succeeded = 1,
+
         /// <summary>The operation completed with an error.</summary>
         Faulted = 2,
+
         /// <summary>The operation completed due to cancellation.</summary>
         Canceled = 3
     }
@@ -25,7 +29,7 @@ namespace Cysharp.Threading.Tasks
     // similar as IValueTaskSource
     public interface IUniTaskSource
 #if SUPPORT_VALUETASK
-        : System.Threading.Tasks.Sources.IValueTaskSource
+        : IValueTaskSource
 #endif
     {
         UniTaskStatus GetStatus(short token);
@@ -36,20 +40,21 @@ namespace Cysharp.Threading.Tasks
 
 #if SUPPORT_VALUETASK
 
-        System.Threading.Tasks.Sources.ValueTaskSourceStatus System.Threading.Tasks.Sources.IValueTaskSource.GetStatus(short token)
+        ValueTaskSourceStatus IValueTaskSource.GetStatus(short token)
         {
-            return (System.Threading.Tasks.Sources.ValueTaskSourceStatus)(int)((IUniTaskSource)this).GetStatus(token);
+            return (ValueTaskSourceStatus)(int)this.GetStatus(token);
         }
 
-        void System.Threading.Tasks.Sources.IValueTaskSource.GetResult(short token)
+        void IValueTaskSource.GetResult(short token)
         {
-            ((IUniTaskSource)this).GetResult(token);
+            this.GetResult(token);
         }
 
-        void System.Threading.Tasks.Sources.IValueTaskSource.OnCompleted(Action<object> continuation, object state, short token, System.Threading.Tasks.Sources.ValueTaskSourceOnCompletedFlags flags)
+        void IValueTaskSource.OnCompleted(Action<object> continuation, object state, short token,
+            ValueTaskSourceOnCompletedFlags flags)
         {
             // ignore flags, always none.
-            ((IUniTaskSource)this).OnCompleted(continuation, state, token);
+            this.OnCompleted(continuation, state, token);
         }
 
 #endif
@@ -57,34 +62,35 @@ namespace Cysharp.Threading.Tasks
 
     public interface IUniTaskSource<out T> : IUniTaskSource
 #if SUPPORT_VALUETASK
-        , System.Threading.Tasks.Sources.IValueTaskSource<T>
+        , IValueTaskSource<T>
 #endif
     {
         new T GetResult(short token);
 
 #if SUPPORT_VALUETASK
 
-        new public UniTaskStatus GetStatus(short token)
+        public new UniTaskStatus GetStatus(short token)
         {
             return ((IUniTaskSource)this).GetStatus(token);
         }
 
-        new public void OnCompleted(Action<object> continuation, object state, short token)
+        public new void OnCompleted(Action<object> continuation, object state, short token)
         {
             ((IUniTaskSource)this).OnCompleted(continuation, state, token);
         }
 
-        System.Threading.Tasks.Sources.ValueTaskSourceStatus System.Threading.Tasks.Sources.IValueTaskSource<T>.GetStatus(short token)
+        ValueTaskSourceStatus IValueTaskSource<T>.GetStatus(short token)
         {
-            return (System.Threading.Tasks.Sources.ValueTaskSourceStatus)(int)((IUniTaskSource)this).GetStatus(token);
+            return (ValueTaskSourceStatus)(int)((IUniTaskSource)this).GetStatus(token);
         }
 
-        T System.Threading.Tasks.Sources.IValueTaskSource<T>.GetResult(short token)
+        T IValueTaskSource<T>.GetResult(short token)
         {
-            return ((IUniTaskSource<T>)this).GetResult(token);
+            return this.GetResult(token);
         }
 
-        void System.Threading.Tasks.Sources.IValueTaskSource<T>.OnCompleted(Action<object> continuation, object state, short token, System.Threading.Tasks.Sources.ValueTaskSourceOnCompletedFlags flags)
+        void IValueTaskSource<T>.OnCompleted(Action<object> continuation, object state, short token,
+            ValueTaskSourceOnCompletedFlags flags)
         {
             // ignore flags, always none.
             ((IUniTaskSource)this).OnCompleted(continuation, state, token);
@@ -124,4 +130,3 @@ namespace Cysharp.Threading.Tasks
         }
     }
 }
-
