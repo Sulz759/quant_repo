@@ -1,14 +1,26 @@
 ﻿using _Project.Develop.Architecture.Runtime.Core.Input;
+using _Project.Develop.Architecture.Runtime.Utilities.Logging;
 
 namespace _Project.Develop.Architecture.Runtime.Core.Train
 {
     public class TrainController
     {
-        private IInput _inputConfig;
+        private TouchscreenInput _input;
+        
 
-        public TrainController(IInput config)
+        public TrainController(TouchscreenInput input)
         {
-            _inputConfig = config;
+            _input = input;
+        }
+
+        public void Initialize()
+        {
+            _input.OnTrainMoveEvent.AddListener(Move);
+        }
+
+        private static void Move()
+        {
+            Log.Battle.D("It's trail");
         }
     }
 }

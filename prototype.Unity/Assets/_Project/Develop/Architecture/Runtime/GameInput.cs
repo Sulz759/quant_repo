@@ -29,11 +29,11 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             ""actions"": [
                 {
                     ""name"": ""MoveTrain"",
-                    ""type"": ""Value"",
+                    ""type"": ""Button"",
                     ""id"": ""6e651b59-664f-411a-ab7a-cc52aab5f3b4"",
-                    ""expectedControlType"": ""Touch"",
+                    ""expectedControlType"": ""Button"",
                     ""processors"": """",
-                    ""interactions"": ""Tap"",
+                    ""interactions"": """",
                     ""initialStateCheck"": true
                 }
             ],
@@ -41,9 +41,9 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""507077d1-ecd7-422a-bf24-6b74f16d6240"",
-                    ""path"": """",
-                    ""interactions"": """",
-                    ""processors"": """",
+                    ""path"": ""<Touchscreen>/Press"",
+                    ""interactions"": ""Tap"",
+                    ""processors"": ""NormalizeVector3"",
                     ""groups"": """",
                     ""action"": ""MoveTrain"",
                     ""isComposite"": false,

@@ -15,7 +15,7 @@ namespace _Project.Develop.Architecture.Runtime
 
         public UniTask Load()
         {
-            var asset = AssetService.R.Load<TextAsset>(RuntimeConstants.Configs.ConfigFileName);
+            var asset = AssetService.R.Load<TextAsset>(RuntimeConstants.Configs.MetaConfigFileName);
             JsonConvert.PopulateObject(asset.text, this);
             return UniTask.CompletedTask;
         }

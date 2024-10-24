@@ -1,4 +1,5 @@
-﻿using _Project.Develop.Architecture.Runtime.Core.Train;
+﻿using _Project.Develop.Architecture.Runtime.Core.Biome;
+using _Project.Develop.Architecture.Runtime.Core.Train;
 using _Project.Develop.Architecture.Runtime.Utilities;
 using _Project.Develop.Architecture.Runtime.Utilities.Logging;
 using Cysharp.Threading.Tasks;
@@ -8,24 +9,21 @@ namespace _Project.Develop.Architecture.Runtime.Core
     public class BattleController : ILoadUnit
     {
         private readonly TrainFactory _trainFactory;
-
-        private TrainView _bot;
-
         public BattleController(TrainFactory trainFactory)
         {
             _trainFactory = trainFactory;
         }
-
-        public TrainView Bot { get; private set; }
         public TrainView Player { get; private set; }
+        
+        public BiomeView Biome { get; private set; }
 
         public UniTask Load()
         {
+            Biome = _trainFactory.CreateBiome();
             Player = _trainFactory.CreateTrain();
-            Bot = _trainFactory.CreateBot();
 
             Player.gameObject.SetActive(false);
-            Bot.gameObject.SetActive(false);
+            
 
             Log.Battle.D("Battle is loading");
 
@@ -35,7 +33,6 @@ namespace _Project.Develop.Architecture.Runtime.Core
         public void StartBattle()
         {
             Player.gameObject.SetActive(true);
-            Bot.gameObject.SetActive(true);
 
             Log.Battle.D("Start battle");
         }

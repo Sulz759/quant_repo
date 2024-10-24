@@ -19,7 +19,7 @@ namespace _Project.Develop.Architecture.Runtime.Loading
         public async void Start()
         {
             await _loadingService.BeginLoading(new FooLoadingUnit(3));
-            _sceneManager.LoadScene(RuntimeConstants.Scenes.Meta).Forget();
+            _sceneManager.LoadScene(RuntimeConstants.Scenes.Core).Forget();
         }
     }
 }

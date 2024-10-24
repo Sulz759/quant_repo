@@ -15,7 +15,8 @@ namespace _Project.Develop.Architecture.Runtime
 
         public static class Configs
         {
-            public const string ConfigFileName = "MetaConfig";
+            public const string MetaConfigFileName = "MetaConfig";
+            public const string CoreConfigFileName = "CoreConfig";
         }
 
         public static class Prefabs

@@ -1,4 +1,5 @@
-﻿using _Project.Develop.Architecture.Runtime.Core.Input;
+﻿using _Project.Develop.Architecture.Runtime.Core.Biome;
+using _Project.Develop.Architecture.Runtime.Core.Input;
 using _Project.Develop.Architecture.Runtime.Utilities;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -9,38 +10,37 @@ namespace _Project.Develop.Architecture.Runtime.Core.Train
     public class TrainFactory : ILoadUnit
     {
         private readonly ConfigContainer _configs;
-        private readonly TachscreenInput _tachscreen;
+        private readonly TouchscreenInput _touchscreen;
 
-        private TrainView _prefab;
+        private TrainView _trainPrefab;
+        private BiomeView _biomePrefab;
 
         //private TrainView _playerTrain;
-        public TrainFactory(ConfigContainer configs, TachscreenInput tachscreen)
+        public TrainFactory(ConfigContainer configs, TouchscreenInput touchscreen)
         {
-            _tachscreen = tachscreen;
             _configs = configs;
+            _touchscreen = touchscreen;
         }
 
         public UniTask Load()
         {
-            _prefab = Resources.Load<TrainView>("Prefabs/Core/Train");
+            _trainPrefab = Resources.Load<TrainView>("Prefabs/Core/Train");
+            _biomePrefab = Resources.Load<BiomeView>("Prefabs/Core/Bioms/" + $"{_configs.Container.biomeName}");
 
             return UniTask.CompletedTask;
         }
+        
+        public BiomeView CreateBiome()
+        {
+            return Object.Instantiate(_biomePrefab);
+        }
+        
 
         public TrainView CreateTrain()
         {
-            var player = Object.Instantiate(_prefab, new Vector3(-6, 0, -2.7f), Quaternion.identity);
-            player.Initialize(_configs.Battle.TrainConfig, _tachscreen);
+            var player = Object.Instantiate(_trainPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+            player.Initialize(_configs.Container.TrainConfig, _touchscreen);
             return player;
-        }
-
-        public TrainView CreateBot()
-        {
-            var bot = Object.Instantiate(_prefab, new Vector3(2, 0, -2.7f), Quaternion.identity);
-            var botConfig = _configs.Battle.BotTrainConfig;
-
-            //bot.Initialize(botConfig);
-            return bot;
         }
     }
 }

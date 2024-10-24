@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using _Project.Develop.Architecture.Runtime.Meta.Biome;
+using _Project.Develop.Architecture.Runtime.Core.Biome;
 using _Project.Develop.Architecture.Runtime.Utilities;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -28,7 +28,6 @@ namespace _Project.Develop.Architecture.Runtime.Meta.Nodes
         public BiomeView CreateBiome()
         {
             return Object.Instantiate(_biomePrefab);
-            ;
         }
 
         public List<NodeView> CreateNodes()

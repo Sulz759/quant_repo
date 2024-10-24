@@ -222,7 +222,7 @@ GameObject:
   - component: {fileID: 4029669698964006285}
   - component: {fileID: 2375216983586257835}
   - component: {fileID: 5657196617788058057}
-  - component: {fileID: -936908877914776171}
+  - component: {fileID: 1659499761275336203}
   m_Layer: 0
   m_Name: Train
   m_TagString: Untagged
@@ -240,7 +240,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0.5, z: 0}
-  m_LocalScale: {x: 0.6, y: 0.3, z: 0.3}
+  m_LocalScale: {x: 0.3, y: 0.15, z: 0.15}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 572582240571169777}
@@ -318,7 +318,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &-936908877914776171
+--- !u!114 &1659499761275336203
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
