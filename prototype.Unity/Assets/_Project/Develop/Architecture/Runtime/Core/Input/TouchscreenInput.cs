@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using _Project.Develop.Architecture.Runtime.Core.Railway;
+using _Project.Develop.Architecture.Runtime.Core.Train;
 using _Project.Develop.Architecture.Runtime.Utilities.Logging;
 using UnityEngine;
 using UnityEngine.Events;
@@ -13,10 +15,9 @@ namespace _Project.Develop.Architecture.Runtime.Core.Input
 {
     public class TouchscreenInput : MonoBehaviour
     {
-        
         public Camera camera; //    do Inject
 
-        public UnityEvent OnTrainMoveEvent = new();
+        public UnityEvent<GameObject> OnTrainMoveEvent = new();
 
         private GameInput _input;
         
@@ -26,18 +27,19 @@ namespace _Project.Develop.Architecture.Runtime.Core.Input
         private void Awake()
         {
             _input = new GameInput();
-            _input.Core.MoveTrain.performed += context => OnMove();
+            _input.Core.MoveTrain.performed += context => GetCollider();
             Log.Battle.D("Init");
         }
         
-        private void OnMove()
+        private void GetCollider()
         {
             var col = GetTouchedGameObject();
-
-            if (col.gameObject.name == "Trail")
+            
+            if (col.gameObject.GetComponent<WayView>())
             {
-                OnTrainMoveEvent.Invoke();
+                OnTrainMoveEvent.Invoke(col.gameObject);
             }
+            
         }
 
         private Collider GetTouchedGameObject()

@@ -10,19 +10,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3293201327904374964, guid: 6b3152afffdd2534b9f898cb8d58cb1e, type: 3}
       propertyPath: m_Name
-      value: Biom Spaceship
+      value: Spaceship
       objectReference: {fileID: 0}
-    - target: {fileID: 3394526901899005512, guid: 6b3152afffdd2534b9f898cb8d58cb1e, type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: ec2b689ab0855f348b3bc8018ad85d46, type: 2}
     - target: {fileID: 5552144135828493741, guid: 6b3152afffdd2534b9f898cb8d58cb1e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5552144135828493741, guid: 6b3152afffdd2534b9f898cb8d58cb1e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -0.5
       objectReference: {fileID: 0}
     - target: {fileID: 5552144135828493741, guid: 6b3152afffdd2534b9f898cb8d58cb1e, type: 3}
       propertyPath: m_LocalPosition.z

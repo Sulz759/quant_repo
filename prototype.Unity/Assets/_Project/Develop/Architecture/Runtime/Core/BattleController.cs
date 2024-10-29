@@ -1,4 +1,5 @@
 ﻿using _Project.Develop.Architecture.Runtime.Core.Biome;
+using _Project.Develop.Architecture.Runtime.Core.Railway;
 using _Project.Develop.Architecture.Runtime.Core.Train;
 using _Project.Develop.Architecture.Runtime.Utilities;
 using _Project.Develop.Architecture.Runtime.Utilities.Logging;
@@ -13,14 +14,15 @@ namespace _Project.Develop.Architecture.Runtime.Core
         {
             _trainFactory = trainFactory;
         }
-        public TrainView Player { get; private set; }
-        
         public BiomeView Biome { get; private set; }
+        public RailwayView Railway { get; private set; }
+        public TrainView Player { get; private set; }
 
         public UniTask Load()
         {
-            Biome = _trainFactory.CreateBiome();
-            Player = _trainFactory.CreateTrain();
+            this.Biome = _trainFactory.CreateBiome();
+            this.Railway = _trainFactory.CreateRailway();
+            this.Player = _trainFactory.CreateTrain();
 
             Player.gameObject.SetActive(false);
             

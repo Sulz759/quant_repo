@@ -1,5 +1,6 @@
 ﻿using _Project.Develop.Architecture.Runtime.Core.Biome;
 using _Project.Develop.Architecture.Runtime.Core.Input;
+using _Project.Develop.Architecture.Runtime.Core.Railway;
 using _Project.Develop.Architecture.Runtime.Utilities;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -14,6 +15,7 @@ namespace _Project.Develop.Architecture.Runtime.Core.Train
 
         private TrainView _trainPrefab;
         private BiomeView _biomePrefab;
+        private RailwayView _railwayPrefab;
 
         //private TrainView _playerTrain;
         public TrainFactory(ConfigContainer configs, TouchscreenInput touchscreen)
@@ -26,6 +28,7 @@ namespace _Project.Develop.Architecture.Runtime.Core.Train
         {
             _trainPrefab = Resources.Load<TrainView>("Prefabs/Core/Train");
             _biomePrefab = Resources.Load<BiomeView>("Prefabs/Core/Bioms/" + $"{_configs.Container.biomeName}");
+            _railwayPrefab = Resources.Load<RailwayView>("Prefabs/Core/Railway/Railway");
 
             return UniTask.CompletedTask;
         }
@@ -34,7 +37,11 @@ namespace _Project.Develop.Architecture.Runtime.Core.Train
         {
             return Object.Instantiate(_biomePrefab);
         }
-        
+
+        public RailwayView CreateRailway()
+        {
+            return Object.Instantiate(_railwayPrefab);
+        }
 
         public TrainView CreateTrain()
         {
