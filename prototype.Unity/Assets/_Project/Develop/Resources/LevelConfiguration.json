@@ -1,0 +1,11 @@
+﻿{
+  "Container": {
+    "levels": [
+      {"levelNumber": "1" ,"biomeName": "Toxic", "waves": [
+        {"direction": "north","zombiesCount": 10},
+        {"direction": "west","zombiesCount": 15},
+        {"direction": "east","zombiesCount": 20},
+        {"direction": "south","zombiesCount": 25}]}
+    ]
+  }
+}

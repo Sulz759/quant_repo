@@ -6,9 +6,9 @@ using UnityEngine;
 
 namespace _Project.Develop.Architecture.Runtime
 {
-    public sealed class ConfigContainer : ILoadUnit
+    public sealed class CoreConfig : ILoadUnit
     {
-        public BattleConfigContainer Container;
+        public CoreConfigContainer Container;
 
         public UniTask Load()
         {
@@ -16,12 +16,19 @@ namespace _Project.Develop.Architecture.Runtime
             JsonConvert.PopulateObject(asset.text, this);
             return UniTask.CompletedTask;
         }
+
+        public void SaveConfig()
+        {
+            var asset = AssetService.R.Load<TextAsset>(RuntimeConstants.Configs.CoreConfigFileName);
+
+            asset = new TextAsset(JsonConvert.SerializeObject(Container));
+        }
     }
 
     [Serializable]
-    public class BattleConfigContainer
+    public class CoreConfigContainer
     {
-        public string biomeName;
+        public string levelNumber;
         public TrainConfig TrainConfig;
     }
 

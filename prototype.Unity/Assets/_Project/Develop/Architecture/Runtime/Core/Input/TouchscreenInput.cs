@@ -27,13 +27,12 @@ namespace _Project.Develop.Architecture.Runtime.Core.Input
         private void Awake()
         {
             _input = new GameInput();
-            _input.Core.MoveTrain.performed += context => GetCollider();
-            Log.Battle.D("Init");
+            _input.Core.MoveTrain.performed += context => GetTouchedGameObject();
         }
         
-        private void GetCollider()
+        private void GetTouchedGameObject()
         {
-            var col = GetTouchedGameObject();
+            var col = TouchedGameObject();
             
             if (col.gameObject.GetComponent<WayView>())
             {
@@ -42,7 +41,7 @@ namespace _Project.Develop.Architecture.Runtime.Core.Input
             
         }
 
-        private Collider GetTouchedGameObject()
+        private Collider TouchedGameObject()
         {
             RaycastHit hit;
             var ray = camera.ScreenPointToRay(Touch.activeTouches[0].screenPosition);

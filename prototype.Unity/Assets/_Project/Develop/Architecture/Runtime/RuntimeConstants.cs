@@ -16,6 +16,7 @@ namespace _Project.Develop.Architecture.Runtime
         public static class Configs
         {
             public const string MetaConfigFileName = "MetaConfig";
+            public const string LevelConfigFileName = "LevelConfiguration";
             public const string CoreConfigFileName = "CoreConfig";
         }
 
