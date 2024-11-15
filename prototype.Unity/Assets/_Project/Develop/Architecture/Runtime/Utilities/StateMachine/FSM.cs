@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using _Project.Develop.Architecture.Runtime.Utilities.Logging;
 using UnityEngine;
 
 namespace _Project.Develop.Architecture.Runtime.Utilities.StateMachine
@@ -30,6 +31,11 @@ namespace _Project.Develop.Architecture.Runtime.Utilities.StateMachine
 
         private IEnumerator TransitionState(FSMState state)
         {
+            if (isTransitioning)
+            {
+                yield break;
+            }
+            
             isTransitioning = true;
             yield return StateCurrent switch
             {
@@ -38,6 +44,7 @@ namespace _Project.Develop.Architecture.Runtime.Utilities.StateMachine
             };
 
             StateCurrent = state;
+            
             StateCurrent.Enter();
 
             isTransitioning = false;

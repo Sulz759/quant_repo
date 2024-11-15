@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using _Project.Develop.Architecture.Runtime.Core.Railway;
-using _Project.Develop.Architecture.Runtime.Core.Train;
+﻿using _Project.Develop.Architecture.Runtime.Core.Railway;
 using _Project.Develop.Architecture.Runtime.Utilities.Logging;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Controls;
-using UnityEngine.InputSystem.EnhancedTouch;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 
 namespace _Project.Develop.Architecture.Runtime.Core.Input
@@ -17,7 +10,7 @@ namespace _Project.Develop.Architecture.Runtime.Core.Input
     {
         public Camera camera; //    do Inject
 
-        public UnityEvent<GameObject> OnTrainMoveEvent = new();
+        public UnityEvent<WayView> OnTrainMoveEvent = new();
 
         private GameInput _input;
         
@@ -32,11 +25,11 @@ namespace _Project.Develop.Architecture.Runtime.Core.Input
         
         private void GetTouchedGameObject()
         {
-            var col = TouchedGameObject();
-            
-            if (col.gameObject.GetComponent<WayView>())
+            var col = TouchedGameObject().GetComponent<MonoBehaviour>();
+            if (col is WayView)
             {
-                OnTrainMoveEvent.Invoke(col.gameObject);
+                WayView way = col.GetComponent<WayView>();
+                OnTrainMoveEvent.Invoke(way);
             }
             
         }
@@ -49,10 +42,7 @@ namespace _Project.Develop.Architecture.Runtime.Core.Input
             {
                 return hit.collider != null ? hit.collider : null;
             }
-            else
-            {
-                return null;
-            }
+            return null;
         }
 
         private void OnEnable()

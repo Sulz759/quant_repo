@@ -23,9 +23,9 @@ namespace _Project.Develop.Architecture.Runtime.Core
 
         public UniTask Load()
         {
-            this.Biome = _battleFactory.CreateBiome();
-            this.Railway = _battleFactory.CreateRailway();
-            this.Player = _battleFactory.CreateTrain(Railway.GetWays());
+            Biome = _battleFactory.CreateBiome();
+            Railway = _battleFactory.CreateRailway();
+            Player = _battleFactory.CreateTrain(Railway);
 
             Player.gameObject.SetActive(false);
             

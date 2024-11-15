@@ -45,13 +45,16 @@ namespace _Project.Develop.Architecture.Runtime.Core
 
         public RailwayView CreateRailway()
         {
-            return Object.Instantiate(_railwayPrefab);
+            var railway = Object.Instantiate(_railwayPrefab);
+            railway.Initialize();
+            return railway;
         }
 
-        public TrainView CreateTrain(List<WayView> ways)
+        public TrainView CreateTrain(RailwayView railway)
         {
-            var player = Object.Instantiate(_trainPrefab, ways[1].transform.position, Quaternion.identity);
-            player.Initialize(_coreConfig.Container.TrainConfig, _touchscreen, ways);
+            var player = Object.Instantiate(_trainPrefab);
+            player.Initialize(_coreConfig.Container.TrainConfig, _touchscreen, railway);
+            
             return player;
         }
     }
