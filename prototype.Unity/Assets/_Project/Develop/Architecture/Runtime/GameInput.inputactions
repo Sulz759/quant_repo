@@ -1,0 +1,34 @@
+{
+    "name": "GameInput",
+    "maps": [
+        {
+            "name": "Core",
+            "id": "730ec8c6-0134-445d-a490-a1949ee453ac",
+            "actions": [
+                {
+                    "name": "MoveTrain",
+                    "type": "Button",
+                    "id": "6e651b59-664f-411a-ab7a-cc52aab5f3b4",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "507077d1-ecd7-422a-bf24-6b74f16d6240",
+                    "path": "<Touchscreen>/Press",
+                    "interactions": "Tap",
+                    "processors": "NormalizeVector3",
+                    "groups": "",
+                    "action": "MoveTrain",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

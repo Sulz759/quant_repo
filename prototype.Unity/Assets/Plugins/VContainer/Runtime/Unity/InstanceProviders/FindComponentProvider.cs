@@ -1,0 +1,71 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using VContainer.Internal;
+
+namespace VContainer.Unity
+{
+    internal sealed class FindComponentProvider : IInstanceProvider
+    {
+        private readonly Type componentType;
+        private readonly IReadOnlyList<IInjectParameter> customParameters;
+        private ComponentDestination destination;
+        private Scene scene;
+
+        public FindComponentProvider(
+            Type componentType,
+            IReadOnlyList<IInjectParameter> customParameters,
+            in Scene scene,
+            in ComponentDestination destination)
+        {
+            this.componentType = componentType;
+            this.customParameters = customParameters;
+            this.scene = scene;
+            this.destination = destination;
+        }
+
+        public object SpawnInstance(IObjectResolver resolver)
+        {
+            var component = default(Component);
+
+            var parent = destination.GetParent(resolver);
+            if (parent != null)
+            {
+                component = parent.GetComponentInChildren(componentType, true);
+                if (component == null)
+                    throw new VContainerException(componentType,
+                        $"{componentType} is not in the parent {parent.name} : {this}");
+            }
+            else if (scene.IsValid())
+            {
+                using (ListPool<GameObject>.Get(out var gameObjectBuffer))
+                {
+                    scene.GetRootGameObjects(gameObjectBuffer);
+                    foreach (var gameObject in gameObjectBuffer)
+                    {
+                        component = gameObject.GetComponentInChildren(componentType, true);
+                        if (component != null) break;
+                    }
+                }
+
+                if (component == null)
+                    throw new VContainerException(componentType,
+                        $"{componentType} is not in this scene {scene.path} : {this}");
+            }
+            else
+            {
+                throw new VContainerException(componentType, $"Invalid Component find target {this}");
+            }
+
+            if (component is MonoBehaviour monoBehaviour)
+            {
+                var injector = InjectorCache.GetOrBuild(monoBehaviour.GetType());
+                injector.Inject(monoBehaviour, resolver, customParameters);
+            }
+
+            destination.ApplyDontDestroyOnLoadIfNeeded(component);
+            return component;
+        }
+    }
+}

@@ -1,0 +1,20 @@
+{
+    "name": "UEPT.Runtime",
+    "rootNamespace": "",
+    "references": [
+        "UEPT.Shared",
+        "UEPT.Backend",
+        "UniTask",
+        "VContainer",
+        "Unity.InputSystem"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

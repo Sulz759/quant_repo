@@ -6,6 +6,19 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/_Project/Architecture/Scenes/FightScene.unity
+    path: Assets/_Project/Develop/Scenes/0.Bootstrap.unity
+    guid: f9b369728876401488830243151afbea
+  - enabled: 1
+    path: Assets/_Project/Develop/Scenes/1.Loading.unity
+    guid: b19177cea953d324884359934dd49ffa
+  - enabled: 1
+    path: Assets/_Project/Develop/Scenes/2.Meta.unity
+    guid: fbfafe680ecf64b46b02b23f1cea4758
+  - enabled: 1
+    path: Assets/_Project/Develop/Scenes/3.Core.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
-  m_configObjects: {}
+  - enabled: 1
+    path: Assets/_Project/Develop/Scenes/4.Empty.unity
+    guid: c3682fbafa2225a49a5d76b5d49f3138
+  m_configObjects:
+    com.unity.input.settings: {fileID: 11400000, guid: aa911d7bc1fe2f544aa94e7f5307ae11, type: 2}
