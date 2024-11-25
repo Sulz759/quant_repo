@@ -11,21 +11,23 @@ namespace _Project.Develop.Architecture.Runtime.Core
     public class BattleController : ILoadUnit
     {
         private readonly BattleFactory _battleFactory;
-        private readonly ZombiesFactory _zombiesFactory;
-        public BattleController(BattleFactory battleFactory, ZombiesFactory zombiesFactory)
+        public BattleController(BattleFactory battleFactory, ZombieSpawnController zombieSpawnController)
         {
             _battleFactory = battleFactory;
-            _zombiesFactory = zombiesFactory;
         }
         public BiomeView Biome { get; private set; }
         public RailwayView Railway { get; private set; }
         public TrainView Player { get; private set; }
+        
+        public ZombieSpawnController ZombieSpawner { get; private set; }
 
         public UniTask Load()
         {
             Biome = _battleFactory.CreateBiome();
             Railway = _battleFactory.CreateRailway();
             Player = _battleFactory.CreateTrain(Railway);
+            
+            ZombieSpawner = _battleFactory.GetZombieSpawner();
 
             Player.gameObject.SetActive(false);
             
@@ -39,7 +41,13 @@ namespace _Project.Develop.Architecture.Runtime.Core
         {
             Player.gameObject.SetActive(true);
 
+            
+
             Log.Battle.D("Start battle");
+
+            Log.Battle.D("Start zombie spawn" +
+                         $" waves: {ZombieSpawner.Waves.Count}" +
+                         $" first wave: {ZombieSpawner.Waves[0].direction}");
         }
     }
 }

@@ -3,9 +3,11 @@ using _Project.Develop.Architecture.Runtime.Core.Biome;
 using _Project.Develop.Architecture.Runtime.Core.Input;
 using _Project.Develop.Architecture.Runtime.Core.Railway;
 using _Project.Develop.Architecture.Runtime.Core.Train;
+using _Project.Develop.Architecture.Runtime.Core.Zombies;
 using _Project.Develop.Architecture.Runtime.Utilities;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using VContainer;
 using Resources = UnityEngine.Resources;
 
 namespace _Project.Develop.Architecture.Runtime.Core
@@ -20,11 +22,18 @@ namespace _Project.Develop.Architecture.Runtime.Core
         private BiomeView _biomePrefab;
         private RailwayView _railwayPrefab;
         
-        public BattleFactory(LevelDataStorage levelDataStorage,CoreConfig coreConfig, TouchscreenInput touchscreen)
+        private readonly ZombieSpawnController _zombieSpawnController;
+
+        public BattleFactory(
+            LevelDataStorage levelDataStorage,
+            CoreConfig coreConfig, 
+            TouchscreenInput touchscreen, 
+            ZombieSpawnController zombieSpawnController)
         {
             _levelDataStorage = levelDataStorage;
             _coreConfig = coreConfig;
             _touchscreen = touchscreen;
+            _zombieSpawnController = zombieSpawnController;
         }
 
         public UniTask Load()
@@ -34,6 +43,8 @@ namespace _Project.Develop.Architecture.Runtime.Core
             _trainPrefab = Resources.Load<TrainView>("Prefabs/Core/Train/Train"); // to do trainFactory
             _biomePrefab = Resources.Load<BiomeView>("Prefabs/Core/Bioms/" + $"{data.biomeName}");
             _railwayPrefab = Resources.Load<RailwayView>("Prefabs/Core/Railway/Railway");
+            
+            _zombieSpawnController.Initialize(_coreConfig.Container.levelNumber);
 
             return UniTask.CompletedTask;
         }
@@ -56,6 +67,11 @@ namespace _Project.Develop.Architecture.Runtime.Core
             player.Initialize(_coreConfig.Container.TrainConfig, _touchscreen, railway);
             
             return player;
+        }
+
+        public ZombieSpawnController GetZombieSpawner()
+        {
+            return _zombieSpawnController;
         }
     }
 }

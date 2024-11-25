@@ -10,6 +10,7 @@ namespace _Project.Develop.Architecture.Runtime.Core.Zombies
     {
         private readonly CoreConfig _coreConfig;
         private readonly LevelDataStorage _levelDataStorage;
+        private readonly LevelData _levelData;
         
         private List<GameObject> _zombies;
 

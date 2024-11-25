@@ -19,6 +19,8 @@ namespace _Project.Develop.Architecture.Runtime.Core.Input
 
         private void Awake()
         {
+            camera = FindObjectOfType<Camera>(); // make inject, this is foo
+            
             _input = new GameInput();
             _input.Core.MoveTrain.performed += context => GetTouchedGameObject();
         }

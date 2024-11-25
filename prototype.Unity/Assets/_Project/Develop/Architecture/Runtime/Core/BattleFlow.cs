@@ -13,7 +13,6 @@ namespace _Project.Develop.Architecture.Runtime.Core
         private readonly LoadingService _loadingService;
         private readonly SceneManager _sceneManager;
         private readonly BattleFactory _battleFactory;
-        private readonly ZombiesFactory _zombiesFactory;
 
         public BattleFlow(LoadingService loadingService,
             BattleFactory battleFactory,
@@ -23,7 +22,6 @@ namespace _Project.Develop.Architecture.Runtime.Core
         {
             _loadingService = loadingService;
             _battleFactory = battleFactory;
-            _zombiesFactory = zombiesFactory;
             _sceneManager = sceneManager;
             _battleController = battleController;
         }
@@ -36,7 +34,6 @@ namespace _Project.Develop.Architecture.Runtime.Core
         public async void Start()
         {
             await _loadingService.BeginLoading(_battleFactory);
-            await _loadingService.BeginLoading(_zombiesFactory);
             await _loadingService.BeginLoading(_battleController);
 
             _battleController.StartBattle();

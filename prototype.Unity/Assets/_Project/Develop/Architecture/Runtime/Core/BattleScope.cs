@@ -1,5 +1,5 @@
 ﻿using _Project.Develop.Architecture.Runtime.Core.Input;
-using _Project.Develop.Architecture.Runtime.Core.Train;
+
 using _Project.Develop.Architecture.Runtime.Core.Zombies;
 using UnityEngine;
 using VContainer;
@@ -9,11 +9,12 @@ namespace _Project.Develop.Architecture.Runtime.Core
 {
     public sealed class BattleScope : LifetimeScope
     {
-        [SerializeField] private TouchscreenInput _touchscreen;
+        private TouchscreenInput _touchscreen;
 
         protected override void Configure(IContainerBuilder builder)
         {
-            builder.RegisterComponent(_touchscreen).AsSelf(); // Don't sure what it to need
+            builder.RegisterComponentOnNewGameObject<TouchscreenInput>(Lifetime.Scoped, "Input");
+            builder.RegisterComponentOnNewGameObject<ZombieSpawnController>(Lifetime.Scoped, "ZombieSpawner");
 
             builder.Register<BattleFactory>(Lifetime.Singleton);
             builder.Register<ZombiesFactory>(Lifetime.Singleton);
